@@ -34,7 +34,7 @@ parser.add_argument('--word', action='store_true',
 parser.add_argument('--output', type=str,
                     help='directory to save dataset in')
 
-parser.add_argument('--chunksize', type=int,default=50_000,
+parser.add_argument('--chunksize', type=int,default=50_000_000,
                     help='Value of chunksize to read datasets in')
 
 
@@ -456,12 +456,13 @@ def parallelize_dataframe(df,save_loc,num_cores):
     
 file_name=args.data
 str_num=file_name.split('/')[-1].split('.')[0].split('_')[-1]
-output_file=args.output+'/words_'+str_num+'.csv'
+if args.word:
+    output_file=args.output+'/words_'+str_num+'.csv'
 num_cores=mp.cpu_count()-1
 store = pd.HDFStore(args.data)
 
 print(f'File {args.data} is read in')
-chunksize = 50_000_000
+chunksize=args.chunksize
 nrows = store.get_storer('df').nrows
 print(f'Num of iterations : {nrows//chunksize}')
 
