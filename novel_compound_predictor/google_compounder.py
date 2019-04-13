@@ -403,7 +403,7 @@ def parallelize_dataframe(df,num_cores = 70):
         if not isfile("/data/dharp/compounding/datasets/modifiers.csv"):
             modifiers.to_csv("/data/dharp/compounding/datasets/modifiers.csv",sep="\t",index=False)
         else:
-            modifiers.to_csv("/data/dharp/compounding/datasets/modifiers.csv", mode='a', header=False,index=False)
+            modifiers.to_csv("/data/dharp/compounding/datasets/modifiers.csv", mode='a',sep="\t",header=False,index=False)
         
         head_list = [ result[2] for result in results]
         heads=pd.concat(head_list,ignore_index=True)
@@ -413,7 +413,7 @@ def parallelize_dataframe(df,num_cores = 70):
         if not isfile("/data/dharp/compounding/datasets/heads.csv"):
             heads.to_csv("/data/dharp/compounding/datasets/heads.csv",sep="\t",index=False)
         else:
-            heads.to_csv("/data/dharp/compounding/datasets/heads.csv", mode='a', header=False,index=False)
+            heads.to_csv("/data/dharp/compounding/datasets/heads.csv", mode='a',sep="\t",header=False,index=False)
             
         phrase_list = [ result[3] for result in results]
         phrases=pd.concat(phrase_list,ignore_index=True)
@@ -423,7 +423,7 @@ def parallelize_dataframe(df,num_cores = 70):
         if not isfile("/data/dharp/compounding/datasets/phrases.csv"):
             phrases.to_csv("/data/dharp/compounding/datasets/phrases.csv",sep="\t",index=False)
         else:
-            phrases.to_csv("/data/dharp/compounding/datasets/phrases.csv", mode='a', header=False,index=False)
+            phrases.to_csv("/data/dharp/compounding/datasets/phrases.csv", mode='a',sep="\t",header=False,index=False)
 
     else:
         words_list=[]
@@ -451,7 +451,7 @@ num_cores=mp.cpu_count()-1
 store = pd.HDFStore(args.data)
 
 print(f'File {args.data} is read in')
-chunksize = 100_000_000
+chunksize = 50_000_000
 nrows = store.get_storer('df').nrows
 print(f'Num of iterations : {nrows//chunksize}')
 
