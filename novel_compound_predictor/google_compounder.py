@@ -31,7 +31,11 @@ parser.add_argument('--data', type=str,
 parser.add_argument('--word', action='store_true',
                     help='Extracting context for words only?')
 
+parser.add_argument('--output', type=str,
+                    help='directory to save dataset in')
 
+parser.add_argument('--chunksize', type=int,default=50_000,
+                    help='Value of chunksize to read datasets in')
 
 
 args = parser.parse_args()
@@ -49,6 +53,8 @@ contextwords=pkl.load( open( "contexts.pkl", "rb" ) )
 batched_pkl_files=pkl.load(open('batched_pkl_files.pkl','rb'))
 
 spelling_replacement={'context':br_to_us_dict,'modifier':br_to_us_dict,'head':br_to_us_dict,'word':br_to_us_dict}
+
+words_list=pkl.load(open('words_list.pkl','rb'))
 
 
 any_word=r'.+_.+'
@@ -301,7 +307,7 @@ def cdsm_word_reducer(df):
     
     words_df=pd.concat([rightgram,mid1gram,mid2gram,mid3gram,leftgram],ignore_index=True,sort=False)
     words_df.dropna(inplace=True)
-    #words_df=words_df.query('word in @word_list')
+    words_df=words_df.query('word in @word_list')
     words_df=words_df.groupby(['word','context','year'])['count'].sum().to_frame()
     words_df.reset_index(inplace=True)
     words_df.year=words_df.year.astype("int32")
@@ -365,7 +371,7 @@ def cdsm_reducer(df):
     return compounds,modifiers,heads,phrases
 
 
-def parallelize_dataframe(df,num_cores = 70):
+def parallelize_dataframe(df,save_loc,num_cores):
     num_partitions = num_cores
     df_split = np.array_split(df, num_partitions)
     print("Done splitting the datasets")
@@ -440,13 +446,17 @@ def parallelize_dataframe(df,num_cores = 70):
         words.reset_index(inplace=True)
         print(words.shape)
                 
-        if not isfile("/data/dharp/compounding/datasets/words.csv"):
-            words.to_csv("/data/dharp/compounding/datasets/words.csv",sep="\t",index=False)
+        if not isfile(save_loc):
+            words.to_csv(save_loc,sep="\t",index=False,header=True)
         else:
-            words.to_csv("/data/dharp/compounding/datasets/words.csv", mode='a',sep="\t", header=False,index=False)
+            words.to_csv(save_loc, mode='a',sep="\t", header=False,index=False)
         
     print("Done concatenations \n")
 
+    
+file_name=args.data
+str_num=file_name.split('/')[-1].split('.')[0].split('_')[-1]
+output_file=args.output+'/words_'+str_num+'.csv'
 num_cores=mp.cpu_count()-1
 store = pd.HDFStore(args.data)
 
@@ -457,7 +467,7 @@ print(f'Num of iterations : {nrows//chunksize}')
 
 for i in range(nrows//chunksize + 1):
     chunk = store.select('df',start=i*chunksize,stop=(i+1)*chunksize)
-    parallelize_dataframe(chunk,num_cores=num_cores)
+    parallelize_dataframe(chunk,save_loc=output_file,num_cores=num_cores)
     
     
     
