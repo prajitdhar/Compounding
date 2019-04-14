@@ -307,7 +307,7 @@ def cdsm_word_reducer(df):
     
     words_df=pd.concat([rightgram,mid1gram,mid2gram,mid3gram,leftgram],ignore_index=True,sort=False)
     words_df.dropna(inplace=True)
-    words_df=words_df.query('word in @word_list')
+    words_df=words_df.query('word in @words_list')
     words_df=words_df.groupby(['word','context','year'])['count'].sum().to_frame()
     words_df.reset_index(inplace=True)
     words_df.year=words_df.year.astype("int32")
@@ -474,3 +474,4 @@ for i in range(nrows//chunksize + 1):
     
 print("Done with file \n")
 
+store.close()
