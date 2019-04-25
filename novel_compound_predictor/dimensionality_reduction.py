@@ -4,6 +4,13 @@ from sklearn.decomposition import PCA,TruncatedSVD,NMF
 from sklearn.preprocessing import Normalizer
 import argparse
 import time
+import numba
+
+
+@numba.jit(nopython=True)
+def year_binner(year,val=10):
+    return year - year%val
+
 
 parser = argparse.ArgumentParser(description='Perform dimentionality reduction of the count-based vectors, using SVD')
 
@@ -23,7 +30,8 @@ parser.add_argument('--save_format', type=str,default='pkl',
                     help='In what format should the reduced datasets be saved : csv or pkl')
 
 args = parser.parse_args()
-
+modifier_list=pkl.load( open("modifier_list_reduced.pkl",'rb'))
+head_list=pkl.load( open("head_list_reduced.pkl",'rb'))
 t1=time.time()
 # Dimentionality Reduction using SVD
 
@@ -39,6 +47,18 @@ def dim_reduction(df,rows):
         df_reduced.index = pd.MultiIndex.from_tuples(df_reduced.index, names=['common', 'decade'])
     return df_reduced
 
+def common_reduction(df):
+    df.reset_index(inplace=True)
+
+    df.year=df.year.astype("int32")
+    df=df.query('1800 <= year <= 2010').copy()
+    df['time']=year_binner(df['year'].values,10)
+
+    df=df.groupby(['modifier','head','context','time'])['count'].sum().to_frame()
+    df.reset_index(inplace=True)
+    df=df.loc[df.groupby(['modifier','head','time'])['count'].transform('sum').gt(50)]
+    df=df.loc[df['modifier'].isin(modifier_list) & df['head'].isin(head_list)]
+    return df
 
 if args.contextual:
     
@@ -47,18 +67,20 @@ if args.contextual:
     print("Loading the constituent and compound vector datasets")
     
     heads=pd.read_csv("/data/dharp/compounding/datasets/heads_reduced.csv",sep="\t")
-    heads=heads.query('decade != 2000')
+    #heads=heads.query('decade != 2000')
     heads.columns=['common','decade','context','count']
     heads['common']=heads['common'].str.replace(r'_n$', r'_h', regex=True)
     
     modifiers=pd.read_csv("/data/dharp/compounding/datasets/modifiers_reduced.csv",sep="\t")
-    modifiers=modifiers.query('decade != 2000')
+    #modifiers=modifiers.query('decade != 2000')
     modifiers.columns=['common','decade','context','count']
     modifiers['common']=modifiers['common'].str.replace(r'_n$', r'_m', regex=True)
     
-    compounds=pd.read_csv("/data/dharp/compounding/datasets/compounds_reduced.csv",sep="\t",index_col=0,usecols=[0,3,4,5,6])
-    compounds=compounds.query('decade != 2000')
-    compounds.columns=['decade','context','count','common']
+    compounds=pd.read_pickle("/data/dharp/compounding/datasets/compounds.pkl")
+    compounds=common_reduction(compounds)
+    compounds['common']=compounds['modifier']+" "+compounds['head']
+
+
 
     
     if args.temporal:
@@ -83,12 +105,12 @@ else:
     
     constituents=pd.read_csv("/data/dharp/compounding/datasets/words.csv")
     constituents.columns=['common','context','decade','count']
-    constituents=constituents.query('decade != 2000')
+    #constituents=constituents.query('decade != 2000')
     
     
     compounds=pd.read_csv("/data/dharp/compounding/datasets/phrases.csv")
     compounds.columns=['modifier','head','context','decade','count']
-    compounds=compounds.query('decade != 2000')
+    #compounds=compounds.query('decade != 2000')
     compounds['common']=compounds['modifier']+" "+compounds['head']
     
     if args.temporal:

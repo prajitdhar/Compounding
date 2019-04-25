@@ -1,1 +1,6 @@
 .ipynb_checkpoints/
+CompoundAgnostic_DecadeAware.csv
+CompoundAware_DecadeAgnostic.csv
+dask-worker-space/
+head_list.pkl
+modifier_list.pkl
