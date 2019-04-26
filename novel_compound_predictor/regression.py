@@ -53,7 +53,10 @@ parser.add_argument('--save_format', type=str,default='pkl',
 
 args = parser.parse_args()
 
-
+print("Cutoff:", str(args.cutoff))
+print("Time span:", str(args.temporal))
+print("Embeddings:", str(args.embeddings))
+print("Dimensionality:", 300)
 if args.contextual:
     print("CompoundCentric Model")
     comp_str='CompoundCentric'
