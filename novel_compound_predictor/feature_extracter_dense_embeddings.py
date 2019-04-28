@@ -4,16 +4,16 @@ from sklearn.decomposition import PCA,TruncatedSVD,NMF
 from sklearn.preprocessing import Normalizer
 import argparse
 import time
-import dask
+#import dask
 import pickle as pkl
-import dask.dataframe as dd
+#import dask.dataframe as dd
 import numba
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 pd.options.mode.chained_assignment = None
 from functools import reduce
 import matplotlib
 #matplotlib.use('agg')
-matplotlib.style.use('ggplot')
+#matplotlib.style.use('ggplot')
 from matplotlib import pyplot as plt
 from spacy.lemmatizer import Lemmatizer
 from spacy.lang.en import LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES
@@ -27,22 +27,35 @@ def lemma_maker(x, y):
     #print(lemmatizer(x,y)[0])
     return lemmatizer(x,y)[0]
 
+parser = argparse.ArgumentParser(description='Compute features from embeddings')
 
-heads=pd.read_pickle("/data/dharp/compounding/datasets/heads_CompoundCentric_DecadeCentric_300.pkl")
+parser.add_argument('--temporal',  type=int,
+                    help='Value to bin the temporal information: 0 (remove temporal information), 1 (no binning), 10 (binning to decades), 20 (binning each 20 years) or 50 (binning each 50 years)')
+
+parser.add_argument('--cutoff', type=int, default=50,
+                    help='Cut-off frequency for each compound per time period : none (0), 20, 50 and 100')
+
+
+args = parser.parse_args()
+
+print(f'Cutoff: {args.cutoff}')
+print(f'Time span:  {args.temporal}')
+
+heads=pd.read_pickle("../../heads_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.pkl")
 #heads.reset_index(inplace=True)
 #heads=heads.drop(['decade'],axis=1).groupby(['head']).mean()
-heads=heads+1
+#heads=heads+1
 heads.index.set_names('time', level=1,inplace=True)
 
 
-modifiers=pd.read_pickle("/data/dharp/compounding/datasets/modifiers_CompoundCentric_DecadeCentric_300.pkl")
+modifiers=pd.read_pickle("../../modifiers_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.pkl")
 #heads.reset_index(inplace=True)
 #heads=heads.drop(['decade'],axis=1).groupby(['head']).mean()
 #modifiers=modifiers+1
 modifiers.index.set_names('time', level=1,inplace=True)
 
 
-compounds=pd.read_pickle("/data/dharp/compounding/datasets/compounds_CompoundCentric_DecadeCentric_300.pkl")
+compounds=pd.read_pickle("../../compounds_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.pkl")
 #heads.reset_index(inplace=True)
 #heads=heads.drop(['decade'],axis=1).groupby(['head']).mean()
 compounds.index.set_names('time', level=2,inplace=True)
@@ -50,7 +63,7 @@ compounds.drop(['common'],axis=1,inplace=True)
 compounds=compounds+1
 
 
-compound_decade_counts=compounds.drop(['modifier','head'],axis=1).groupby('time').sum().sum(axis=1).to_frame()
+compound_decade_counts=compounds.groupby('time').sum().sum(axis=1).to_frame()
 compound_decade_counts.columns=['N']
 
 #compounds = dd.from_pandas(compounds, npartitions=30)
@@ -79,7 +92,7 @@ information_feat['c']=information_feat['star_y']-information_feat['a']
 
 #information_feat=information_feat.compute()
 information_feat=pd.merge(information_feat,compound_decade_counts.reset_index(),on=['time'])
-information_feat=dd.from_pandas(information_feat, npartitions=30)
+#information_feat=dd.from_pandas(information_feat, npartitions=30)
 information_feat['d']=information_feat['N']-(information_feat['a']+information_feat['b']+information_feat['c'])
 information_feat['x_bar_star']=information_feat['N']-information_feat['x_star']
 information_feat['star_y_bar']=information_feat['N']-information_feat['star_y']
@@ -111,13 +124,13 @@ head_denom=head_denom.to_frame()
 head_denom.columns=['head_denom']
 
 
-
-compound_denom=np.square(compounds.set_index(['modifier','head','time'])).sum(axis=1)**0.5
+compounds=compounds-1
+compound_denom=np.square(compounds).sum(axis=1)**0.5
 compound_denom=compound_denom.to_frame()
 compound_denom.columns=['compound_denom']
 
 
-compound_modifier_sim=compounds.multiply(modifiers.drop('mod_count',axis=1).reindex(compounds.index, method='ffill')).sum(axis=1).to_frame()
+compound_modifier_sim=compounds.multiply(modifiers.reindex(compounds.index, method='ffill')).sum(axis=1).to_frame()
 compound_modifier_sim.columns=['sim_with_modifier']
 
 
@@ -146,7 +159,7 @@ for year in compounds_final_2:
 compounds_final.columns=new_columns
 
 
-reddy11_study=pd.read_csv("/data/dharp/compounding/datasets/ijcnlp_compositionality_data/MeanAndDeviations.clean.txt",sep="\t")
+reddy11_study=pd.read_csv("../../MeanAndDeviations.clean.txt",sep="\t")
 #print(reddy11_study.columns)
 reddy11_study.columns=['compound','to_divide']
 reddy11_study['modifier_mean'],reddy11_study['modifier_std'],reddy11_study['head_mean'],reddy11_study['head_std'],reddy11_study['compound_mean'],reddy11_study['compound_std'],_=reddy11_study.to_divide.str.split(" ",7).str
@@ -157,8 +170,8 @@ reddy11_study.drop(['compound','to_divide'],axis=1,inplace=True)
 reddy11_study['modifier']=np.vectorize(lemma_maker)(reddy11_study['modifier'],'noun')
 reddy11_study['head']=np.vectorize(lemma_maker)(reddy11_study['head'],'noun')
 reddy11_study.replace(spelling_replacement,inplace=True)
-reddy11_study['modifier']=reddy11_study['modifier']+"_n"
-reddy11_study['head']=reddy11_study['head']+"_n"
+reddy11_study['modifier']=reddy11_study['modifier']+"_noun"
+reddy11_study['head']=reddy11_study['head']+"_noun"
 reddy11_study=reddy11_study.apply(pd.to_numeric, errors='ignore')
 
 
@@ -166,4 +179,4 @@ reddy11_study=reddy11_study.apply(pd.to_numeric, errors='ignore')
 merge_df=reddy11_study.merge(compounds_final.reset_index(),on=['modifier','head'],how='inner')
 merge_df.set_index(["modifier", "head"], inplace = True)
 
-merge_df.to_csv("/data/dharp/compounding/datasets/trial.csv",sep='\t')
+merge_df.to_csv("../../features_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.csv",sep='\t')
