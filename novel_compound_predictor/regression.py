@@ -45,7 +45,7 @@ parser.add_argument('--storedf', action='store_true',
                     help='Should the embeddings be saved')
 
 parser.add_argument('--dims', type=int, default=300,
-                    #help='Desired number of reduced dimensions')
+                    help='Desired number of reduced dimensions')
 
 parser.add_argument('--save_format', type=str,default='pkl',
                     help='In what format should the reduced datasets be saved : csv or pkl')
