@@ -1,7 +1,7 @@
 #!/bin/sh
 
-CUTOFF="20 50 100 200"
-TIMESPAN="1 10 20 50 100"
+CUTOFF="20 50 100"
+TIMESPAN="0"
 
 for c in $CUTOFF; do for t in $TIMESPAN; do
 	python3 regression.py --contextual --temporal $t --cutoff $c --storedf
