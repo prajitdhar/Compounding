@@ -45,20 +45,23 @@ heads=pd.read_pickle("../../heads_CompoundAware_"+str(args.temporal)+"_"+str(arg
 #heads.reset_index(inplace=True)
 #heads=heads.drop(['decade'],axis=1).groupby(['head']).mean()
 #heads=heads+1
-heads.index.set_names('time', level=1,inplace=True)
+if args.temporal!=0:
+    heads.index.set_names('time', level=1,inplace=True)
 
 
 modifiers=pd.read_pickle("../../modifiers_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.pkl")
 #heads.reset_index(inplace=True)
 #heads=heads.drop(['decade'],axis=1).groupby(['head']).mean()
 #modifiers=modifiers+1
-modifiers.index.set_names('time', level=1,inplace=True)
+if args.temporal!=0:
+    modifiers.index.set_names('time', level=1,inplace=True)
 
 
 compounds=pd.read_pickle("../../compounds_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.pkl")
 #heads.reset_index(inplace=True)
 #heads=heads.drop(['decade'],axis=1).groupby(['head']).mean()
-compounds.index.set_names('time', level=2,inplace=True)
+if args.temporal!=0:
+    compounds.index.set_names('time', level=2,inplace=True)
 compounds.drop(['common'],axis=1,inplace=True)
 compounds=compounds+1
 
