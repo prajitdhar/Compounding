@@ -19,14 +19,14 @@ def dim_reduction(df,rows):
     df_reduced = Normalizer(copy=False).fit_transform(df_reduced)
     df_reduced=pd.DataFrame(df_reduced,index=rows)
     #df_reduced.reset_index(inplace=True)
-    if args.temporal:
-        df_reduced.index = pd.MultiIndex.from_tuples(df_reduced.index, names=['common', 'decade'])
+    if args.temporal!=0:
+        df_reduced.index = pd.MultiIndex.from_tuples(df_reduced.index, names=['common', 'time'])
     return df_reduced
 
 
 parser = argparse.ArgumentParser(description='Gather data necessary for performing Regression')
 
-parser.add_argument('--temporal',  type=int,
+parser.add_argument('--temporal',  type=int, default=0,
                     help='Value to bin the temporal information: 0 (remove temporal information), 1 (no binning), 10 (binning to decades), 20 (binning each 20 years) or 50 (binning each 50 years)')
 
 parser.add_argument('--contextual', action='store_true',
