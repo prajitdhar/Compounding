@@ -41,7 +41,7 @@ args = parser.parse_args()
 print(f'Cutoff: {args.cutoff}')
 print(f'Time span:  {args.temporal}')
 
-heads=pd.read_pickle("../../heads_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.pkl")
+heads=pd.read_pickle("../../datasets/heads_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.pkl")
 #heads.reset_index(inplace=True)
 #heads=heads.drop(['decade'],axis=1).groupby(['head']).mean()
 #heads=heads+1
@@ -49,7 +49,7 @@ if args.temporal!=0:
     heads.index.set_names('time', level=1,inplace=True)
 
 
-modifiers=pd.read_pickle("../../modifiers_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.pkl")
+modifiers=pd.read_pickle("../../datasets/modifiers_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.pkl")
 #heads.reset_index(inplace=True)
 #heads=heads.drop(['decade'],axis=1).groupby(['head']).mean()
 #modifiers=modifiers+1
@@ -57,7 +57,7 @@ if args.temporal!=0:
     modifiers.index.set_names('time', level=1,inplace=True)
 
 
-compounds=pd.read_pickle("../../compounds_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.pkl")
+compounds=pd.read_pickle("../../datasets/compounds_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.pkl")
 #heads.reset_index(inplace=True)
 #heads=heads.drop(['decade'],axis=1).groupby(['head']).mean()
 if args.temporal!=0:
@@ -146,27 +146,27 @@ information_feat.drop(['a','x_star','star_y','b','c','d','N','d','x_bar_star','s
 #information_feat.head()
 
 
-modifier_denom=np.square(modifiers).sum(axis=1)**0.5
-modifier_denom=modifier_denom.to_frame()
-modifier_denom.columns=['modifier_denom']
+#modifier_denom=np.square(modifiers).sum(axis=1)**0.5
+#modifier_denom=modifier_denom.to_frame()
+#modifier_denom.columns=['modifier_denom']
 
 
-head_denom=np.square(heads).sum(axis=1)**0.5
-head_denom=head_denom.to_frame()
-head_denom.columns=['head_denom']
+#head_denom=np.square(heads).sum(axis=1)**0.5
+#head_denom=head_denom.to_frame()
+#head_denom.columns=['head_denom']
 
 
 compounds=compounds-1
-compound_denom=np.square(compounds).sum(axis=1)**0.5
-compound_denom=compound_denom.to_frame()
-compound_denom.columns=['compound_denom']
+#compound_denom=np.square(compounds).sum(axis=1)**0.5
+#compound_denom=compound_denom.to_frame()
+#compound_denom.columns=['compound_denom']
 
-
-compound_modifier_sim=compounds.multiply(modifiers.reindex(compounds.index, method='ffill')).sum(axis=1).to_frame()
+compound_modifier_sim=compounds.multiply(modifiers.reindex(compounds.index,level=0).ffill()).sum(axis=1).to_frame()
+#compound_modifier_sim=compounds.multiply(modifiers.reindex(compounds.index, method='ffill')).sum(axis=1).to_frame()
 compound_modifier_sim.columns=['sim_with_modifier']
 
 
-compound_head_sim=compounds.multiply(heads.reindex(compounds.index, method='ffill')).sum(axis=1).to_frame()
+compound_head_sim=compounds.multiply(heads.reindex(compounds.index,level=1).ffill()).sum(axis=1).to_frame()
 compound_head_sim.columns=['sim_with_head']
 
 if args.temporal!=0:
@@ -177,7 +177,7 @@ else:
     constituent_sim.set_index(['modifier','head'],inplace=True)
 
 
-constituent_sim=constituent_sim.multiply(heads.reindex(constituent_sim.index, method='ffill')).sum(axis=1).to_frame()
+constituent_sim=constituent_sim.multiply(heads.reindex(constituent_sim.index, level=1).ffill()).sum(axis=1).to_frame()
 constituent_sim.columns=['sim_bw_constituents']
 
 dfs = [constituent_sim, compound_head_sim, compound_modifier_sim, information_feat]
@@ -200,15 +200,14 @@ if args.temporal!=0:
 
 
 else:
-    compounds_final = reduce(lambda left,right: pd.merge(left,right,on=['modifier','head']), dfs)
-    compounds_final.drop(['head_denom','modifier_denom'],axis=1,inplace=True)
-    compounds_final.set_index(['modifier','head'],inplace=True)
+    #compounds_final = reduce(lambda left,right: pd.merge(left,right,on=['modifier','head']), dfs)
+    #compounds_final.drop(['head_denom','modifier_denom'],axis=1,inplace=True)
+    #compounds_final.set_index(['modifier','head'],inplace=True)
     compounds_final.fillna(0,inplace=True)
     compounds_final -= compounds_final.min()
     compounds_final /= compounds_final.max()
 
-
-reddy11_study=pd.read_csv("../../MeanAndDeviations.clean.txt",sep="\t")
+reddy11_study=pd.read_csv("../../datasets/ijcnlp_compositionality_data/MeanAndDeviations.clean.txt",sep="\t")
 #print(reddy11_study.columns)
 reddy11_study.columns=['compound','to_divide']
 reddy11_study['modifier_mean'],reddy11_study['modifier_std'],reddy11_study['head_mean'],reddy11_study['head_std'],reddy11_study['compound_mean'],reddy11_study['compound_std'],_=reddy11_study.to_divide.str.split(" ",7).str
@@ -228,4 +227,4 @@ reddy11_study=reddy11_study.apply(pd.to_numeric, errors='ignore')
 merge_df=reddy11_study.merge(compounds_final.reset_index(),on=['modifier','head'],how='inner')
 merge_df.set_index(["modifier", "head"], inplace = True)
 
-merge_df.to_csv("../../features_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.csv",sep='\t')
+merge_df.to_csv("../../datasets/features_CompoundAware_"+str(args.temporal)+"_"+str(args.cutoff)+"_300.csv",sep='\t')
