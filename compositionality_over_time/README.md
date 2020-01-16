@@ -20,7 +20,7 @@ The script [`dimreduce.sh`](dimreduce.sh) can be used to easily extract features
 - `--embeddings`: Either `sparse` or `dense`
 - `--seed`: Provide a random seed, defaults to `1991`
 - `--storedf`: Should the embeddings be saved?
-- `-dims`: Number of to-be-reduced dimensions, defaults to `300`
+- `--dims`: Number of to-be-reduced dimensions, defaults to `300`
 - `--save_format`: Either `csv` or `pkl`
 
 `--temporal` and `--cutoff` are controlled by [`dimreduce.sh`](dimreduce.sh) and do not need to be changed.
@@ -33,7 +33,7 @@ With the extracted embeddings, we can also create visualizations. Some examples 
 
 ## Collaborators
 
-- [Prajit Dhar](https://www.universiteitleiden.nl/en/staffmembers/prajit-dhar)
+- [Prajit Dhar](https://www.rug.nl/staff/p.dhar/research)
 
 - [Janis Pagel](https://janispagel.de)
 

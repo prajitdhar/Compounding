@@ -142,7 +142,11 @@ else:
 
     else:
         print("CompoundAgnostic Model")
-        pass
+        
+        constituents=pd.read_csv("../../datasets/words.csv")
+        constituents.columns=['joiner','context','decade','count']
+        constituents=constituents.query('decade != 2000')
+        constituents=constituents.groupby(['joiner','decade','context'])['count'].sum()
 
 
 
