@@ -1,91 +1,91 @@
-Compounds	hcHM
-ancient history	1.95
-armchair critic	1.33
-baby buggy	3.94
-bad hat	0.62
-benign tumour	4.69
-big fish	0.85
-birth rate	4.6
-black cherry	3.11
-bow tie	4.25
-brain teaser	2.65
-busy bee	0.88
-carpet bombing	1.24
-cellular phone	3.78
-close call	1.59
-closed book	0.68
-computer program	4.5
-con artist	2.1
-cooking stove	4.68
-cotton candy	1.79
-critical review	4.06
-dead end	1.32
-dirty money	2.21
-dirty word	2.48
-disc jockey	1.25
-divine service	3.11
-dry land	3.95
-dry wall	3.33
-dust storm	3.85
-eager beaver	0.36
-economic aid	4.33
-elbow grease	0.56
-elbow room	0.61
-entrance hall	4.17
-eternal rest	3.25
-fish story	1.68
-flower child	0.5
-food market	3.82
-foot soldier	1.95
-front man	1.64
-goose egg	0.48
-grey matter	2.39
-guinea pig	0.45
-half sister	2.84
-half wit	1.16
-health check	4.17
-high life	1.67
-inner circle	1.56
-inner product	3
-insane asylum	3.95
-insurance company	5
-insurance policy	4.15
-iron collar	3.88
-labour union	4.76
-life belt	2.84
-life vest	3.44
-lime tree	4.61
-loan shark	1
-loose woman	2.53
-mail service	4.69
-market place	3
-mental disorder	4.89
-middle school	3.84
-milk tooth	1.43
-mother tongue	0.59
-narrow escape	1.75
-net income	2.94
-news agency	4.39
-noble gas	1.18
-nut case	0.44
-old flame	0.58
-old hat	0.35
-old timer	0.89
-phone book	4.25
-pillow slip	3.7
-pocket book	1.42
-prison guard	4.89
-prison term	4.79
-private eye	0.82
-record book	3.7
-research lab	4.75
-sex bomb	0.53
-silver lining	0.35
-sound judgement	3.39
-sparkling water	3.14
-street girl	3.16
-subway system	4.63
-tennis elbow	2.5
-top dog	1.05
-wet blanket	0.21
-word painting	1.62
+compound_lemma	compound_surface	compositionality	avgHead	stdevHead	avgModifier	stdevModifier
+ancient_history	ancient_history	1.9474	2.8421	2.1151	2	1.5275
+armchair_critic	armchair_critic	1.3333	4.5556	1.3382	0.8333	0.9852
+baby_buggy	baby_buggy	3.9444	3.6667	1.4142	4.5	1.0432
+bad_hat	bad_hat	0.625	0	0	4.25	1.291
+benign_tumour	benign_tumour	4.6875	4.875	0.5	4.5	1.2649
+big_fish	big_fish	0.85	0.6	0.9947	2.75	1.8317
+birth_rate	birth_rate	4.6	4.65	0.8127	4.7	0.7327
+black_cherry	black_cherry	3.1053	4.3684	1.4225	2.6316	2.0605
+bow_tie	bow_tie	4.25	4.6875	1.0145	4.25	1.2383
+brain_teaser	brain_teaser	2.6471	2.2941	1.4902	3.3529	1.5387
+busy_bee	busy_bee	0.875	0.3333	0.702	4.4583	0.8836
+carpet_bombing	carpet_bombing	1.2353	4.9412	0.2425	0.7059	1.1048
+cellular_phone	cellular_phone	3.7778	5	0	3.2778	1.5645
+close_call	close_call	1.5882	0.9412	1.1974	3.4118	1.7342
+closed_book	closed_book	0.6842	0.5263	1.1239	2.1579	1.8032
+computer_program	computer_program	4.5	4.5556	0.8556	4.6667	0.8402
+con_artist	con_artist	2.1	1.25	1.1642	4.5	1
+cooking_stove	cooking_stove	4.6842	4.6316	0.684	4.6842	0.671
+cotton_candy	cotton_candy	1.7895	4.3158	0.9459	1.1053	1.1496
+critical_review	critical_review	4.0588	4.7647	0.4372	3.3529	1.6934
+dead_end	dead_end	1.3158	4.2105	1.1343	0.2632	0.7335
+dirty_money	dirty_money	2.2105	4.1579	1.5728	1.8947	1.4489
+dirty_word	dirty_word	2.4762	4.1429	1.4243	2	1.3784
+disc_jockey	disc_jockey	1.25	1	1.5218	2.55	1.7313
+divine_service	divine_service	3.1053	3.7368	1.1945	4	1.3744
+dry_land	dry_land	3.95	4.85	0.3663	3.85	1.4965
+dry_wall	dry_wall	3.3333	4.5556	0.9218	3.5	1.5049
+dust_storm	dust_storm	3.85	3.95	1.4681	4.2	1.4726
+eager_beaver	eager_beaver	0.3636	0.1818	0.6645	4.4091	1.2212
+economic_aid	economic_aid	4.3333	4.3333	0.686	4.1111	1.0786
+elbow_grease	elbow_grease	0.5556	0.1667	0.5145	0.9444	0.8726
+elbow_room	elbow_room	0.6087	0.6957	1.259	1.3913	1.4378
+entrance_hall	entrance_hall	4.1667	3.8333	1.2005	4.7778	0.4278
+eternal_rest	eternal_rest	3.25	2.45	1.4318	4.3	1.5594
+fish_story	fish_story	1.6842	4.8421	0.3746	1.5263	1.8369
+flower_child	flower_child	0.5	0.65	0.8127	1.1	0.7881
+food_market	food_market	3.8235	3.9412	1.2976	4.5294	1.2805
+foot_soldier	foot_soldier	1.9474	3.3684	1.921	1.3158	1.3355
+front_man	front_man	1.6364	1.5909	1.8168	2.4545	1.5032
+goose_egg	goose_egg	0.4762	0.5714	0.9258	0.381	0.74
+grey_matter	grey_matter	2.3889	3.4444	1.2472	2.2222	1.0603
+guinea_pig	guinea_pig	0.4545	0.5455	0.8579	0.5455	0.8579
+half_sister	half_sister	2.8421	4.7895	0.6306	2.8421	1.6754
+half_wit	half_wit	1.1579	1.2632	1.3267	1.3684	1.3
+health_check	health_check	4.1667	4.0556	1.3492	4.8889	0.3234
+high_life	high_life	1.6667	3.0556	1.6968	2	1.4552
+inner_circle	inner_circle	1.5556	1.1111	1.2314	3.1667	1.3394
+inner_product	inner_product	3	3.8	1.7403	3.1333	1.6417
+insane_asylum	insane_asylum	3.95	3.85	1.2258	4.15	1.2258
+insurance_company	insurance_company	5	4.8889	0.4714	5	0
+insurance_policy	insurance_policy	4.15	4	1.4142	4.5	1.2354
+iron_collar	iron_collar	3.875	4.125	1.4549	3.9375	1.2894
+labour_union	labour_union	4.7647	4.8824	0.3321	4.7647	0.4372
+life_belt	life_belt	2.8421	3.1053	1.7287	3.3158	1.2933
+life_vest	life_vest	3.4444	3.8333	1.2485	3.1667	1.5811
+lime_tree	lime_tree	4.6111	4.7222	1.1785	4.6111	1.2433
+loan_shark	loan_shark	1	0.5789	1.0706	4.5789	0.9612
+loose_woman	loose_woman	2.5263	4.8947	0.3153	2.2105	1.6526
+mail_service	mail_service	4.6875	4.4375	0.8921	4.875	0.3416
+market_place	market_place	3	2.3158	2.0015	3.7368	1.3267
+mental_disorder	mental_disorder	4.8889	4.8333	0.5145	4.9444	0.2357
+middle_school	middle_school	3.8421	4.6842	1.0029	3.6316	1.3829
+milk_tooth	milk_tooth	1.4286	4.9048	0.4364	1.0952	1.3381
+mother_tongue	mother_tongue	0.5882	0.8235	1.2862	0.5294	0.8745
+narrow_escape	narrow_escape	1.75	3.5	1.6059	1.65	1.3089
+net_income	net_income	2.9412	4.7647	0.6642	2.2353	1.8884
+news_agency	news_agency	4.3889	3.9444	1.5136	4.9444	0.2357
+noble_gas	noble_gas	1.1765	4.6471	0.8618	0.5294	0.8745
+nut_case	nut_case	0.4444	0.4444	1.0416	0.4444	1.0416
+old_flame	old_flame	0.5789	0.3158	0.7493	2.7895	1.5484
+old_hat	old_hat	0.3529	0.0588	0.2425	3.6471	1.2719
+old_timer	old_timer	0.8889	0.8889	1.4907	3.6667	1.645
+phone_book	phone_book	4.25	4.4	0.9947	4.3	0.8645
+pillow_slip	pillow_slip	3.7	3	1.8638	4.65	0.6708
+pocket_book	pocket_book	1.4167	1.9167	1.8631	1.875	1.191
+prison_guard	prison_guard	4.8947	4.8421	0.3746	4.8947	0.3153
+prison_term	prison_term	4.7895	4.4211	0.6925	4.8421	0.3746
+private_eye	private_eye	0.8235	0.5882	1.1757	3.0588	1.2976
+record_book	record_book	3.7	3.35	1.8432	4.4	0.8826
+research_lab	research_lab	4.75	4.75	0.5774	4.875	0.3416
+sex_bomb	sex_bomb	0.5263	0.2105	0.5353	3.1053	1.7605
+silver_lining	silver_lining	0.35	0.35	0.5871	0.25	0.5501
+sound_judgement	sound_judgement	3.3889	4.1667	1.3394	2.0556	1.7648
+sparkling_water	sparkling_water	3.1364	4.7727	0.6853	2.7273	1.6383
+street_girl	street_girl	3.1579	4.1579	1.5371	2.6842	1.4927
+subway_system	subway_system	4.6316	4.4211	0.9016	4.7368	0.4524
+tennis_elbow	tennis_elbow	2.5	4.3333	1.3284	2.2222	1.8005
+top_dog	top_dog	1.05	0.35	0.6708	4.1	1.2524
+wet_blanket	wet_blanket	0.2105	0.3158	0.5824	0.3158	0.5824
+word_painting	word_painting	1.625	0.4375	0.7274	3.1875	1.5586
