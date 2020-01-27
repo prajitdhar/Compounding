@@ -1,101 +1,101 @@
-Compounds	hcHM
-academy award	3.52
-arcade game	3.8
-baby blues	2.88
-backroom boy	1.48
-bad apple	1.13
-banana republic	0.86
-bankruptcy proceeding	4.78
-basket case	0.42
-beauty sleep	2.96
-best man	3.12
-big cheese	0.36
-big picture	1.48
-big wig	0.6
-biological clock	2.42
-black box	1.29
-black operation	1.39
-blind alley	1.14
-blood bath	1.38
-blue blood	0.58
-blue print	1.04
-box office	0.88
-brain drain	2.08
-bull market	1.23
-cable car	2.68
-calendar month	4.23
-civil marriage	3.13
-cocoa butter	3.23
-computer expert	4.46
-contact lenses	3.64
-copy cat	0.74
-crime rate	4.39
-damp squib	0.95
-dark horse	0.65
-day shift	4.54
-disability insurance	4.45
-double cross	1.14
-double dutch	0.29
-double whammy	2.48
-dream ticket	1.32
-dutch courage	1
-fair play	2.59
-fairy tale	1.68
-fall guy	1.36
-field work	2.1
-football season	4.04
-fresh water	4.2
-freudian slip	2.35
-ghost town	1.5
-glass ceiling	0.81
-grass root	0.86
-hard drive	2.17
-hard shoulder	1.52
-head hunter	1.5
-health care	4.47
-heavy cross	1.17
-hen party	1.05
-home run	2.86
-honey trap	1.22
-hot potato	0.56
-incubation period	3.92
-information age	3.4
-injury time	3.2
-insider trading	3.88
-jet lag	2.67
-job fair	3.5
-leap year	2.38
-love song	4.58
-low profile	2.1
-marketing consultant	4
-medical procedure	4.83
-music festival	4.58
-music journalist	4.54
-noise complaint	4.52
-pain killer	2.17
-peace conference	4.46
-peace talk	4.13
-pipe dream	0.91
-poison pill	0.96
-radioactive material	4.61
-radioactive waste	4.58
-rainy season	4.23
-rice paper	4
-shelf life	1.3
-skin tone	3.88
-smoke screen	1.11
-social insurance	2.83
-speed trap	3.71
-stag night	1.44
-sugar daddy	0.44
-tear gas	3.27
-time difference	4.41
-traffic control	3.69
-traffic jam	3.62
-travel guide	4.38
-wedding anniversary	4.86
-wedding day	4.94
-white noise	1.17
-white spirit	1.31
-winter solstice	4.55
-world conference	3.96
+compound_lemma	compound_surface	compositionality	avgHead	stdevHead	avgModifier	stdevModifier
+dutch_courage	dutch_courage	1	2.4444	1.6718	0.8519	1.0991
+freudian_slip	freudian_slip	2.3478	2.5217	1.5629	2.3913	1.588
+academy_award	academy_award	3.5217	4.6957	0.7648	3.1304	1.6322
+arcade_game	arcade_game	3.8	4.68	0.9	3.76	1.4514
+baby_blues	baby_blues	2.875	2.3333	1.6594	3.6667	1.5788
+backroom_boy	backroom_boy	1.48	1.04	1.0198	1.96	1.241
+bad_apple	bad_apple	1.1304	0.4348	0.6624	4.3043	1.1846
+banana_republic	banana_republic	0.8636	2.7727	1.7977	0.8182	0.8528
+bankruptcy_proceeding	bankruptcy_proceeding	4.7826	4.2609	1.1762	4.913	0.2881
+basket_case	basket_case	0.4231	0.7692	1.1066	0.4231	0.8086
+beauty_sleep	beauty_sleep	2.9565	4.5652	0.8958	2.3478	1.3007
+best_man	best_man	3.12	4.32	1.0693	3.12	1.3329
+big_cheese	big_cheese	0.3571	0.0714	0.378	2.1071	1.4742
+big_picture	big_picture	1.4783	1.1739	1.2668	3.1304	1.2175
+big_wig	big_wig	0.6	0.24	0.5972	2	1.3844
+biological_clock	biological_clock	2.4211	1.7895	1.4368	4.5789	0.7685
+black_box	black_box	1.2857	2.8571	1.5901	1.0952	1.3002
+black_operation	black_operation	1.3913	4.0435	0.976	1.2609	1.2511
+blind_alley	blind_alley	1.1364	1.0455	1.1329	1.4545	1.2239
+blood_bath	blood_bath	1.375	0.6667	1.0495	3.5	1.3188
+blue_blood	blue_blood	0.5833	1.0833	0.9743	0.5	1.0215
+blue_print	blue_print	1.04	2.68	1.4922	1	1.354
+box_office	box_office	0.88	1.64	1.578	0.56	0.8206
+brain_drain	brain_drain	2.0833	2.2083	1.7189	2.75	1.5673
+bull_market	bull_market	1.2273	3.2273	1.8499	0.9091	1.1509
+cable_car	cable_car	2.68	2.64	1.6553	3.24	1.6145
+calendar_month	calendar_month	4.2308	4.3077	1.1821	4.0769	1.4412
+civil_marriage	civil_marriage	3.1304	4.4348	1.161	3.087	1.9049
+cocoa_butter	cocoa_butter	3.2273	2.3182	1.6729	3.9545	1.3965
+computer_expert	computer_expert	4.4583	4.0833	1.3805	4.4583	1.0206
+contact_lenses	contact_lenses	3.6364	4.3636	1.329	3.4545	1.405
+copy_cat	copy_cat	0.7391	0.087	0.417	4.1304	1.29
+crime_rate	crime_rate	4.3913	4.0435	1.5219	4.7826	1.0426
+damp_squib	damp_squib	0.9545	1.0455	0.9989	0.7727	1.0204
+dark_horse	dark_horse	0.6522	0.6957	0.8757	0.5652	0.8435
+day_shift	day_shift	4.5357	4.4286	1.3174	4.4643	1.1049
+disability_insurance	disability_insurance	4.4545	4.3636	1.2168	4.3636	1.0486
+double_dutch	double_dutch	0.2917	0.4167	0.6539	1	1.4142
+double_cross	double_cross	1.1364	1.3182	1.4601	1.5909	1.5011
+double_whammy	double_whammy	2.4783	2.087	1.5049	3.3478	1.8243
+dream_ticket	dream_ticket	1.32	0.92	0.9539	2.76	1.6145
+fair_play	fair_play	2.5909	1.4091	1.2212	4.2273	1.3068
+fairy_tale	fairy_tale	1.6818	4.2727	1.3159	1.6364	1.177
+fall_guy	fall_guy	1.36	1.76	1.7388	1.32	1.314
+field_work	field_work	2.1034	4.1379	1.3018	2.1724	1.416
+football_season	football_season	4.0385	3.1154	1.6811	4.5385	0.9479
+fresh_water	fresh_water	4.2	4.65	0.8751	3.9	1.2524
+ghost_town	ghost_town	1.5	3.5	1.4744	0.75	1.0321
+glass_ceiling	glass_ceiling	0.8095	1	1.2247	0.6667	1.0165
+grass_root	grass_root	0.8571	1.2857	1.3093	0.6667	0.7958
+hard_drive	hard_drive	2.1739	3.4783	1.62	2.0435	1.5219
+hard_shoulder	hard_shoulder	1.5217	1.6522	1.849	2.8261	1.8501
+head_hunter	head_hunter	1.5	2.3182	1.4272	1.1364	1.0372
+health_care	health_care	4.4667	2.8667	2.0656	4.8	0.414
+heavy_cross	heavy_cross	1.1667	1.0417	1.3015	2.5	1.2158
+hen_party	hen_party	1.0455	4.2273	1.2699	0.6818	0.8937
+home_run	home_run	2.8571	3.4762	1.3645	2.381	1.5645
+honey_trap	honey_trap	1.2174	3.7391	1.0962	1.0435	1.1862
+hot_potato	hot_potato	0.56	0.44	0.8206	1.4	1.3229
+incubation_period	incubation_period	3.9231	3.7308	1.4848	3.8462	1.3173
+information_age	information_age	3.4	1.2667	1.7099	4.4	1.4541
+injury_time	injury_time	3.2	4.05	1.572	3.15	1.7554
+insider_trading	insider_trading	3.875	4.0833	1.3486	4.3333	0.8681
+jet_lag	jet_lag	2.6667	2.625	1.4982	2.7917	1.503
+job_fair	job_fair	3.5	2.8636	1.2069	4.3182	1.1291
+leap_year	leap_year	2.375	4.3333	1.3077	2.2917	1.6806
+love_song	love_song	4.5833	4.5833	0.9003	4.75	0.4523
+low_profile	low_profile	2.1	2.1	1.619	2.1	1.5183
+marketing_consultant	marketing_consultant	4	4.3333	1.0901	4.4167	1.0598
+medical_procedure	medical_procedure	4.8333	4.4583	1.1413	4.75	0.5316
+music_festival	music_festival	4.5789	2.9474	1.8401	4.7895	0.5353
+music_journalist	music_journalist	4.5417	4.625	0.7697	4.4167	1.018
+noise_complaint	noise_complaint	4.5238	4.1905	1.4703	4.5238	1.0305
+pain_killer	pain_killer	2.1667	1.4167	1.0598	4.4583	1.1025
+peace_conference	peace_conference	4.4583	4.4167	0.8805	4.6667	0.637
+peace_talk	peace_talk	4.1304	4	0.9045	4.4783	0.7903
+pipe_dream	pipe_dream	0.9091	3.3636	1.7333	0.7727	1.3778
+poison_pill	poison_pill	0.9565	0.5652	1.0369	1.4783	1.7286
+radioactive_material	radioactive_material	4.6087	4.3478	0.9346	4.6087	0.9409
+radioactive_waste	radioactive_waste	4.5833	4.5833	0.6686	4.9167	0.2887
+rainy_season	rainy_season	4.2273	3.7727	1.6599	4.5909	0.8541
+rice_paper	rice_paper	4	4.6957	0.7029	3.5652	1.6467
+shelf_life	shelf_life	1.3043	2.1739	1.1541	1.5217	1.1627
+skin_tone	skin_tone	3.875	3.875	1.227	4.7083	0.6241
+smoke_screen	smoke_screen	1.1111	1.5926	1.5507	1.3333	1.1767
+social_insurance	social_insurance	2.8276	3.1034	1.8194	3.5517	1.3252
+speed_trap	speed_trap	3.7083	3.5	1.4142	4.3333	1.0901
+stag_night	stag_night	1.4444	3.2593	1.534	1.4074	1.4744
+sugar_daddy	sugar_daddy	0.44	1.08	1.0376	0.52	1.0456
+tear_gas	tear_gas	3.2727	4.7727	0.6119	2.8636	1.4572
+time_difference	time_difference	4.4091	4.5	1.263	4.3636	1.3988
+traffic_control	traffic_control	3.6923	3.7692	1.6909	4.0769	1.3821
+traffic_jam	traffic_jam	3.6154	3.0769	1.7187	4.6538	0.8918
+travel_guide	travel_guide	4.3846	4	1.0801	4.6154	0.6504
+wedding_anniversary	wedding_anniversary	4.8571	4.8571	0.5345	4.9286	0.2673
+wedding_day	wedding_day	4.9412	4.0588	1.4349	4.7647	0.5623
+white_noise	white_noise	1.1739	4.0435	1.4295	0.6522	1.1123
+white_spirit	white_spirit	1.3077	2.0385	1.949	1.5385	1.2403
+winter_solstice	winter_solstice	4.5455	4.6818	1.0861	5	0
+world_conference	world_conference	3.9583	4.2917	1.2676	3.875	1.3613
