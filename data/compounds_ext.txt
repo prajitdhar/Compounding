@@ -1,101 +1,101 @@
-compound_lemma	compound_surface	compositionality	avgHead	stdevHead	avgModifier	stdevModifier
-dutch_courage	dutch_courage	1	2.4444	1.6718	0.8519	1.0991
-freudian_slip	freudian_slip	2.3478	2.5217	1.5629	2.3913	1.588
-academy_award	academy_award	3.5217	4.6957	0.7648	3.1304	1.6322
-arcade_game	arcade_game	3.8	4.68	0.9	3.76	1.4514
-baby_blues	baby_blues	2.875	2.3333	1.6594	3.6667	1.5788
-backroom_boy	backroom_boy	1.48	1.04	1.0198	1.96	1.241
-bad_apple	bad_apple	1.1304	0.4348	0.6624	4.3043	1.1846
-banana_republic	banana_republic	0.8636	2.7727	1.7977	0.8182	0.8528
-bankruptcy_proceeding	bankruptcy_proceeding	4.7826	4.2609	1.1762	4.913	0.2881
-basket_case	basket_case	0.4231	0.7692	1.1066	0.4231	0.8086
-beauty_sleep	beauty_sleep	2.9565	4.5652	0.8958	2.3478	1.3007
-best_man	best_man	3.12	4.32	1.0693	3.12	1.3329
-big_cheese	big_cheese	0.3571	0.0714	0.378	2.1071	1.4742
-big_picture	big_picture	1.4783	1.1739	1.2668	3.1304	1.2175
-big_wig	big_wig	0.6	0.24	0.5972	2	1.3844
-biological_clock	biological_clock	2.4211	1.7895	1.4368	4.5789	0.7685
-black_box	black_box	1.2857	2.8571	1.5901	1.0952	1.3002
-black_operation	black_operation	1.3913	4.0435	0.976	1.2609	1.2511
-blind_alley	blind_alley	1.1364	1.0455	1.1329	1.4545	1.2239
-blood_bath	blood_bath	1.375	0.6667	1.0495	3.5	1.3188
-blue_blood	blue_blood	0.5833	1.0833	0.9743	0.5	1.0215
-blue_print	blue_print	1.04	2.68	1.4922	1	1.354
-box_office	box_office	0.88	1.64	1.578	0.56	0.8206
-brain_drain	brain_drain	2.0833	2.2083	1.7189	2.75	1.5673
-bull_market	bull_market	1.2273	3.2273	1.8499	0.9091	1.1509
-cable_car	cable_car	2.68	2.64	1.6553	3.24	1.6145
-calendar_month	calendar_month	4.2308	4.3077	1.1821	4.0769	1.4412
-civil_marriage	civil_marriage	3.1304	4.4348	1.161	3.087	1.9049
-cocoa_butter	cocoa_butter	3.2273	2.3182	1.6729	3.9545	1.3965
-computer_expert	computer_expert	4.4583	4.0833	1.3805	4.4583	1.0206
-contact_lenses	contact_lenses	3.6364	4.3636	1.329	3.4545	1.405
-copy_cat	copy_cat	0.7391	0.087	0.417	4.1304	1.29
-crime_rate	crime_rate	4.3913	4.0435	1.5219	4.7826	1.0426
-damp_squib	damp_squib	0.9545	1.0455	0.9989	0.7727	1.0204
-dark_horse	dark_horse	0.6522	0.6957	0.8757	0.5652	0.8435
-day_shift	day_shift	4.5357	4.4286	1.3174	4.4643	1.1049
-disability_insurance	disability_insurance	4.4545	4.3636	1.2168	4.3636	1.0486
-double_dutch	double_dutch	0.2917	0.4167	0.6539	1	1.4142
-double_cross	double_cross	1.1364	1.3182	1.4601	1.5909	1.5011
-double_whammy	double_whammy	2.4783	2.087	1.5049	3.3478	1.8243
-dream_ticket	dream_ticket	1.32	0.92	0.9539	2.76	1.6145
-fair_play	fair_play	2.5909	1.4091	1.2212	4.2273	1.3068
-fairy_tale	fairy_tale	1.6818	4.2727	1.3159	1.6364	1.177
-fall_guy	fall_guy	1.36	1.76	1.7388	1.32	1.314
-field_work	field_work	2.1034	4.1379	1.3018	2.1724	1.416
-football_season	football_season	4.0385	3.1154	1.6811	4.5385	0.9479
-fresh_water	fresh_water	4.2	4.65	0.8751	3.9	1.2524
-ghost_town	ghost_town	1.5	3.5	1.4744	0.75	1.0321
-glass_ceiling	glass_ceiling	0.8095	1	1.2247	0.6667	1.0165
-grass_root	grass_root	0.8571	1.2857	1.3093	0.6667	0.7958
-hard_drive	hard_drive	2.1739	3.4783	1.62	2.0435	1.5219
-hard_shoulder	hard_shoulder	1.5217	1.6522	1.849	2.8261	1.8501
-head_hunter	head_hunter	1.5	2.3182	1.4272	1.1364	1.0372
-health_care	health_care	4.4667	2.8667	2.0656	4.8	0.414
-heavy_cross	heavy_cross	1.1667	1.0417	1.3015	2.5	1.2158
-hen_party	hen_party	1.0455	4.2273	1.2699	0.6818	0.8937
-home_run	home_run	2.8571	3.4762	1.3645	2.381	1.5645
-honey_trap	honey_trap	1.2174	3.7391	1.0962	1.0435	1.1862
-hot_potato	hot_potato	0.56	0.44	0.8206	1.4	1.3229
-incubation_period	incubation_period	3.9231	3.7308	1.4848	3.8462	1.3173
-information_age	information_age	3.4	1.2667	1.7099	4.4	1.4541
-injury_time	injury_time	3.2	4.05	1.572	3.15	1.7554
-insider_trading	insider_trading	3.875	4.0833	1.3486	4.3333	0.8681
-jet_lag	jet_lag	2.6667	2.625	1.4982	2.7917	1.503
-job_fair	job_fair	3.5	2.8636	1.2069	4.3182	1.1291
-leap_year	leap_year	2.375	4.3333	1.3077	2.2917	1.6806
-love_song	love_song	4.5833	4.5833	0.9003	4.75	0.4523
-low_profile	low_profile	2.1	2.1	1.619	2.1	1.5183
-marketing_consultant	marketing_consultant	4	4.3333	1.0901	4.4167	1.0598
-medical_procedure	medical_procedure	4.8333	4.4583	1.1413	4.75	0.5316
-music_festival	music_festival	4.5789	2.9474	1.8401	4.7895	0.5353
-music_journalist	music_journalist	4.5417	4.625	0.7697	4.4167	1.018
-noise_complaint	noise_complaint	4.5238	4.1905	1.4703	4.5238	1.0305
-pain_killer	pain_killer	2.1667	1.4167	1.0598	4.4583	1.1025
-peace_conference	peace_conference	4.4583	4.4167	0.8805	4.6667	0.637
-peace_talk	peace_talk	4.1304	4	0.9045	4.4783	0.7903
-pipe_dream	pipe_dream	0.9091	3.3636	1.7333	0.7727	1.3778
-poison_pill	poison_pill	0.9565	0.5652	1.0369	1.4783	1.7286
-radioactive_material	radioactive_material	4.6087	4.3478	0.9346	4.6087	0.9409
-radioactive_waste	radioactive_waste	4.5833	4.5833	0.6686	4.9167	0.2887
-rainy_season	rainy_season	4.2273	3.7727	1.6599	4.5909	0.8541
-rice_paper	rice_paper	4	4.6957	0.7029	3.5652	1.6467
-shelf_life	shelf_life	1.3043	2.1739	1.1541	1.5217	1.1627
-skin_tone	skin_tone	3.875	3.875	1.227	4.7083	0.6241
-smoke_screen	smoke_screen	1.1111	1.5926	1.5507	1.3333	1.1767
-social_insurance	social_insurance	2.8276	3.1034	1.8194	3.5517	1.3252
-speed_trap	speed_trap	3.7083	3.5	1.4142	4.3333	1.0901
-stag_night	stag_night	1.4444	3.2593	1.534	1.4074	1.4744
-sugar_daddy	sugar_daddy	0.44	1.08	1.0376	0.52	1.0456
-tear_gas	tear_gas	3.2727	4.7727	0.6119	2.8636	1.4572
-time_difference	time_difference	4.4091	4.5	1.263	4.3636	1.3988
-traffic_control	traffic_control	3.6923	3.7692	1.6909	4.0769	1.3821
-traffic_jam	traffic_jam	3.6154	3.0769	1.7187	4.6538	0.8918
-travel_guide	travel_guide	4.3846	4	1.0801	4.6154	0.6504
-wedding_anniversary	wedding_anniversary	4.8571	4.8571	0.5345	4.9286	0.2673
-wedding_day	wedding_day	4.9412	4.0588	1.4349	4.7647	0.5623
-white_noise	white_noise	1.1739	4.0435	1.4295	0.6522	1.1123
-white_spirit	white_spirit	1.3077	2.0385	1.949	1.5385	1.2403
-winter_solstice	winter_solstice	4.5455	4.6818	1.0861	5	0
-world_conference	world_conference	3.9583	4.2917	1.2676	3.875	1.3613
+compound_lemma	compound_surface	compound_lemmapos	nAnnot	compositionality	headLemma	modifierLemma	avgHead	stdevHead	avgModifier	stdevModifier	stdevHeadModifier	equivalents
+dutch_courage	dutch_courage	dutch/ADJ_courage/NOUN	27	1	courage	Dutch	2.4444	1.6718	0.8519	1.0991	1.1435	alcohol(6);liquid courage(5);drunk(3);drinking(2);drinks(2);bravado(2);irish courage(2);hard drinking(2);inebriation(2);buzz(2)
+freudian_slip	freudian_slip	freudian/ADJ_slip/NOUN	23	2.3478	slip	Freudian	2.5217	1.5629	2.3913	1.588	1.5258	mistake(5);slip of the tongue(4);verbal mistake(3);error(3);slip up(2);misstep(2);accident(2);slip of tongue(2)
+academy_award	academy_award	academy/NOUN_award/NOUN	23	3.5217	award	academy	4.6957	0.7648	3.1304	1.6322	1.4731	oscar(11);movie award(5);trophy(4);prize(3);honor(3);recognition(2);award(2)
+arcade_game	arcade_game	arcade/NOUN_game/NOUN	25	3.8	game	arcade	4.68	0.9	3.76	1.4514	1.3844	video game(17);electronic game(6);computer game(3);pinball machine(2);arcade machine(2)
+baby_blues	baby_blues	baby/NOUN_blues/NOUN	24	2.875	blues	baby	2.3333	1.6594	3.6667	1.5788	1.6762	depression(10);postpartum depression(7);sadness(5);melancholy(3);post partum depression(3);low spirits(3)
+backroom_boy	backroom_boy	backroom/NOUN_boy/NOUN	25	1.48	boy	backroom	1.04	1.0198	1.96	1.241	0.9626	helper(4);assistant(4);behind the scenes(3);aide(2);worker(2)
+bad_apple	bad_apple	bad/ADJ_apple/NOUN	23	1.1304	apple	bad	0.4348	0.6624	4.3043	1.1846	1.29	troublemaker(8);bad egg(3);bad influence(2);bad person(2);trouble maker(2);immoral person(2);malcontent(2);black sheep(2)
+banana_republic	banana_republic	banana/NOUN_republic/NOUN	22	0.8636	republic	banana	2.7727	1.7977	0.8182	0.8528	0.9409	unstable country(2);third world country(2);weak economy(2);dictatorship(2);poor government(2)
+bankruptcy_proceeding	bankruptcy_proceeding	bankruptcy/NOUN_proceeding/NOUN	23	4.7826	proceeding	bankruptcy	4.2609	1.1762	4.913	0.2881	0.4217	bankruptcy hearing(6);bankruptcy trial(3);court(2);court case(2);bankruptcy court(2);trial(2)
+basket_case	basket_case	basket/NOUN_case/NOUN	26	0.4231	case	basket	0.7692	1.1066	0.4231	0.8086	0.8086	crazy(6);nervous wreck(6);crazy person(5);mess(4);spastic(2);disaster(2);frazzled(2);wreck(2);insane person(2);anxious(2);unstable(2)
+beauty_sleep	beauty_sleep	beauty/NOUN_sleep/NOUN	23	2.9565	sleep	beauty	4.5652	0.8958	2.3478	1.3007	0.976	rest(9);beauty rest(4);restful sleep(3);full night's sleep(3);night's rest(2);relaxation(2);sleep(2);nap(2);healthy sleep(2);rejuvenation(2)
+best_man	best_man	best/ADJ_man/NOUN	25	3.12	man	best	4.32	1.0693	3.12	1.3329	1.3013	groomsman(12);best friend(7);bridesman(5);groom helper(2);groom's attendant(2);friend(2)
+big_cheese	big_cheese	big/ADJ_cheese/NOUN	28	0.3571	cheese	big	0.0714	0.378	2.1071	1.4742	1.0261	boss(13);leader(7);important person(7);head honcho(5);vip(4);top dog(3);big wig(3);chief(3);executive(2);big enchilada(2);big shot(2);person in charge(2)
+big_picture	big_picture	big/ADJ_picture/NOUN	23	1.4783	picture	big	1.1739	1.2668	3.1304	1.2175	1.5629	master plan(5);broad view(5);overall view(4);essence(3);overview(2);big idea(2);main idea(2)
+big_wig	big_wig	big/ADJ_wig/NOUN	25	0.6	wig	big	0.24	0.5972	2	1.3844	0.7071	important person(9);boss(8);higher up(3);executive(3);head honcho(3);vip(2);expert(2);top dog(2);ceo(2);celebrity(2)
+biological_clock	biological_clock	biological/ADJ_clock/NOUN	19	2.4211	clock	biological	1.7895	1.4368	4.5789	0.7685	1.3045	biological rhythm(3);circadian rhythm(3);body clock(2);biorhythm(2);aging(2);fertility(2)
+black_box	black_box	black/ADJ_box/NOUN	21	1.2857	box	black	2.8571	1.5901	1.0952	1.3002	1.4541	flight recorder(11);recording device(2)
+black_operation	black_operation	black/ADJ_operation/NOUN	23	1.3913	operation	black	4.0435	0.976	1.2609	1.2511	1.4058	covert operation(9);secret mission(7);secret operation(6);undercover operation(2);secret(2)
+blind_alley	blind_alley	blind/ADJ_alley/NOUN	22	1.1364	alley	blind	1.0455	1.1329	1.4545	1.2239	1.1253	dead end(9);impasse(5);wrong turn(2)
+blood_bath	blood_bath	blood/NOUN_bath/NOUN	24	1.375	bath	blood	0.6667	1.0495	3.5	1.3188	1.439	slaughter(11);massacre(6);bloodshed(4);violence(2)
+blue_blood	blue_blood	blue/ADJ_blood/NOUN	24	0.5833	blood	blue	1.0833	0.9743	0.5	1.0215	0.7173	noble(6);royalty(5);rich(3);elite(3);rich family(2);royal(2);aristocrats(2)
+blue_print	blue_print	blue/ADJ_print/NOUN	25	1.04	print	blue	2.68	1.4922	1	1.354	1.0599	plan(10);plans(7);schematic(4);guide(4);sketch(3);layout(3);design(2);instructions(2)
+box_office	box_office	box/NOUN_office/NOUN	25	0.88	office	box	1.64	1.578	0.56	0.8206	1.1299	ticket booth(6);ticket sales(5);cinema(3);movie industry(3);ticket office(3);movie sales(2);theatre(2);ticket counter(2)
+brain_drain	brain_drain	brain/NOUN_drain/NOUN	24	2.0833	drain	brain	2.2083	1.7189	2.75	1.5673	1.5857	departure(5);turnover(5);emigration(3);mass exodus(3);loss(2)
+bull_market	bull_market	bull/NOUN_market/NOUN	22	1.2273	market	bull	3.2273	1.8499	0.9091	1.1509	1.1925	advancing market(4);booming market(3);good market(3);seller's market(2);stock market(2);time to buy(2)
+cable_car	cable_car	cable/NOUN_car/NOUN	25	2.68	car	cable	2.64	1.6553	3.24	1.6145	1.8193	trolley(13);tram(7);streetcar(5);street car(3);train(3);lift(3);public transit(2);public transportation(2);ski lift(2)
+calendar_month	calendar_month	calendar/NOUN_month/NOUN	13	4.2308	month	calendar	4.3077	1.1821	4.0769	1.4412	1.1658	month(5);30 day period(3);four weeks(2);30 days(2)
+civil_marriage	civil_marriage	civil/ADJ_marriage/NOUN	23	3.1304	marriage	civil	4.4348	1.161	3.087	1.9049	1.8661	civil union(5);common law marriage(4);legal marriage(3);marriage(3);partnership(2);civil partnership(2);non religious marriage(2);matrimony(2)
+cocoa_butter	cocoa_butter	cocoa/NOUN_butter/NOUN	22	3.2273	butter	cocoa	2.3182	1.6729	3.9545	1.3965	1.3428	cocoa oil(5);lotion(4);cocoa lotion(3);theobroma oil(3);moisturizer(3);oil(2)
+computer_expert	computer_expert	computer/NOUN_expert/NOUN	24	4.4583	expert	computer	4.0833	1.3805	4.4583	1.0206	0.8836	computer specialist(5);techie(4);computer geek(4);geek squad(3);technician(3);tech geek(2);computer tech(2);engineer(2)
+contact_lenses	contact_lenses	contact/NOUN_lenses/NOUN	22	3.6364	lenses	contact	4.3636	1.329	3.4545	1.405	1.3988	contacts(8);disposable lens(2);disposable lenses(2);eye contacts(2);lenses(2);soft lens(2);glasses(2)
+copy_cat	copy_cat	copy/NOUN_cat/NOUN	23	0.7391	cat	copy	0.087	0.417	4.1304	1.29	1.1369	mimic(8);impersonator(7);imitator(7);follower(3);identical(3);replica(2);imitation(2);copier(2);mime(2)
+crime_rate	crime_rate	crime/NOUN_rate/NOUN	23	4.3913	rate	crime	4.0435	1.5219	4.7826	1.0426	1.4378	criminal activity(4);amount of crime(3);crime level(2);incidence of crime(2);number of crimes(2);crime statistics(2);crime frequency(2);illegal activity(2)
+damp_squib	damp_squib	damp/ADJ_squib/NOUN	22	0.9545	squib	damp	1.0455	0.9989	0.7727	1.0204	1.2141	failure(6);disappointment(6);let down(5);dud(4);flop(2);failed attempt(2);anti climax(2)
+dark_horse	dark_horse	dark/ADJ_horse/NOUN	23	0.6522	horse	dark	0.6957	0.8757	0.5652	0.8435	0.8847	underdog(12);long shot(9);unexpected winner(4);sleeper(3);unlikely(2);under dog(2)
+day_shift	day_shift	day/NOUN_shift/NOUN	28	4.5357	shift	day	4.4286	1.3174	4.4643	1.1049	0.9993	morning shift(6);first shift(4);daytime work(4);early shift(3);day watch(3);work shift(2);day time(2);day work(2);nine to five(2);days(2);business hours(2);daytime hours(2);office hours(2)
+disability_insurance	disability_insurance	disability/NOUN_insurance/NOUN	22	4.4545	insurance	disability	4.3636	1.2168	4.3636	1.0486	1.1843	social security(4);economic assistance(3);medical coverage(2);insurance(2);disability(2);injury insurance(2);coverage(2);retirement income(2)
+double_dutch	double_dutch	double/ADJ_dutch/NOUN	24	0.2917	Dutch	double	0.4167	0.6539	1	1.4142	0.55	nonsense(7);gibberish(7);jump rope(3);pig latin(2);confusing(2);unfamiliar(2);greek(2)
+double_cross	double_cross	double/ADJ_cross/NOUN	22	1.1364	cross	double	1.3182	1.4601	1.5909	1.5011	1.2069	betray(8);betrayal(8);trick(5);backstabbing(3);deceit(3);deceive(2)
+double_whammy	double_whammy	double/ADJ_whammy/NOUN	23	2.4783	whammy	double	2.087	1.5049	3.3478	1.8243	1.4731	double problem(3);setback(3);double trouble(3);twofold blow(3);two bad things(2);two problems(2);twice as bad(2);hex(2);bad luck(2)
+dream_ticket	dream_ticket	dream/NOUN_ticket/NOUN	25	1.32	ticket	dream	0.92	0.9539	2.76	1.6145	1.1804	perfect combination(5);opportunity(3);desired outcome(2);dream team(2);big chance(2);fantasy(2)
+fair_play	fair_play	fair/NOUN_play/NOUN	22	2.5909	play	fair	1.4091	1.2212	4.2273	1.3068	1.4362	honesty(2);fairness(2);integrity(2);due process(2);sportsmanship(2);equality(2);following the rules(2)
+fairy_tale	fairy_tale	fairy/NOUN_tale/NOUN	22	1.6818	tale	fairy	4.2727	1.3159	1.6364	1.177	1.3588	fable(8);fantasy(7);myth(7);make believe(4);story(3);fictional story(2);fantasy story(2);legend(2)
+fall_guy	fall_guy	fall/NOUN_guy/NOUN	25	1.36	guy	fall	1.76	1.7388	1.32	1.314	1.4967	scapegoat(17);patsy(7);victim(5);sucker(3);dupe(3);scape goat(2);target(2);person to blame(2)
+field_work	field_work	field/NOUN_work/NOUN	29	2.1034	work	field	4.1379	1.3018	2.1724	1.416	1.3718	research(10);experimentation(3);research and development(3);hands on work(2);out of office(2);practical work(2);outdoor work(2);practical(2)
+football_season	football_season	football/NOUN_season/NOUN	26	4.0385	season	football	3.1154	1.6811	4.5385	0.9479	1.1129	fall(3);football games(2);nfl season(2);football schedule(2);game season(2);football period(2);game time(2)
+fresh_water	fresh_water	fresh/ADJ_water/NOUN	20	4.2	water	fresh	4.65	0.8751	3.9	1.2524	1.1517	clean water(14);rainwater(3);potable water(2);spring water(2)
+ghost_town	ghost_town	ghost/NOUN_town/NOUN	24	1.5	town	ghost	3.5	1.4744	0.75	1.0321	1.588	empty(9);abandoned(5);abandoned town(4);deserted town(3);run down(2);abandoned place(2);desolation(2);abandoned city(2);desolate area(2);empty town(2);deserted(2)
+glass_ceiling	glass_ceiling	glass/NOUN_ceiling/NOUN	21	0.8095	ceiling	glass	1	1.2247	0.6667	1.0165	1.167	social prejudice(3);sexism(2);unwritten barrier(2);barrier(2);limit(2)
+grass_root	grass_root	grass/NOUN_root/NOUN	21	0.8571	root	grass	1.2857	1.3093	0.6667	0.7958	0.9636	local(4);working class(2);middle class(2);start up(2)
+hard_drive	hard_drive	hard/ADJ_drive/NOUN	23	2.1739	drive	hard	3.4783	1.62	2.0435	1.5219	1.5855	storage(8);computer storage(4);memory(3);hard disk drive(3);computer memory(3);disk(2);hard disc(2);disk drive(2)
+hard_shoulder	hard_shoulder	hard/ADJ_shoulder/NOUN	23	1.5217	shoulder	hard	1.6522	1.849	2.8261	1.8501	1.6752	shoulder(5);side of road(5);curb(3);emergency lane(3);side of the road(3);paved shoulder(2);roadside(2);road shoulder(2);median(2)
+head_hunter	head_hunter	head/NOUN_hunter/NOUN	22	1.5	hunter	head	2.3182	1.4272	1.1364	1.0372	1.3363	recruiter(16);employee searcher(2);recruiters(2);talent agent(2)
+health_care	health_care	health/NOUN_care/NOUN	15	4.4667	care	health	2.8667	2.0656	4.8	0.414	0.7432	medical care(4);health service(3);health maintenance(2);wellness(2);preventive medicine(2)
+heavy_cross	heavy_cross	heavy/ADJ_cross/NOUN	24	1.1667	cross	heavy	1.0417	1.3015	2.5	1.2158	1.3406	burden(19);weight(3);heavy load(2)
+hen_party	hen_party	hen/NOUN_party/NOUN	22	1.0455	party	hen	4.2273	1.2699	0.6818	0.8937	0.8985	bachelorette party(5);girls party(3);girl's night out(3);gathering(2);women only party(2);girls night out(2);ladies night(2);lady's night(2)
+home_run	home_run	home/NOUN_run/NOUN	21	2.8571	run	home	3.4762	1.3645	2.381	1.5645	1.3148	grand slam(5);dinger(3);out of the park(3);score(3);hit(2);homer(2)
+honey_trap	honey_trap	honey/NOUN_trap/NOUN	23	1.2174	trap	honey	3.7391	1.0962	1.0435	1.1862	1.2044	trap(5);bait(4);lure(4);deceit(2);entrap(2);trick(2);entrapment(2)
+hot_potato	hot_potato	hot/ADJ_potato/NOUN	25	0.56	potato	hot	0.44	0.8206	1.4	1.3229	0.9165	controversy(4);uproar(4);controversial(3);scandal(3);problem(3);talk of the town(2);debate(2);untouchable(2);political football(2);controversial issue(2)
+incubation_period	incubation_period	incubation/NOUN_period/NOUN	26	3.9231	period	incubation	3.7308	1.4848	3.8462	1.3173	1.2304	waiting time(4);gestation period(3);growth period(2);maturation(2);waiting period(2);gestation(2);incubation time(2)
+information_age	information_age	information/NOUN_age/NOUN	15	3.4	age	information	1.2667	1.7099	4.4	1.4541	1.5492	digital age(5);technology age(3);computer age(3);modern era(2);new age(2);information era(2)
+injury_time	injury_time	injury/NOUN_time/NOUN	20	3.2	time	injury	4.05	1.572	3.15	1.7554	1.6092	extra time(7);overtime(3);extra(2);time added on(2);time out(2);extended time(2)
+insider_trading	insider_trading	insider/NOUN_trading/NOUN	24	3.875	trading	insider	4.0833	1.3486	4.3333	0.8681	1.3613	rigged market(8);insider dealing(5);illegal trading(4);cabal(3);cheating(2);insider knowledge(2);inside job(2)
+jet_lag	jet_lag	jet/NOUN_lag/NOUN	24	2.6667	lag	jet	2.625	1.4982	2.7917	1.503	1.4939	tiredness(6);fatigue(6);tired(3);sleep disturbance(2);travel fatigue(2)
+job_fair	job_fair	job/NOUN_fair/NOUN	22	3.5	fair	job	2.8636	1.2069	4.3182	1.1291	1.3363	career fair(7);career expo(3);job convention(2);employment fair(2);hiring fair(2)
+leap_year	leap_year	leap/NOUN_year/NOUN	24	2.375	year	leap	4.3333	1.3077	2.2917	1.6806	1.8606	intercalary year(7);bissextile year(5);defective year(3);extra day(3);longer year(3);february 29(2);every fourth year(2)
+love_song	love_song	love/NOUN_song/NOUN	12	4.5833	song	love	4.5833	0.9003	4.75	0.4523	0.9003	serenade(3);ballad(3);romantic song(2)
+low_profile	low_profile	low/ADJ_profile/NOUN	20	2.1	profile	low	2.1	1.619	2.1	1.5183	1.4473	low key(5);subtle(3);under the radar(3);quiet(3);little known(2);hidden(2);down low(2);inconspicuousness(2)
+marketing_consultant	marketing_consultant	marketing/ADJ_consultant/NOUN	24	4	consultant	marketing	4.3333	1.0901	4.4167	1.0598	1.4446	marketing expert(6);marketing advisor(4);marketing specialist(4);consultant(3);advertising specialist(2);sales advisor(2)
+medical_procedure	medical_procedure	medical/ADJ_procedure/NOUN	24	4.8333	procedure	medical	4.4583	1.1413	4.75	0.5316	0.4815	operation(11);surgery(11);treatment(3);intervention(2);medical action(2);under the knife(2)
+music_festival	music_festival	music/NOUN_festival/NOUN	19	4.5789	festival	music	2.9474	1.8401	4.7895	0.5353	0.7685	concert(6);music celebration(3);show(2);gala(2);concerts(2)
+music_journalist	music_journalist	music/NOUN_journalist/NOUN	24	4.5417	journalist	music	4.625	0.7697	4.4167	1.018	0.8836	music writer(8);music reporter(6);music critic(5);writer(4);music reviewer(3);critic(2);columnist(2);newsperson(2);reporter(2)
+noise_complaint	noise_complaint	noise/NOUN_complaint/NOUN	21	4.5238	complaint	noise	4.1905	1.4703	4.5238	1.0305	0.9808	loud(3);disturbance(2);noise problem(2);noise violation(2);sound complaint(2)
+pain_killer	pain_killer	pain/NOUN_killer/NOUN	24	2.1667	killer	pain	1.4167	1.0598	4.4583	1.1025	1.4039	pain reliever(9);analgesic(5);medicine(4);ibuprofen(2);tylenol(2);pain reducers(2);pain medicine(2);aspirin(2);pain reducer(2);pain relief(2);pain medication(2);sedative(2)
+peace_conference	peace_conference	peace/NOUN_conference/NOUN	24	4.4583	conference	peace	4.4167	0.8805	4.6667	0.637	0.833	peace meeting(4);peace summit(3);meeting(3);peace talk(3);peace talks(3);negotiations(2);peace gathering(2);peace negotiations(2);treaty(2);summit(2)
+peace_talk	peace_talk	peace/NOUN_talk/NOUN	23	4.1304	talk	peace	4	0.9045	4.4783	0.7903	1.0576	peace conference(4);negotiations(4);mediation(4);treaty(3);negotiation(2);peaceful negotiations(2);armistice(2);agreement(2);peace negotiations(2);peacemaking(2);truce(2)
+pipe_dream	pipe_dream	pipe/NOUN_dream/NOUN	22	0.9091	dream	pipe	3.3636	1.7333	0.7727	1.3778	1.1916	fantasy(10);wishful thinking(5);daydream(4);unrealistic(3);delusion(2);imagination(2);illusion(2);wish(2);dream(2)
+poison_pill	poison_pill	poison/NOUN_pill/NOUN	23	0.9565	pill	poison	0.5652	1.0369	1.4783	1.7286	1.2239	sabotage(3);suicide pill(3);poison tablet(2);backup plan(2);trap(2)
+radioactive_material	radioactive_material	radioactive/ADJ_material/NOUN	23	4.6087	material	radioactive	4.3478	0.9346	4.6087	0.9409	0.6564	nuclear waste(3);contaminated(2);radioactive items(2);toxic(2);radioactive substance(2);dangerous material(2);plutonium(2)
+radioactive_waste	radioactive_waste	radioactive/ADJ_waste/NOUN	12	4.5833	waste	radioactive	4.5833	0.6686	4.9167	0.2887	0.793	nuclear waste(5);hazardous waste(2);poison(2);atomic waste(2);pollution(2)
+rainy_season	rainy_season	rainy/ADJ_season/NOUN	22	4.2273	season	rainy	3.7727	1.6599	4.5909	0.8541	1.066	wet season(11);monsoon season(4);spring(3);monsoon(2)
+rice_paper	rice_paper	rice/NOUN_paper/NOUN	23	4	paper	rice	4.6957	0.7029	3.5652	1.6467	1.3817	thin paper(11);parchment(3);paper of rice(3)
+shelf_life	shelf_life	shelf/NOUN_life/NOUN	23	1.3043	life	shelf	2.1739	1.1541	1.5217	1.1627	1.4596	expiration date(10);service life(4);use by date(3);lifespan(3);mean life(2);usefulness(2);serviceable life(2)
+skin_tone	skin_tone	skin/NOUN_tone/NOUN	24	3.875	tone	skin	3.875	1.227	4.7083	0.6241	1.454	skin color(13);complexion(9);color(3);hue(3);skin shade(3);melanin(2);tan(2);coloring(2);pigmentation(2)
+smoke_screen	smoke_screen	smoke/NOUN_screen/NOUN	27	1.1111	screen	smoke	1.5926	1.5507	1.3333	1.1767	1.2195	cover(7);distraction(6);cover up(5);false front(5);disguise(3);masquerade(3);ruse(3);facade(2);deception(2);diversion(2);red herring(2);false cover(2)
+social_insurance	social_insurance	social/ADJ_insurance/NOUN	29	2.8276	insurance	social	3.1034	1.8194	3.5517	1.3252	1.6918	social security(8);welfare(7);government assistance(3);basic insurance(2);social safety net(2);subsistence income(2)
+speed_trap	speed_trap	speed/NOUN_trap/NOUN	24	3.7083	trap	speed	3.5	1.4142	4.3333	1.0901	1.5458	radar trap(7);speed check(2);trick(2);set up(2)
+stag_night	stag_night	stag/NOUN_night/NOUN	27	1.4444	night	stag	3.2593	1.534	1.4074	1.4744	1.5525	bachelor party(15);stag party(6);party(4);bachelor night(2);guys night out(2);night out(2)
+sugar_daddy	sugar_daddy	sugar/NOUN_daddy/NOUN	25	0.44	daddy	sugar	1.08	1.0376	0.52	1.0456	0.7681	gigolo(6);pimp(5);benefactor(3);rich boyfriend(3);financial provider(2);sponsor(2);amoroso(2)
+tear_gas	tear_gas	tear/NOUN_gas/NOUN	22	3.2727	gas	tear	4.7727	0.6119	2.8636	1.4572	1.5791	poison gas(5);asphyxiant(4);lachrymatory gas(2);poison(2);gas(2);mace(2);mustard gas(2);weapon(2)
+time_difference	time_difference	time/NOUN_difference/NOUN	22	4.4091	difference	time	4.5	1.263	4.3636	1.3988	1.4362	time zone(8);time gap(4);time zones(3);time delay(2);time change(2)
+traffic_control	traffic_control	traffic/NOUN_control/NOUN	13	3.6923	control	traffic	3.7692	1.6909	4.0769	1.3821	1.3156	traffic monitoring(3);traffic management(2);traffic directing(2);stoplight(2)
+traffic_jam	traffic_jam	traffic/NOUN_jam/NOUN	26	3.6154	jam	traffic	3.0769	1.7187	4.6538	0.8918	1.7453	congestion(8);gridlock(7);blockage(4);heavy traffic(3);hold up(3);rush hour(3);road congestion(2);bumper to bumper traffic(2);roadblock(2);traffic congestion(2)
+travel_guide	travel_guide	travel/NOUN_guide/NOUN	13	4.3846	guide	travel	4	1.0801	4.6154	0.6504	0.9608	tourist guide(3);tour guide(2)
+wedding_anniversary	wedding_anniversary	wedding/NOUN_anniversary/NOUN	14	4.8571	anniversary	wedding	4.8571	0.5345	4.9286	0.2673	0.3631	marriage anniversary(2);commemoration(2)
+wedding_day	wedding_day	wedding/NOUN_day/NOUN	17	4.9412	day	wedding	4.0588	1.4349	4.7647	0.5623	0.2425	marriage(6);nuptials(3);day of marriage(3);wedding(3);matrimony(3);big day(2);union(2);marriage day(2);day of matrimony(2)
+white_noise	white_noise	white/ADJ_noise/NOUN	23	1.1739	noise	white	4.0435	1.4295	0.6522	1.1123	1.2304	static(9);background noise(5);hiss(3);hum(2);fuzz(2)
+white_spirit	white_spirit	white/ADJ_spirit/NOUN	26	1.3077	spirit	white	2.0385	1.949	1.5385	1.2403	1.2576	paint thinner(7);mineral spirits(5);solvent(5);turpentine(5);petroleum spirits(4);mineral turpentine(3);cleaner(2);detergent(2);rubbing alcohol(2)
+winter_solstice	winter_solstice	winter/NOUN_solstice/NOUN	22	4.5455	solstice	winter	4.6818	1.0861	5	0	1.3355	shortest day(6);longest night(6);midwinter(4);winter(3);season(2);start of winter(2)
+world_conference	world_conference	world/NOUN_conference/NOUN	24	3.9583	conference	world	4.2917	1.2676	3.875	1.3613	1.3667	global meeting(6);meeting(4);world meeting(4);international meeting(3);global summit(2);world summit(2)
