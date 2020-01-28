@@ -70,7 +70,6 @@ else:
     print("Creating dense embeddings")
     if args.contextual:
         print("CompoundCentric Model")
-        comp_str='CompoundCentric'
         print("Loading the constituent and compound vector datasets")
 
         compounds=pd.read_pickle("../../datasets/compounds.pkl")
@@ -79,23 +78,25 @@ else:
         compounds=compounds.query('1800 <= year <= 2010').copy()
         compounds['common']=compounds['modifier']+" "+compounds['head']
 
-        head_list_reduced=compounds['head'].unique().tolist()
-        modifier_list_reduced=compounds['modifier'].unique().tolist()
+        #head_list_reduced=compounds['head'].unique().tolist()
+        #modifier_list_reduced=compounds['modifier'].unique().tolist()
 
         if args.temporal==0:
             print('No temporal information is stored')
             compounds=compounds.groupby(['common','context'])['count'].sum().to_frame()
-        else:
-            compounds['time']=year_binner(compounds['year'].values,args.temporal)
-            #compounds = dd.from_pandas(compounds, npartitions=100)
-            compounds=compounds.groupby(['common','context','time'])['count'].sum().to_frame()
-        compounds.reset_index(inplace=True)
-        if args.temporal==0:
+            compounds.reset_index(inplace=True)
             compounds=compounds.loc[compounds.groupby(['common'])['count'].transform('sum').gt(args.cutoff)]
             compounds=compounds.groupby(['common','context'])['count'].sum()
+
         else:
+            compounds['time']=year_binner(compounds['year'].values,args.temporal)
+            compounds=compounds.groupby(['common','context','time'])['count'].sum().to_frame()
+            compounds.reset_index(inplace=True)
             compounds=compounds.loc[compounds.groupby(['common','time'])['count'].transform('sum').gt(args.cutoff)]
             compounds=compounds.groupby(['common','time','context'])['count'].sum()
+
+
+
 
         modifiers=pd.read_pickle("../../datasets/modifiers.pkl")
         modifiers.reset_index(inplace=True)
@@ -103,17 +104,16 @@ else:
         modifiers=modifiers.query('1800 <= year <= 2010').copy()
         modifiers.columns=['common','context','year','count']
         modifiers['common']=modifiers['common'].str.replace(r'_noun$', r'_m', regex=True)
+        
         if args.temporal==0:
             print('No temporal information is stored')
             modifiers=modifiers.groupby(['common','context'])['count'].sum().to_frame()
-        else:
-            modifiers['time']=year_binner(modifiers['year'].values,args.temporal)
-            modifiers=modifiers.groupby(['common','context','time'])['count'].sum().to_frame()
-        modifiers.reset_index(inplace=True)
-        if args.temporal==0:
+            modifiers.reset_index(inplace=True)
             modifiers=modifiers.loc[modifiers.groupby(['common'])['count'].transform('sum').gt(args.cutoff)]
             modifiers=modifiers.groupby(['common','context'])['count'].sum()
         else:
+            modifiers['time']=year_binner(modifiers['year'].values,args.temporal)
+            modifiers=modifiers.groupby(['common','context','time'])['count'].sum().to_frame()
             modifiers=modifiers.loc[modifiers.groupby(['common','time'])['count'].transform('sum').gt(args.cutoff)]
             modifiers=modifiers.groupby(['common','time','context'])['count'].sum()
 
@@ -126,14 +126,12 @@ else:
         if args.temporal==0:
             print('No temporal information is stored')
             heads=heads.groupby(['common','context'])['count'].sum().to_frame()
-        else:
-            heads['time']=year_binner(heads['year'].values,args.temporal)
-            heads=heads.groupby(['common','context','time'])['count'].sum().to_frame()
-        heads.reset_index(inplace=True)
-        if args.temporal==0:
+            heads.reset_index(inplace=True)
             heads=heads.loc[heads.groupby(['common'])['count'].transform('sum').gt(args.cutoff)]
             heads=heads.groupby(['common','context'])['count'].sum()
         else:
+            heads['time']=year_binner(heads['year'].values,args.temporal)
+            heads=heads.groupby(['common','context','time'])['count'].sum().to_frame()
             heads=heads.loc[heads.groupby(['common','time'])['count'].transform('sum').gt(args.cutoff)]
             heads=heads.groupby(['common','time','context'])['count'].sum()
 
@@ -143,19 +141,57 @@ else:
     else:
         print("CompoundAgnostic Model")
         
-        constituents=pd.read_csv("../../datasets/words.csv")
-        constituents.columns=['joiner','context','decade','count']
-        constituents=constituents.query('decade != 2000')
-        constituents=constituents.groupby(['joiner','decade','context'])['count'].sum()
+        
+        compounds=pd.read_pickle("../../datasets/phrases.pkl")
+        compounds.reset_index(inplace=True)
+        compounds.year=compounds.year.astype("int32")
+        compounds=compounds.query('1800 <= year <= 2010').copy()
+        compounds['common']=compounds['modifier']+" "+compounds['head']
 
 
+        if args.temporal==0:
+            print('No temporal information is stored')
+            compounds=compounds.groupby(['common','context'])['count'].sum().to_frame()
+            compounds.reset_index(inplace=True)
+            compounds=compounds.loc[compounds.groupby(['common'])['count'].transform('sum').gt(args.cutoff)]
+            compounds=compounds.groupby(['common','context'])['count'].sum()
+        else:
+            compounds['time']=year_binner(compounds['year'].values,args.temporal)
+            #compounds = dd.from_pandas(compounds, npartitions=100)
+            compounds=compounds.groupby(['common','context','time'])['count'].sum().to_frame()
+            compounds=compounds.loc[compounds.groupby(['common','time'])['count'].transform('sum').gt(args.cutoff)]
+            compounds=compounds.groupby(['common','time','context'])['count'].sum()
+        
+        
+        constituents=pd.read_pickle("/data/dharp/compounding/datasets/words.pkl")
+        constituents.reset_index(inplace=True)
+        constituents.year=constituents.year.astype("int32")
+        constituents=constituents.query('1800 <= year <= 2010').copy()
+        constituents.columns=['common','context','year','count']
+        if args.temporal==0:
+            print('No temporal information is stored')
+            constituents=constituents.groupby(['common','context'])['count'].sum().to_frame()
+            constituents.reset_index(inplace=True)
+            constituents=constituents.loc[constituents.groupby(['common'])['count'].transform('sum').gt(args.cutoff)]
+            constituents=constituents.groupby(['common','context'])['count'].sum()           
+        else:
+            constituents['time']=year_binner(constituents['year'].values,args.temporal)
+            constituents=constituents.groupby(['common','context','time'])['count'].sum().to_frame()
+            constituents.reset_index(inplace=True)
+            constituents=constituents.loc[constituents.groupby(['common','time'])['count'].transform('sum').gt(args.cutoff)]
+            constituents=constituents.groupby(['common','time','context'])['count'].sum()
 
-    df=df.to_sparse()
+        print('Concatenating all the datasets together')
+        df=pd.concat([constituents,compounds], sort=True)
+        
+
+    dtype = pd.SparseDtype(np.float, fill_value=0)
+    df=df.astype(dtype)
     if args.temporal!=0:    
-        df, rows, _ = df.to_coo(row_levels=['common','time'],column_levels=['context'],sort_labels=False)
+        df, rows, _ = df.sparse.to_coo(row_levels=['common','time'],column_levels=['context'],sort_labels=False)
 
     else:
-        df, rows, _ = df.to_coo(row_levels=['common'],column_levels=['context'],sort_labels=False)
+        df, rows, _ = df.sparse.to_coo(row_levels=['common'],column_levels=['context'],sort_labels=False)
 
     print('Running SVD')   
     df_reduced=dim_reduction(df,rows)
@@ -206,4 +242,27 @@ else:
             print('Files are not being saved')
 
     else:
-        pass # ContextAgnostic ToDo   
+        constituents_reduced=df_reduced.loc[~df_reduced.index.get_level_values(0).str.contains(r'\w \w')]
+        constituents_reduced.reset_index(inplace=True)
+        constituents_reduced['constituent']=constituents_reduced['common']
+        constituents_reduced.drop(['common'],axis=1,inplace=True)
+    
+        if args.temporal!=0:
+            compounds_reduced.set_index(['modifier','head','time'],inplace=True)
+            constituents_reduced.set_index(['constituent','time'],inplace=True)
+        else:
+            compounds_reduced.set_index(['modifier','head'],inplace=True)
+            constituents_reduced.set_index(['constituent'],inplace=True)
+            
+        if args.storedf:
+            print('Saving the files')
+            comp_str="CompoundAgnostic"
+            if args.save_format=='pkl':
+                compounds_reduced.to_pickle('../../datasets/compounds_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.pkl')
+                constituents_reduced.to_pickle('../../datasets/constituents_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.pkl')
+
+            elif args.save_format=='csv':
+                compounds_reduced.to_csv('../../datasets/compounds_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.csv',header=False,sep='\t')
+                constituents_reduced.to_csv('../../datasets/constituents_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.csv',header=False,sep='\t')
+        else:
+            print('Files are not being saved')
