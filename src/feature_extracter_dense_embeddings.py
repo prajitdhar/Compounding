@@ -162,26 +162,6 @@ information_feat['local_mi']=information_feat['a']*information_feat['ppmi']
 information_feat.ppmi.loc[information_feat.ppmi<=0]=0
 information_feat.drop(['a','x_star','star_y','b','c','d','N','d','x_bar_star','star_y_bar'],axis=1,inplace=True)
 
-#information_feat=information_feat.compute()
-if args.temporal!=0:
-
-    information_feat.set_index(['modifier','head','time'],inplace=True)
-else:
-    information_feat.set_index(['modifier','head'],inplace=True)
-
-
-information_feat.replace(0,0.0001,inplace=True)
-information_feat['log_ratio']=2*(information_feat['a']*np.log((information_feat['a']*information_feat['N'])/(information_feat['x_star']*information_feat['star_y']))+\
-information_feat['b']*np.log((information_feat['b']*information_feat['N'])/(information_feat['x_star']*information_feat['star_y_bar']))+\
-information_feat['c']*np.log((information_feat['c']*information_feat['N'])/(information_feat['x_bar_star']*information_feat['star_y']))+\
-information_feat['d']*np.log((information_feat['d']*information_feat['N'])/(information_feat['x_bar_star']*information_feat['star_y_bar'])))
-information_feat['ppmi']=np.log2((information_feat['a']*information_feat['N'])/(information_feat['x_star']*information_feat['star_y']))
-information_feat['local_mi']=information_feat['a']*information_feat['ppmi']
-information_feat.ppmi.loc[information_feat.ppmi<=0]=0
-information_feat.drop(['a','x_star','star_y','b','c','d','N','d','x_bar_star','star_y_bar'],axis=1,inplace=True)
-
-
-
 
 
 new_compounds=compounds-1
