@@ -18,7 +18,7 @@ spelling_replacement={'modifier':br_to_us_dict,'head':br_to_us_dict}
 def lemma_maker(x, y):
     #print(lemmatizer.lemmatize(x,y))
     return lemmatizer.lemmatize(x,y)
-
+from functools import reduce
 
 parser = argparse.ArgumentParser(description='Compute features from embeddings')
 
