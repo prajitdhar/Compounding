@@ -72,8 +72,8 @@ else:
         print("CompoundCentric Model")
         print("Loading the constituent and compound vector datasets")
 
-        compounds=pd.read_pickle("../../datasets/compounds.pkl")
-        compounds.reset_index(inplace=True)
+        compounds=pd.read_csv("./Compounding/coha_compounds//compounds.csv",sep="\t")
+        #compounds.reset_index(inplace=True)
         compounds.year=compounds.year.astype("int32")
         compounds=compounds.query('1800 <= year <= 2010').copy()
         compounds['common']=compounds['modifier']+" "+compounds['head']
