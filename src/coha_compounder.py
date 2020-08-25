@@ -180,8 +180,8 @@ def syntactic_reducer(df,align,level=None):
             df=df.loc[df.fivegram_pos.str.match(r'^'+(any_word+space)*2+any_noun+space+any_word+space+any_word+'$')]
             if len(df) == 0:
                 return df
-            
-            df[['l1_pos','l2_pos','word_pos','r1_pos','r2_pos']]=df['fivegram_pos'].str.split(space, expand=True)
+           
+            df[['l1_pos','l2_pos','word_pos','r1_pos','r2_pos']]=df['fivegram_pos'].str.split(space, expand=True,n=4)
             df=relemjoin(df,'word_pos')
             df=pd.melt(df,id_vars=['word','year','count'],value_vars=['l1_pos','l2_pos','r1_pos','r2_pos'])
             return df
