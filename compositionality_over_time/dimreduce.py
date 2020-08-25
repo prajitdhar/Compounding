@@ -4,10 +4,10 @@ from sklearn.decomposition import PCA,TruncatedSVD,NMF
 from sklearn.preprocessing import Normalizer
 import argparse
 import time
-import numba
+#import numba
 
 
-@numba.jit(nopython=True)
+#@numba.jit(nopython=True)
 def year_binner(year,val=10):
     return year - year%val
 
@@ -26,6 +26,10 @@ def dim_reduction(df,rows):
 
 parser = argparse.ArgumentParser(description='Gather data necessary for performing Regression')
 
+parser.add_argument('--inputdir',type=str,
+                    help='Provide directory that has the files with the fivegram counts')
+parser.add_argument('--outputdir',type=str,
+                    help='Provide directory in that the output files should be stored')
 parser.add_argument('--temporal',  type=int, default=0,
                     help='Value to bin the temporal information: 0 (remove temporal information), 1 (no binning), 10 (binning to decades), 20 (binning each 20 years) or 50 (binning each 50 years)')
 
@@ -47,7 +51,9 @@ parser.add_argument('--storedf', action='store_true',
 parser.add_argument('--dims', type=int, default=300,
                     help='Desired number of reduced dimensions')
 
-parser.add_argument('--save_format', type=str,default='pkl',
+parser.add_argument('--input_format',type=str,default='csv',choices=['csv','pkl'],
+                    help='In what format are the input files : csv or pkl')
+parser.add_argument('--save_format', type=str,default='pkl',choices=['pkl','csv'],
                     help='In what format should the reduced datasets be saved : csv or pkl')
 
 
@@ -72,8 +78,11 @@ else:
         print("CompoundCentric Model")
         print("Loading the constituent and compound vector datasets")
 
-        compounds=pd.read_csv("./Compounding/coha_compounds//compounds.csv",sep="\t")
-        #compounds.reset_index(inplace=True)
+        if args.input_format=="csv":
+            compounds=pd.read_csv(args.inputdir+"/compounds.csv",sep="\t")
+        elif args.input=="pkl":
+            compounds=pd.read_pickle(args.inputdir+"/compounds.pkl")
+            compounds.reset_index(inplace=True)
         compounds.year=compounds.year.astype("int32")
         compounds=compounds.query('1800 <= year <= 2010').copy()
         compounds['common']=compounds['modifier']+" "+compounds['head']
@@ -98,8 +107,11 @@ else:
 
 
 
-        modifiers=pd.read_pickle("../../datasets/modifiers.pkl")
-        modifiers.reset_index(inplace=True)
+        if args.input_format=="csv":
+            modifiers=pd.read_csv(args.inputdir+"/modifiers.csv",sep="\t")
+        elif args.input=="pkl":
+            modifiers=pd.read_pickle(args.inputdir+"/modifiers.pkl")
+            modifiers.reset_index(inplace=True)
         modifiers.year=modifiers.year.astype("int32")
         modifiers=modifiers.query('1800 <= year <= 2010').copy()
         modifiers.columns=['common','context','year','count']
@@ -117,8 +129,11 @@ else:
             modifiers=modifiers.loc[modifiers.groupby(['common','time'])['count'].transform('sum').gt(args.cutoff)]
             modifiers=modifiers.groupby(['common','time','context'])['count'].sum()
 
-        heads=pd.read_pickle("../../datasets/heads.pkl")
-        heads.reset_index(inplace=True)
+        if args.input_format=="csv":
+            heads=pd.read_csv(args.inputdir+"/heads.csv",sep="\t")
+        elif args.input_format=="pkl":
+            heads=pd.read_pickle(args.inputdir+"/heads.pkl")
+            heads.reset_index(inplace=True)
         heads.year=heads.year.astype("int32")
         heads=heads.query('1800 <= year <= 2010').copy()
         heads.columns=['common','context','year','count']
@@ -141,9 +156,11 @@ else:
     else:
         print("CompoundAgnostic Model")
         
-        
-        compounds=pd.read_pickle("../../datasets/phrases.pkl")
-        compounds.reset_index(inplace=True)
+        if args.input_format=="csv":
+            compounds=pd.read_csv(args.inputdir+"/phrases.csv",sep="\t")
+        elif args.input_format=="pkl":
+            compounds=pd.read_pickle(args.inputdir+"/phrases.pkl")
+            compounds.reset_index(inplace=True)
         compounds.year=compounds.year.astype("int32")
         compounds=compounds.query('1800 <= year <= 2010').copy()
         compounds['common']=compounds['modifier']+" "+compounds['head']
@@ -162,9 +179,11 @@ else:
             compounds=compounds.loc[compounds.groupby(['common','time'])['count'].transform('sum').gt(args.cutoff)]
             compounds=compounds.groupby(['common','time','context'])['count'].sum()
         
-        
-        constituents=pd.read_pickle("/data/dharp/compounding/datasets/words.pkl")
-        constituents.reset_index(inplace=True)
+        if args.input_format=="csv":
+            constituents=pd.read_csv("/data/dharp/compounding/datasets/words.csv",sep="\t")
+        elif args.input_format=="pkl":
+            constituents=pd.read_pickle("/data/dharp/compounding/datasets/words.pkl")
+            constituents.reset_index(inplace=True)
         constituents.year=constituents.year.astype("int32")
         constituents=constituents.query('1800 <= year <= 2010').copy()
         constituents.columns=['common','context','year','count']
@@ -231,13 +250,13 @@ else:
             print('Saving the files')
             comp_str="CompoundAware"
             if args.save_format=='pkl':
-                compounds_reduced.to_pickle('../../datasets/compounds_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.pkl')
-                heads_reduced.to_pickle('../../datasets/heads_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.pkl')
-                modifiers_reduced.to_pickle('../../datasets/modifiers_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.pkl')
+                compounds_reduced.to_pickle(args.outputdir+'/compounds_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.pkl')
+                heads_reduced.to_pickle(args.outputdir+'/heads_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.pkl')
+                modifiers_reduced.to_pickle(args.outputdir+'/modifiers_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.pkl')
             elif args.save_format=='csv':
-                compounds_reduced.to_csv('../../datasets/compounds_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.csv',header=False,sep='\t')
-                heads_reduced.to_csv('../../datasets/heads_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.csv',header=False,sep='\t')
-                modifiers_reduced.to_pickle('../../datasets/modifiers_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.csv',header=False,sep='\t')
+                compounds_reduced.to_csv(args.outputdir+'/compounds_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.csv',header=False,sep='\t')
+                heads_reduced.to_csv(args.outputdir+'/heads_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.csv',header=False,sep='\t')
+                modifiers_reduced.to_pickle(args.outputdir+'/modifiers_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.csv',header=False,sep='\t')
         else:
             print('Files are not being saved')
 
@@ -258,11 +277,11 @@ else:
             print('Saving the files')
             comp_str="CompoundAgnostic"
             if args.save_format=='pkl':
-                compounds_reduced.to_pickle('../../datasets/compounds_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.pkl')
-                constituents_reduced.to_pickle('../../datasets/constituents_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.pkl')
+                compounds_reduced.to_pickle(args.outputdir+'/compounds_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.pkl')
+                constituents_reduced.to_pickle(args.outputdir+'/constituents_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.pkl')
 
             elif args.save_format=='csv':
-                compounds_reduced.to_csv('../../datasets/compounds_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.csv',header=False,sep='\t')
-                constituents_reduced.to_csv('../../datasets/constituents_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.csv',header=False,sep='\t')
+                compounds_reduced.to_csv(args.outputdir+'/compounds_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.csv',header=False,sep='\t')
+                constituents_reduced.to_csv(args.outputdir+'/constituents_'+comp_str+'_'+str(args.temporal)+'_'+str(args.cutoff)+'_'+'300'+'.csv',header=False,sep='\t')
         else:
             print('Files are not being saved')

@@ -30,6 +30,10 @@ parser.add_argument('--cutoff', type=int, default=50,
 
 parser.add_argument('--contextual', action='store_true',
                     help='Is the model contextual')
+parser.add_argument('--inputdir',type=str,
+                    help='Provide directory where features are located')
+parser.add_argument('--outputdir',type=str,
+                    help='Where should the output be stored?')
 
 
 args = parser.parse_args()
@@ -41,15 +45,15 @@ temp_cutoff_str=str(args.temporal)+'_'+str(args.cutoff)
 
 
 if args.contextual:
-    comp_df_path='../../datasets/compounds_CompoundAware_'+temp_cutoff_str+'_300.pkl'
-    mod_df_path='../../datasets/modifiers_CompoundAware_'+temp_cutoff_str+'_300.pkl'
-    head_df_path='../../datasets/heads_CompoundAware_'+temp_cutoff_str+'_300.pkl'
-    features_df_path='../../datasets/features_CompoundAware_'+temp_cutoff_str+'_300.pkl'
+    comp_df_path=args.inputdir+'/compounds_CompoundAware_'+temp_cutoff_str+'_300.pkl'
+    mod_df_path=args.inputdir+'/modifiers_CompoundAware_'+temp_cutoff_str+'_300.pkl'
+    head_df_path=args.inputdir+'/heads_CompoundAware_'+temp_cutoff_str+'_300.pkl'
+    features_df_path=args.outputdir+'/features_CompoundAware_'+temp_cutoff_str+'_300.pkl'
 else:
-    comp_df_path='../../datasets/compounds_CompoundAgnostic_'+temp_cutoff_str+'_300.pkl'
-    mod_df_path='../../datasets/constituents_CompoundAgnostic_'+temp_cutoff_str+'_300.pkl'
-    head_df_path='../../datasets/constituents_CompoundAgnostic_'+temp_cutoff_str+'_300.pkl'
-    features_df_path='../../datasets/features_CompoundAgnostic_'+temp_cutoff_str+'_300.pkl'
+    comp_df_path=args.inputdir+'/compounds_CompoundAgnostic_'+temp_cutoff_str+'_300.pkl'
+    mod_df_path=args.inputdir+'/constituents_CompoundAgnostic_'+temp_cutoff_str+'_300.pkl'
+    head_df_path=args.inputdir+'/constituents_CompoundAgnostic_'+temp_cutoff_str+'_300.pkl'
+    features_df_path=args.outputdir+'/features_CompoundAgnostic_'+temp_cutoff_str+'_300.pkl'
 
 
 
