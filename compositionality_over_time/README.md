@@ -9,7 +9,7 @@ The general code base is divided across several ipython files that can be used i
 
 ### Dimensionality reduction
 
-The script [`dimreduce.sh`](dimreduce.sh) can be used to easily extract features for different setups. In order to run the experiments for the different setups, the file needs to be edited directly. There are different options:
+The scripts [`../src/feature_extracter_dense_embeddings.sh`](../src/feature_extracter_dense_embeddings.sh) and [`dimreduce.sh`](dimreduce.sh) can be used to easily extract features for different setups. The output of the former can be given into the latter. In order to run the experiments for the different setups, the files needs to be edited directly. There are different options:
 
 - `CUTOFF`: Control the frequency-cutoff for compounds per time span. In order to give a list to iterate over, provide all cutoff values space-separated, e.g. `CUTOFF="20 50 100"`
 - `TIMESPAN`: Control for the different possible time spans to compare. Time spans can be provided identically to CUTOFF, so for example `TIMESPAN="1 10 20 50"`. Giving a time span of `0` means to not use any temporal information at all.
@@ -25,11 +25,13 @@ The script [`dimreduce.sh`](dimreduce.sh) can be used to easily extract features
 
 `--temporal` and `--cutoff` are controlled by [`dimreduce.sh`](dimreduce.sh) and do not need to be changed.
 
+Similarly, [`../src/feature_extracter_dense_embeddings.sh`](../src/feature_extracter_dense_embeddings.sh) make use of [`../src/feature_extracter_dense_embeddings.py`](../src/feature_extracter_dense_embeddings.py).
+
 ### Visualization
 
-With the extracted embeddings, we can also create visualizations. Some examples thereof can be found in [`paper_submission.ipynb`](paper_submission.ipynb), which makes use of the features extracted by [`dimreduce.sh`](dimreduce.sh).
+With the extracted embeddings, we can also create visualizations. Some examples thereof can be found in [`Notebooks/paper_submission.ipynb`](Notebooks/paper_submission.ipynb), which makes use of the features extracted by [`dimreduce.sh`](dimreduce.sh).
 
-![LMI over time](LMI.png)
+![LMI over time](Plots/LMI.png)
 
 ## Collaborators
 
