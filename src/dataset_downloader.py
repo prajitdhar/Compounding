@@ -26,7 +26,6 @@ parser.add_argument('--chunksize', type=int,default=10_000_000,
 
 args = parser.parse_args()
 
-
 #temp_list="j_ ja jb jc jd je jf jg jh ji jj jk jl jm jn jo jp jq jr js jt ju jv jw jx jy jz"
 fivegram_list=fivegrams.split(" ")
 
@@ -48,7 +47,7 @@ keep_string=r"[A-Za-z-']+_(NOUN|ADV|VERB|ADJ|X|PRT|CONJ|PRON|DET|ADP|NUM|\.)\s*"
 
 remove_string=r".*['.-]{2,}.*"
 
-
+div_lsts=[remainder_list[:i + 15] for i in range(0, len(remainder_list), 15)]
     
 def chunked_dataset_extracter(df):
     df.columns=['fivegram_pos','year','count']
@@ -60,7 +59,6 @@ def chunked_dataset_extracter(df):
     df=df.groupby(['fivegram_pos','year'])['count'].sum().to_frame()
     df.reset_index(inplace=True)
     return df
-
 
 
 def dataset_extracter(letter):
@@ -82,12 +80,9 @@ def dataset_extracter(letter):
     print(f"Finished with letter(s) {letter} ; Before : {total_df_shape}, After : {after_shape} Change in percentage : {(total_df_shape-after_shape)/total_df_shape*100:0.2f}%")
     print(f"Letter(s) {letter} took time {(time.time()-cur_time):0.2f} seconds")
     print("\n")
-    
+
     complete_df.to_pickle(args.dir+letter+'.pkl')
 
-    
-
-    
 def dataset_downloader_whole(cur_list):
     
     n_proc = mp.cpu_count()-1
@@ -97,8 +92,7 @@ def dataset_downloader_whole(cur_list):
     pool.close()
     pool.join()
     
-    
+
 for cur_list in chunked_list:
     print(f"Current list includes the letters {' '.join(cur_list)}")
     dataset_downloader_whole(cur_list)
-    
