@@ -1,5 +1,3 @@
-from os import listdir
-from os.path import isfile, join,getsize
 import glob
 import time
 import random
@@ -7,26 +5,24 @@ from multiprocessing import Pool
 import multiprocessing as mp
 import pandas as pd
 import numpy as np
-pd.options.mode.chained_assignment = None
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
-import pickle as pkl
+import fastparquet
+from os.path import isfile
+from nltk.stem import WordNetLemmatizer
+lemmatizer = WordNetLemmatizer()
 
-import warnings
-#warnings.simplefilter(action='ignore', category=ResourceWarning)
-np.random.seed(seed=1991)
-import tables
-from itertools import chain
-from spacy.lemmatizer import Lemmatizer
-from spacy.lang.en import LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES
-lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
 import argparse
 
+import warnings
 
+from pandas.core.common import SettingWithCopyWarning
+
+warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 
 parser = argparse.ArgumentParser(description='Program to run google compounder for a particular file and setting')
 
 parser.add_argument('--data', type=str,
-                    help='location of the hdf5 file')
+                    help='location of the parquet file')
 
 parser.add_argument('--word', action='store_true',
                     help='Extracting context for words only?')
@@ -34,7 +30,7 @@ parser.add_argument('--word', action='store_true',
 parser.add_argument('--output', type=str,
                     help='directory to save dataset in')
 
-parser.add_argument('--chunksize', type=int,default=50_000_000,
+parser.add_argument('--chunksize', type=int,default=100_000_000,
                     help='Value of chunksize to read datasets in')
 
 
@@ -44,17 +40,12 @@ args = parser.parse_args()
 
 
 
-
-br_to_us=pd.read_excel("Book.xlsx",header=1)
+contextwords=pd.read_pickle('/data/dharp/compounds/Compounding/data/contexts.pkl')
+br_to_us=pd.read_csv('/data/dharp/compounds/Compounding/data/spelling.csv',sep='\t')
 br_to_us_dict=dict(zip(br_to_us.UK.tolist(),br_to_us.US.tolist()))
 
-contextwords=pkl.load( open( "contexts.pkl", "rb" ) )
-
-batched_pkl_files=pkl.load(open('batched_pkl_files.pkl','rb'))
 
 spelling_replacement={'context':br_to_us_dict,'modifier':br_to_us_dict,'head':br_to_us_dict,'word':br_to_us_dict}
-
-words_list=pkl.load(open('words_list.pkl','rb'))
 
 
 any_word=r'.+_.+'
@@ -65,13 +56,15 @@ space=r'\s'
 
 def lemma_maker(x, y):
     #print(lemmatizer(x,y)[0])
-    return lemmatizer(x,y)[0]
+    return lemmatizer.lemmatize(x,y)
 
 def relemjoin(df,col_name):
+    #print(col_name)
     new_col=col_name.split('_')[0]
     new_col_pos=new_col[0]+"_pos"
-    df[new_col]=df[col_name].str.split('_', 1).str[0]
-    df[new_col_pos]="noun"
+    #print(df[col_name].str.split('_', 1,expand=True))
+    df[new_col]=df[col_name].str.split('_', 1,expand=True)[0]
+    df[new_col_pos]="n"
     df[new_col]=np.vectorize(lemma_maker)(df[new_col], df[new_col_pos])
     df.replace(spelling_replacement,inplace=True)
     df[new_col]=df[new_col]+"_noun"
@@ -88,7 +81,7 @@ def syntactic_reducer(df,align,level=None):
             if len(df) == 0:
                 return df
             
-            df['word_pos'],df['r1_pos'],df['r2_pos'],df['r3_pos'],_=df['fivegram_pos'].str.split(space).str
+            df['word_pos'],df['r1_pos'],df['r2_pos'],df['r3_pos'],_=df['fivegram_pos'].str.split(space,expand=True)
             #df=df.query('word_pos == @word_list')
             df=relemjoin(df,'word_pos')
             df=pd.melt(df,id_vars=['word','year','count'],value_vars=['r1_pos','r2_pos','r3_pos'])
@@ -104,8 +97,8 @@ def syntactic_reducer(df,align,level=None):
             cdsm=cdsm.loc[cdsm.fivegram_pos.str.match(r'^'+(proper_noun+space)*2+(any_word+space)*2+any_word+'$')]
 
             try:
-                phrases['modifier_pos'],phrases['head_pos'],phrases['r1_pos'],phrases['r2_pos'],phrases['r3_pos']=phrases['fivegram_pos'].str.split(space).str
-                cdsm['modifier_pos'],cdsm['head_pos'],cdsm['r1_pos'],cdsm['r2_pos'],cdsm['r3_pos']=cdsm['fivegram_pos'].str.split(space).str
+                phrases['modifier_pos'],phrases['head_pos'],phrases['r1_pos'],phrases['r2_pos'],phrases['r3_pos']=phrases['fivegram_pos'].str.split(space,expand=True)
+                cdsm['modifier_pos'],cdsm['head_pos'],cdsm['r1_pos'],cdsm['r2_pos'],cdsm['r3_pos']=cdsm['fivegram_pos'].str.split(space,expand=True)
             except ValueError:
                 phrases=pd.DataFrame()
                 compounds=pd.DataFrame()
@@ -136,7 +129,7 @@ def syntactic_reducer(df,align,level=None):
             if len(df) == 0:
                 return df
             
-            df['l1_pos'],df['word_pos'],df['r1_pos'],df['r2_pos'],df['r3_pos']=df['fivegram_pos'].str.split(space).str
+            df['l1_pos'],df['word_pos'],df['r1_pos'],df['r2_pos'],df['r3_pos']=df['fivegram_pos'].str.split(space,expand=True)
             df=relemjoin(df,'word_pos')
             df=pd.melt(df,id_vars=['word','year','count'],value_vars=['l1_pos','r1_pos','r2_pos','r3_pos'])
             return df
@@ -144,16 +137,17 @@ def syntactic_reducer(df,align,level=None):
             #phrases=df.loc[df.fivegram_pos.str.match(r'^[a-z-]+_.+\s+[a-z-]+_noun\s+[a-z-]+_noun\s+[a-z-]+_.+\s+[a-z-]+_.+$')]
             phrases=df.loc[df.fivegram_pos.str.match(r'^'+any_word+space+(any_noun+space)*2+any_word+space+any_word+'$')]
             #cdsm=phrases.loc[~phrases.fivegram_pos.str.match(r'^[a-z-]+_noun\s+[a-z-]+_noun\s+[a-z-]+_noun\s+[a-z-]+_noun\s+[a-z-]+_.+$')]
-
+            #print(phrases)
             
             cdsm=phrases.loc[~phrases.fivegram_pos.str.match(r'^'+(any_noun+space)*4+any_word+'$')]
+            #print(cdsm)
             
-            cdsm=cdsm.loc[cdsm.fivegram_pos.str.match(r'^'+any_word+space+(proper_noun+space)*2+any_word+space+any_word+'$')]
-            
+            cdsm=cdsm.loc[cdsm.fivegram_pos.str.match(r'^'+any_word+space+(proper_noun+space)*2+any_word+space+any_word+'$')]           
+            #print(cdsm)
             
             try:
-                phrases['l1_pos'],phrases['modifier_pos'],phrases['head_pos'],phrases['r1_pos'],phrases['r2_pos']=phrases['fivegram_pos'].str.split(space).str
-                cdsm['l1_pos'],cdsm['modifier_pos'],cdsm['head_pos'],cdsm['r1_pos'],cdsm['r2_pos']=cdsm['fivegram_pos'].str.split(space).str
+                phrases[['l1_pos','modifier_pos','head_pos','r1_pos','r2_pos']]=phrases['fivegram_pos'].str.split(space,expand=True)
+                cdsm[['l1_pos','modifier_pos','head_pos','r1_pos','r2_pos']]=cdsm['fivegram_pos'].str.split(space,expand=True)
             except ValueError:
                 phrases=pd.DataFrame()
                 compounds=pd.DataFrame()
@@ -180,7 +174,7 @@ def syntactic_reducer(df,align,level=None):
             if len(df) == 0:
                 return df
             
-            df['l1_pos'],df['l2_pos'],df['word_pos'],df['r1_pos'],df['r2_pos']=df['fivegram_pos'].str.split(space).str
+            df[['l1_pos','l2_pos','word_pos','r1_pos','r2_pos']]=df['fivegram_pos'].str.split(space,expand=True)
             df=relemjoin(df,'word_pos')
             df=pd.melt(df,id_vars=['word','year','count'],value_vars=['l1_pos','l2_pos','r1_pos','r2_pos'])
             return df
@@ -190,12 +184,14 @@ def syntactic_reducer(df,align,level=None):
             
             phrases=df.loc[df.fivegram_pos.str.match(r'^'+(any_word+space)*2+(any_noun+space)*2+any_word+'$')]
             #cdsm=phrases.loc[~phrases.fivegram_pos.str.match(r'^[a-z-]+_.+\s+[a-z-]+_noun\s+[a-z-]+_noun\s+[a-z-]+_noun\s+[a-z-]+_noun$')]
-
+            #print(phrases.shape)
             cdsm=phrases.loc[~phrases.fivegram_pos.str.match(r'^'+any_word+space+(any_noun+space)*3+any_word+'$')]
+            #print(cdsm.shape)
             cdsm=cdsm.loc[cdsm.fivegram_pos.str.match(r'^'+(any_word+space)*2+(proper_noun+space)*2+any_word+'$')]
+            #print(cdsm.shape)
             try:
-                phrases['l1_pos'],phrases['l2_pos'],phrases['modifier_pos'],phrases['head_pos'],phrases['r1_pos']=phrases['fivegram_pos'].str.split(space).str
-                cdsm['l1_pos'],cdsm['l2_pos'],cdsm['modifier_pos'],cdsm['head_pos'],cdsm['r1_pos']=cdsm['fivegram_pos'].str.split(space).str
+                phrases[['l1_pos','l2_pos','modifier_pos','head_pos','r1_pos']]=phrases['fivegram_pos'].str.split(space,expand=True)
+                cdsm[['l1_pos','l2_pos','modifier_pos','head_pos','r1_pos']]=cdsm['fivegram_pos'].str.split(space,expand=True)
             except ValueError:
                 phrases=pd.DataFrame()
                 compounds=pd.DataFrame()
@@ -221,7 +217,7 @@ def syntactic_reducer(df,align,level=None):
         if len(df)==0:
             return df
 
-        df['l1_pos'],df['l2_pos'],df['word_pos'],df['r1_pos'],df['r2_pos']=df['fivegram_pos'].str.split(space).str
+        df['l1_pos'],df['l2_pos'],df['word_pos'],df['r1_pos'],df['r2_pos']=df['fivegram_pos'].str.split(space,expand=True)
         df=relemjoin(df,'word_pos')
         df=pd.melt(df,id_vars=['word','year','count'],value_vars=['l1_pos','l2_pos','r1_pos','r2_pos'])
         return df
@@ -234,7 +230,7 @@ def syntactic_reducer(df,align,level=None):
             df=df.loc[df.fivegram_pos.str.match(r'^'+(any_word+space)*4+any_noun+'$')]
             if len(df) == 0:
                 return df
-            _,df['l1_pos'],df['l2_pos'],df['l3_pos'],df['word_pos']=df['fivegram_pos'].str.split(space).str
+            _,df['l1_pos'],df['l2_pos'],df['l3_pos'],df['word_pos']=df['fivegram_pos'].str.split(space,expand=True)
             df=relemjoin(df,'word_pos')
             df=pd.melt(df,id_vars=['word','year','count'],value_vars=['l1_pos','l2_pos','l3_pos'])
             return df
@@ -249,8 +245,8 @@ def syntactic_reducer(df,align,level=None):
             cdsm=cdsm.loc[cdsm.fivegram_pos.str.match(r'^'+(any_word+space)*3+proper_noun+space+proper_noun+'$')]
             
             try:
-                phrases['l1_pos'],phrases['l2_pos'],phrases['l3_pos'],phrases['modifier_pos'],phrases['head_pos']=phrases['fivegram_pos'].str.split(space).str
-                cdsm['l1_pos'],cdsm['l2_pos'],cdsm['l3_pos'],cdsm['modifier_pos'],cdsm['head_pos']=cdsm['fivegram_pos'].str.split(space).str
+                phrases['l1_pos'],phrases['l2_pos'],phrases['l3_pos'],phrases['modifier_pos'],phrases['head_pos']=phrases['fivegram_pos'].str.split(space,expand=True)
+                cdsm['l1_pos'],cdsm['l2_pos'],cdsm['l3_pos'],cdsm['modifier_pos'],cdsm['head_pos']=cdsm['fivegram_pos'].str.split(space,expand=True)
             except ValueError:
                 phrases=pd.DataFrame()
                 compounds=pd.DataFrame()
@@ -275,13 +271,13 @@ def context_reducer(df):
     if len(df)==0:
         return df
     df["variable"]=df["variable"].str.replace(r"_pos","")
-    df["context"],df["context_pos"]=df['value'].str.split('_', 1).str
+    df[["context","context_pos"]]=df['value'].str.split('_', 1,expand=True)
     df=df.loc[df.context_pos.isin(["noun","adj","adv","verb"])]
     #df.replace(adv_replacement,inplace=True)
-    #df['context_pos']=df['context_pos'].str[0]
+    df['context_pos']=df['context_pos']
     if len(df)==0:
         return df
-    df['context']=np.vectorize(lemma_maker)(df['context'], df['context_pos'])
+    df['context']=np.vectorize(lemma_maker)(df['context'], df['context_pos'].str[0])
     df.replace(spelling_replacement,inplace=True)
     df['context']=df['context']+"_"+df['context_pos']
     df.query('context in @contextwords',inplace=True)
@@ -290,8 +286,8 @@ def context_reducer(df):
 
 
 def cdsm_word_reducer(df):
-    rightgram=syntactic_reducer(df,align="right",level="word")
-    rightgram=context_reducer(rightgram)
+    #rightgram=syntactic_reducer(df,align="right",level="word")
+    #rightgram=context_reducer(rightgram)
     
     mid1gram=syntactic_reducer(df,align="mid1",level="word")
     mid1gram=context_reducer(mid1gram)
@@ -302,10 +298,10 @@ def cdsm_word_reducer(df):
     mid3gram=syntactic_reducer(df,align="mid3",level="word")
     mid3gram=context_reducer(mid3gram)
     
-    leftgram=syntactic_reducer(df,align="left",level="word")
-    leftgram=context_reducer(leftgram)    
+    #leftgram=syntactic_reducer(df,align="left",level="word")
+    #leftgram=context_reducer(leftgram)    
     
-    words_df=pd.concat([rightgram,mid1gram,mid2gram,mid3gram,leftgram],ignore_index=True,sort=False)
+    words_df=pd.concat([mid1gram,mid2gram,mid3gram],ignore_index=True,sort=False)
     words_df.dropna(inplace=True)
     words_df=words_df.query('word in @words_list')
     words_df=words_df.groupby(['word','context','year'])['count'].sum().to_frame()
@@ -316,40 +312,46 @@ def cdsm_word_reducer(df):
 
 
 def cdsm_reducer(df):
-    phrase_rightgram,compound_rightgram,modifier_rightgram,head_rightgram=syntactic_reducer(df,align="right")
-    phrase_rightgram=context_reducer(phrase_rightgram)
-    compound_rightgram=context_reducer(compound_rightgram)
-    modifier_rightgram=context_reducer(modifier_rightgram)
-    head_rightgram=context_reducer(head_rightgram)
+    #phrase_rightgram,compound_rightgram,modifier_rightgram,head_rightgram=syntactic_reducer(df,align="right")
+    #phrase_rightgram=context_reducer(phrase_rightgram)
+    #compound_rightgram=context_reducer(compound_rightgram)
+    #modifier_rightgram=context_reducer(modifier_rightgram)
+    #head_rightgram=context_reducer(head_rightgram)
 
 
     phrase_mid1gram,compound_mid1gram,modifier_mid1gram,head_mid1gram=syntactic_reducer(df,align="mid1")
+    #print(phrase_mid1gram)
     phrase_mid1gram=context_reducer(phrase_mid1gram)
+    #print(phrase_mid1gram)
     compound_mid1gram=context_reducer(compound_mid1gram)
     modifier_mid1gram=context_reducer(modifier_mid1gram)
     head_mid1gram=context_reducer(head_mid1gram)
  
 
     phrase_mid2gram,compound_mid2gram,modifier_mid2gram,head_mid2gram=syntactic_reducer(df,align="mid2")
+    #return phrase_mid2gram
     phrase_mid2gram=context_reducer(phrase_mid2gram)
+    #print(phrase_mid2gram)
+
     compound_mid2gram=context_reducer(compound_mid2gram)
     modifier_mid2gram=context_reducer(modifier_mid2gram)
     head_mid2gram=context_reducer(head_mid2gram)
     
-    phrase_leftgram,compound_leftgram,modifier_leftgram,head_leftgram=syntactic_reducer(df,align="left")
-    phrase_leftgram=context_reducer(phrase_leftgram)
-    compound_leftgram=context_reducer(compound_leftgram)
-    modifier_leftgram=context_reducer(modifier_leftgram)
-    head_leftgram=context_reducer(head_leftgram)
+    #phrase_leftgram,compound_leftgram,modifier_leftgram,head_leftgram=syntactic_reducer(df,align="left")
+    #phrase_leftgram=context_reducer(phrase_leftgram)
+    #compound_leftgram=context_reducer(compound_leftgram)
+    #modifier_leftgram=context_reducer(modifier_leftgram)
+    #head_leftgram=context_reducer(head_leftgram)
     
     
-    phrases=pd.concat([phrase_rightgram,phrase_mid1gram,phrase_mid2gram,phrase_leftgram],ignore_index=True,sort=False)
-    compounds=pd.concat([compound_rightgram,compound_mid1gram,compound_mid2gram,compound_leftgram],ignore_index=True,sort=False)
-    modifiers=pd.concat([modifier_rightgram,modifier_mid1gram,modifier_mid2gram,modifier_leftgram],ignore_index=True,sort=False)
-    heads=pd.concat([head_rightgram,head_mid1gram,head_mid2gram,head_leftgram],ignore_index=True,sort=False)
+    phrases=pd.concat([phrase_mid1gram,phrase_mid2gram],ignore_index=True,sort=False)
+    compounds=pd.concat([compound_mid1gram,compound_mid2gram],ignore_index=True,sort=False)
+    modifiers=pd.concat([modifier_mid1gram,modifier_mid2gram],ignore_index=True,sort=False)
+    heads=pd.concat([head_mid1gram,head_mid2gram],ignore_index=True,sort=False)
 
     
     phrases.dropna(inplace=True)
+    print(phrases)
     phrases=phrases.groupby(['modifier','head','context','year'])['count'].sum().to_frame()
     phrases.reset_index(inplace=True)
     phrases.year=phrases.year.astype("int32")
@@ -371,7 +373,7 @@ def cdsm_reducer(df):
     return compounds,modifiers,heads,phrases
 
 
-def parallelize_dataframe(df,save_loc,num_cores):
+def parallelize_dataframe(df,num_cores):
     num_partitions = num_cores
     df_split = np.array_split(df, num_partitions)
     print("Done splitting the datasets")
@@ -395,10 +397,10 @@ def parallelize_dataframe(df,save_loc,num_cores):
         compounds=compounds.groupby(['modifier','head','context','year'])['count'].sum().to_frame()
         compounds.reset_index(inplace=True)
         
-        if not isfile("/data/dharp/compounding/datasets/compounds.csv"):
-            compounds.to_csv("/data/dharp/compounding/datasets/compounds.csv",sep="\t",index=False)
+        if not isfile(f'{args.output}/compounds.csv'):
+            compounds.to_csv(f'{args.output}/compounds.csv',sep="\t",index=False)
         else:
-            compounds.to_csv("/data/dharp/compounding/datasets/compounds.csv", mode='a',sep="\t", header=False,index=False)
+            compounds.to_csv(f'{args.output}/compounds.csv', mode='a',sep="\t", header=False,index=False)
         
         
         modifier_list = [ result[1] for result in results]
@@ -406,30 +408,30 @@ def parallelize_dataframe(df,save_loc,num_cores):
         modifiers=modifiers.groupby(['modifier','context','year'])['count'].sum().to_frame()
         modifiers.reset_index(inplace=True)
 
-        if not isfile("/data/dharp/compounding/datasets/modifiers.csv"):
-            modifiers.to_csv("/data/dharp/compounding/datasets/modifiers.csv",sep="\t",index=False)
+        if not isfile(f'{args.output}/modifiers.csv'):
+            modifiers.to_csv(f'{args.output}/modifiers.csv',sep="\t",index=False)
         else:
-            modifiers.to_csv("/data/dharp/compounding/datasets/modifiers.csv", mode='a',sep="\t",header=False,index=False)
+            modifiers.to_csv(f'{args.output}/modifiers.csv', mode='a',sep="\t",header=False,index=False)
         
         head_list = [ result[2] for result in results]
         heads=pd.concat(head_list,ignore_index=True)
         heads=heads.groupby(['head','context','year'])['count'].sum().to_frame()
         heads.reset_index(inplace=True)
 
-        if not isfile("/data/dharp/compounding/datasets/heads.csv"):
-            heads.to_csv("/data/dharp/compounding/datasets/heads.csv",sep="\t",index=False)
+        if not isfile(f'{args.output}/heads.csv'):
+            heads.to_csv(f'{args.output}/heads.csv',sep="\t",index=False)
         else:
-            heads.to_csv("/data/dharp/compounding/datasets/heads.csv", mode='a',sep="\t",header=False,index=False)
+            heads.to_csv(f'{args.output}/heads.csv', mode='a',sep="\t",header=False,index=False)
             
         phrase_list = [ result[3] for result in results]
         phrases=pd.concat(phrase_list,ignore_index=True)
         phrases=phrases.groupby(['modifier','head','context','year'])['count'].sum().to_frame()
         phrases.reset_index(inplace=True)
         
-        if not isfile("/data/dharp/compounding/datasets/phrases.csv"):
-            phrases.to_csv("/data/dharp/compounding/datasets/phrases.csv",sep="\t",index=False)
+        if not isfile(f'{args.output}/phrases.csv'):
+            phrases.to_csv(f'{args.output}/phrases.csv',sep="\t",index=False)
         else:
-            phrases.to_csv("/data/dharp/compounding/datasets/phrases.csv", mode='a',sep="\t",header=False,index=False)
+            phrases.to_csv(f'{args.output}/phrases.csv', mode='a',sep="\t",header=False,index=False)
 
     else:
         words_list=[]
@@ -446,32 +448,29 @@ def parallelize_dataframe(df,save_loc,num_cores):
         words.reset_index(inplace=True)
         print(words.shape)
                 
-        if not isfile(save_loc):
-            words.to_csv(save_loc,sep="\t",index=False,header=True)
+        if not isfile(f'{args.output}/words.csv'):
+            words.to_csv(f'{args.output}/words.csv',sep="\t",index=False,header=True)
         else:
-            words.to_csv(save_loc, mode='a',sep="\t", header=False,index=False)
+            words.to_csv(f'{args.output}/words.csv', mode='a',sep="\t", header=False,index=False)
         
     print("Done concatenations \n")
 
-    
-file_name=args.data
-str_num=file_name.split('/')[-1].split('.')[0].split('_')[-1]
-if args.word:
-    output_file=args.output+'/words_'+str_num+'.csv'
-num_cores=mp.cpu_count()-1
-store = pd.HDFStore(args.data)
 
-print(f'File {args.data} is read in')
-chunksize=args.chunksize
-nrows = store.get_storer('df').nrows
-print(f'Num of iterations : {nrows//chunksize}')
+num_cores=100
+df_path=args.data
 
-for i in range(nrows//chunksize + 1):
-    chunk = store.select('df',start=i*chunksize,stop=(i+1)*chunksize)
-    parallelize_dataframe(chunk,save_loc=output_file,num_cores=num_cores)
-    
-    
-    
-print("Done with file \n")
+df_files=[]
+for filename in glob.glob(df_path+'*parq'):
+    df_files.append(filename)
 
-store.close()
+for f in df_files:
+    print(f'Current parquet file: {f}')
+    cur_parq=fastparquet.ParquetFile(f)
+    print(f'Number of partitions: {len(cur_parq.row_groups)}')
+
+    for i,cur_df in enumerate(cur_parq.iter_row_groups()):
+        print(f'Partition {i+1} out of {len(cur_parq.row_groups)}')
+        cur_df.year=cur_df.year.astype("int32")
+        parallelize_dataframe(cur_df,num_cores)
+    
+    print("Done with file \n")

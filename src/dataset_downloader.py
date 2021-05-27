@@ -10,7 +10,7 @@ random.seed(1991)
 
 import glob, os
 done_files=[]
-os.chdir("/scratch/pdhar/compounding/datasets/google/")
+os.chdir("/data/dharp/compounds/datasets/google/")
 for file in glob.glob("*.pkl"):
     done_files.append(file.split('.')[0])
 
@@ -27,8 +27,8 @@ keep_string=r"[A-Za-z-']+_(NOUN|ADV|VERB|ADJ|X|PRT|CONJ|PRON|DET|ADP|NUM|\.)\s*"
 
 remove_string=r".*['.-]{2,}.*"
 
-div_lsts=[remainder_list[:i + 15] for i in range(0, len(remainder_list), 15)]
-    
+div_lsts=np.array_split(remainder_list, 5)
+
 def chunked_dataset_extracter(df):
     df.columns=['fivegram_pos','year','count']
     
@@ -42,7 +42,7 @@ def chunked_dataset_extracter(df):
 
 
 def dataset_extracter(letter):
-    CHUNKSIZE = 1_000_000
+    CHUNKSIZE = 100_000_000
     #print(f"\nStarted with letter(s) {letter}")
     cur_time=time.time()
     total_df_shape=0
@@ -56,14 +56,18 @@ def dataset_extracter(letter):
     
     after_shape=complete_df.shape[0]
 
+    if after_shape!=0:
+        complete_df.to_pickle('/data/dharp/compounds/datasets/google/'+letter+'.pkl')
+        print(f"Finished with letter(s) {letter} ; Before : {total_df_shape}, After : {after_shape} Change in percentage : {(total_df_shape-after_shape)/total_df_shape*100:0.2f}%")
+        print(f"Letter(s) {letter} took time {(time.time()-cur_time):0.2f} seconds")
+        print("\n")
+    else:
+        print(f"Finished with letter(s) {letter} ; Before : {total_df_shape}, After : {after_shape} Change in percentage : {(total_df_shape-after_shape)/total_df_shape*100:0.2f}%")
+        print(f"Letter(s) {letter} took time {(time.time()-cur_time):0.2f} seconds")
+        print("\n")
 
-    complete_df.to_pickle('/scratch/pdhar/compounding/datasets/google/'+letter+'.pkl')
-    print(f"Finished with letter(s) {letter} ; Before : {total_df_shape}, After : {after_shape} Change in percentage : {(total_df_shape-after_shape)/total_df_shape*100:0.2f}%")
-    print(f"Letter(s) {letter} took time {(time.time()-cur_time):0.2f} seconds")
-    print("\n")
-    
 def dataset_downloader_whole(cur_list):
-    n_proc = mp.cpu_count()-1
+    n_proc = 60
 
     pool = Pool(n_proc)
     pool.imap_unordered(dataset_extracter,cur_list,chunksize=1) 
@@ -71,8 +75,36 @@ def dataset_downloader_whole(cur_list):
     pool.join()
     
     
+def large_df_processor(letter):
+    CHUNKSIZE = 100_000_000
+    num_partitions = 100
+    total_df_shape=0
+    after_shape=0
+    df_list=[]
+    start_time=time.time()
+    path_loc="http://storage.googleapis.com/books/ngrams/books/googlebooks-eng-all-5gram-20120701-"+letter+".gz"
+    dfs   = pd.read_csv(path_loc, compression='gzip', header=None, sep="\t", quoting=csv.QUOTE_NONE,usecols=[0,1,2],chunksize=CHUNKSIZE)    
+    for i,df in enumerate(dfs):
+        batch_start_time=time.time()
+        print(f'Split num {i+1}')
+        total_df_shape+=df.shape[0]
+        df_split = np.array_split(df, num_partitions)
+        pool = Pool(num_partitions)
+        print('Started parallelization')
+        results=pool.map_async(chunked_dataset_extracter,df_split)
+        pool.close()
+        pool.join()
+        curr_df_list=results.get()
+        current_chunk_df=pd.concat(curr_df_list,ignore_index=True,sort=False)
+        current_chunk_df.to_pickle(f'/data/dharp/compounds/datasets/google/{letter}_{i+1}.pkl')
+        after_shape+=current_chunk_df.shape[0]
+        print(f'Total time taken for split num {i+1}: {round(time.time()-batch_start_time)} secs')
+
     
-for i,lst in enumerate(div_lsts):
-    print(f'List number {i}')
-    print(f'List contents: {lst}')
-    dataset_downloader_whole(lst)
+    
+    print(f"Finished with letter(s) {letter} ; Before : {total_df_shape}, After : {after_shape} Change in percentage : {(total_df_shape-after_shape)/total_df_shape*100:0.2f}%")
+    print(f"Letter(s) {letter} took time {(time.time()-start_time):0.2f} seconds")
+    print("\n")
+    
+    
+large_df_processor('th')
