@@ -16,9 +16,6 @@ import warnings
 np.random.seed(seed=1991)
 import tables
 from itertools import chain
-from spacy.lemmatizer import Lemmatizer
-from spacy.lang.en import LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES
-lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
 import argparse
 
 
