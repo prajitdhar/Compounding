@@ -42,25 +42,19 @@ args = parser.parse_args()
 
 
 
-
-
-
-#br_to_us=pd.read_excel("Book.xlsx",header=1)
-#br_to_us_dict=dict(zip(br_to_us.UK.tolist(),br_to_us.US.tolist()))
-
 contextwords=pkl.load( open( "../data/contexts.pkl", "rb" ) )
 
 #batched_pkl_files=pkl.load(open('../data/batched_pkl_files.pkl','rb'))
 
 #spelling_replacement={'context':br_to_us_dict,'modifier':br_to_us_dict,'head':br_to_us_dict,'word':br_to_us_dict}
 
-words_list=pkl.load(open('../novel_compound_predictor/words_list.pkl','rb'))
+#words_list=pkl.load(open('../novel_compound_predictor/words_list.pkl','rb'))
 
 
 any_word=r'.+_.+'
 any_noun=r'.+_nn1'
 proper_noun=r'[a-z.-]+_nn1'
-content_word=r'(noun|nn2|jj|rr|v)'
+context_word=r'(noun|nn|jj|rr|vv)'
 space=r'\s'
 
 
@@ -222,7 +216,7 @@ def syntactic_reducer(df,align,level=None):
         if len(df)==0:
             return df
 
-        df[['l1_pos','l2_pos','word_pos','r1_pos','r2_pos']]=df['fivegram_pos'].str.split(space, expand=True)
+        df[['l1_pos','l2_pos','word_pos','r1_pos','r2_pos']]=df['fivegram_pos'].str.split(space, expand=True, n=4)
         df=relemjoin(df,'word_pos')
         df=pd.melt(df,id_vars=['word','year','count'],value_vars=['l1_pos','l2_pos','r1_pos','r2_pos'])
         return df
@@ -276,14 +270,16 @@ def context_reducer(df):
     if len(df)==0:
         return df
     df["variable"]=df["variable"].str.replace(r"_pos","")
+
     df[["context","context_pos"]]=df['value'].str.split('_', 1, expand=True)
-    df=df.loc[df.context_pos.str.match(r"^"+content_word)]
+    df=df.dropna()
+    df=df.loc[df.context_pos.str.match(r"^"+context_word)]
     # Rename parts of speech to match the pos label
     # from the Google Ngrams data in @contextwords
     df.context_pos = df.context_pos.str.replace("rr", "adv")
-    df.context_pos = df.context_pos.str.replace("nn2", "noun")
-    df.context_pos = df.context_pos.str.replace("^v.+", "verb")
-    df.context_pos = df.context_pos.str.replace("jj", "adj")
+    df.context_pos = df.context_pos.str.replace("^nn.+", "noun")
+    df.context_pos = df.context_pos.str.replace("^vv.+", "verb")
+    df.context_pos = df.context_pos.str.replace("^jj.+", "adj")
     #df.replace(adv_replacement,inplace=True)
     #df['context_pos']=df['context_pos'].str[0]
     if len(df)==0:
@@ -292,8 +288,11 @@ def context_reducer(df):
     #df.replace(spelling_replacement,inplace=True)
     df['context']=df['context']+"_"+df['context_pos']
     df.query('context in @contextwords',inplace=True)
-    #df.reset_index(inplace=True)
+    df.drop(['variable','value','context_pos'],axis=1,inplace=True)
     return df
+
+
+
 
 
 def cdsm_word_reducer(df):
@@ -314,7 +313,7 @@ def cdsm_word_reducer(df):
     
     words_df=pd.concat([rightgram,mid1gram,mid2gram,mid3gram,leftgram],ignore_index=True,sort=False)
     words_df.dropna(inplace=True)
-    words_df=words_df.query('word in @words_list')
+    #words_df=words_df.query('word in @words_list')
     words_df=words_df.groupby(['word','context','year'])['count'].sum().to_frame()
     words_df.reset_index(inplace=True)
     words_df.year=words_df.year.astype("int32")
