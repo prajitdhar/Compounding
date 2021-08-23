@@ -1,14 +1,11 @@
-import fasttext
 import pandas as pd
 import fasttext
 import time
 import numpy as np
 import spacy
+import sys
 
 fmodel = fasttext.load_model('/mnt/dhr/CreateChallenge_ICC_0821/lid.176.bin')
-
-
-fname = "reddit_test.json"
 
 def delist_lang(lst):
     lang_lst=[]
@@ -85,51 +82,63 @@ def ner_lemma_reducer(sent):
 
     return ner_token_sent, ner_length, lemma_sent, pos_sent, is_comp, len(lemma)
 
-CHUNKSIZE = 10_000_000
-#dfs = pd.read_json(fname, lines=True, chunksize=CHUNKSIZE)
-#for i,df in enumerate(dfs):
-#    print(f'Split num {i+1}')
-df = pd.read_json(fname, lines=True)
-cur_time=time.time()
+fname = sys.argv[1]
+type = sys.argv[2]
+CHUNKSIZE = 800_000
+dfs = pd.read_json(fname, lines=True, chunksize=CHUNKSIZE)
 
-# keep only non-empty, non-deleted texts
-df = df[(df.selftext != "") & (df.selftext.notna()) & (df.selftext != "[deleted]")]
-df["text"] = df[['title', 'selftext']].agg(' '.join, axis=1)
-df.loc[:, "text"] = df.loc[:, "text"].str.replace("\n", " ")
-# replace multiple spaces by just one
-df.loc[:, "text"] = df.loc[:, "text"].str.replace("\s+", " ")
-print(df[["id", "text"]])
+for i,df in enumerate(dfs):
+    print(f'Split num {i+1}')
+# df = pd.read_json(fname, lines=True)
+    cur_time=time.time()
 
-# keep only English posts
-lang_list, significance_list = lang_tagger(df.text.values.tolist())
-df['lang'] = lang_list
-df['lang_conf'] = significance_list
-df.lang = df.lang.str.split('_', n=4).str[-1]
-df = df.loc[(df.lang == 'en') & (df.lang_conf == True)]
+    # keep only non-empty, non-deleted texts
+    if type == "submission":
+        df = df[(df.selftext != "") & (df.selftext.notna()) & (df.selftext != "[deleted]")]
+        df["text"] = df[['title', 'selftext']].agg(' '.join, axis=1)
+    elif type == "comment":
+        df = df[(df.body != "") & (df.body.notna()) & (df.body != "[deleted]")]
+        df.rename(columns={"body": "text"}, inplace=True)
 
-# extract the time
-df["created_at"] = pd.to_datetime(df.created_utc, unit="s")
-df["year"] = df.created_at.dt.year
-df["month_year"] = df.created_at.dt.to_period("M")
+    df.loc[:, "text"] = df.loc[:, "text"].str.replace("\n", " ")
+    # replace multiple spaces by just one
+    df.loc[:, "text"] = df.loc[:, "text"].str.replace("\s+", " ")
+    # print(df[["id", "text"]])
 
-# tokenize + POS tag
-nlp = spacy.load("en_core_web_lg")
+    # keep only English posts
+    lang_list, significance_list = lang_tagger(df.text.values.tolist())
+    df['lang'] = lang_list
+    df['lang_conf'] = significance_list
+    df.lang = df.lang.str.split('_', n=4).str[-1]
+    df = df.loc[(df.lang == 'en') & (df.lang_conf == True)]
 
-# parse with spacy to create fivegrams
-fivegrams = []
-timestamps = []
-for text, timestamp in zip(df.text.values, df.month_year.values):
-    cur_fivegrams = post_to_five_grams(text)
-    if cur_fivegrams:
-        fivegrams.extend(cur_fivegrams)
-        timestamps.extend(len(cur_fivegrams) * [timestamp])
+    # extract the time
+    df["created_at"] = pd.to_datetime(df.created_utc, unit="s")
+    df["year"] = df.created_at.dt.year
+    # df["month_year"] = df.created_at.dt.to_period("M")
 
-fivegrams = pd.DataFrame(data={"fivegram_pos": fivegrams, "year": timestamps})
-fivegrams["count"] = 1
+    # tokenize + POS tag
+    nlp = spacy.load("en_core_web_lg")
 
-fivegrams = fivegrams.groupby(["fivegram_pos", "year"])["count"].sum().reset_index()
+    # parse with spacy to create fivegrams
+    fivegrams = []
+    timestamps = []
+    for text, timestamp in zip(df.text.values, df.year.values):
+        cur_fivegrams = post_to_five_grams(text)
+        if cur_fivegrams:
+            fivegrams.extend(cur_fivegrams)
+            timestamps.extend(len(cur_fivegrams) * [timestamp])
+    print("Created list of %d fivegrams" %len(fivegrams))
+    fivegrams = pd.DataFrame(data={"fivegram_pos": fivegrams, "year": timestamps})
+    fivegrams["count"] = 1
+    print("Created dataframe of fivegrams")
+    fivegrams = fivegrams.groupby(["fivegram_pos", "year"])["count"].sum().reset_index()
 
-fivegrams.info()
+    fivegrams.info()
 
-print(fivegrams)
+    fivegrams.to_csv(fname.split(".")[0] + "_fivegrams_" + str(i) + ".csv")
+
+    print("Converting %d posts to 5-grams took %s min" %(CHUNKSIZE, (time.time() - cur_time)/60))
+
+    # print(fivegrams)
 
