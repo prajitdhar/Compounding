@@ -84,7 +84,7 @@ def ner_lemma_reducer(sent):
 
 fname = sys.argv[1]
 type = sys.argv[2]
-CHUNKSIZE = 800_000
+CHUNKSIZE = 500_000
 dfs = pd.read_json(fname, lines=True, chunksize=CHUNKSIZE)
 
 for i,df in enumerate(dfs):
