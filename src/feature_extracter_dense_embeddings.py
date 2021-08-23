@@ -9,7 +9,6 @@ pd.options.mode.chained_assignment = None
 import pickle as pkl
 
 from scipy.stats.stats import pearsonr
-from scipy.stats.stats import pearsonr
 
 br_to_us=pd.read_excel("../data/Book.xlsx",skiprows=[0])
 br_to_us_dict=dict(zip(br_to_us.UK.tolist(),br_to_us.US.tolist()))
