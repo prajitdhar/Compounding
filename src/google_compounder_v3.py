@@ -4,15 +4,17 @@ import os
 import numpy as np
 import time
 import fastparquet
+import pickle
 import argparse
 from multiprocessing import Pool
 import multiprocessing as mp
 from os.path import isfile
+from itertools import repeat
 
 
 parser = argparse.ArgumentParser(description='Program to run google compounder for a particular file and setting')
 
-parser.add_argument('--data', type=str,
+parser.add_argument('--file', type=str,
                     help='location of the pickle file')
 
 parser.add_argument('--word', action='store_true',
@@ -22,104 +24,162 @@ parser.add_argument('--output', type=str,
                     help='directory to save dataset in')
 
 
+
 args = parser.parse_args()
 
+compound_id_vars=['modifier','head','year','count','num_comp','comp_ner_sent']
+modifier_id_vars=['modifier','year','count','num_comp','comp_ner_sent']
+head_id_vars=['head','year','count','num_comp','comp_ner_sent']
+word_id_vars=['word','year','count','num_comp','comp_ner_sent']
 
-with open('/data/dharp/compounds/datasets/contexts/no_ner_0_50000.txt','r') as f:
-    contexts=f.read().split("\n")
-    contexts=contexts[:-1]
+word='.+_.+'
+comp='.+_(?:NOUN|PROPN)\s.+_(?:NOUN|PROPN)'
+
+
+p2=f'^{comp}\s{word}\s{word}\s{word}$'
+p3=f'^{word}\s{comp}\s{word}\s{word}$'
+p4=f'^{word}\s{word}\s{comp}\s{word}$'
+p5=f'^{word}\s{word}\s{word}\s{comp}$'
+
+phrase_dict={2:p2,3:p3,4:p4,5:p5}
+
+noun='.+_(?:NOUN|PROPN)'
+
+n1=f'^{noun}\s{word}\s{word}\s{word}\s{word}$'
+n2=f'^{word}\s{noun}\s{word}\s{word}\s{word}$'
+n3=f'^{word}\s{word}\s{noun}\s{word}\s{word}$'
+n4=f'^{word}\s{word}\s{word}\s{noun}\s{word}$'
+n5=f'^{word}\s{word}\s{word}\s{word}\s{noun}$'
+
+word_dict={1:n1,2:n2,3:n3,4:n4,5:n5}
     
-    
-def left_side_parser(df): # N N _ _ _
+def left_side_parser(df,phrases=False): # N N _ _ _ 
     cur_df=df.copy()
+    if not phrases:
 
-    try:
-        cur_df[['modifier','head','w1','w2','w3']]=cur_df.lemma_pos.str.split(' ',expand=True)
-    except ValueError:
-        compound_df=pd.DataFrame()
-        modifier_df=pd.DataFrame()
-        head_df=pd.DataFrame()
+        try:
+            cur_df[['modifier','head','w1','w2','w3']]=cur_df.lemma_pos.str.split(' ',expand=True)
+        except ValueError:
+            compound_df=pd.DataFrame()
+            modifier_df=pd.DataFrame()
+            head_df=pd.DataFrame()
+            return compound_df,modifier_df,head_df
+
+        compound_df=pd.melt(cur_df,id_vars=compound_id_vars,value_vars=['w1','w2','w3'],value_name='context')
+
+        modifier_df=pd.melt(cur_df,id_vars=modifier_id_vars,value_vars=['head','w1','w2'],value_name='context')
+
+        head_df=pd.melt(cur_df,id_vars=head_id_vars,value_vars=['modifier','w1','w2','w3'],value_name='context')
+
         return compound_df,modifier_df,head_df
-    
-    compound_df=pd.melt(cur_df,id_vars=['modifier','head','year','count'],value_vars=['w1','w2','w3'],value_name='context')
-    compound_df=compound_df.loc[compound_df.context.isin(contexts)]
+    else:
+        try:
+            cur_df[['modifier','head','w1','w2','w3']]=cur_df.lemma_pos.str.split(' ',expand=True)
+        except ValueError:
+            phrase_df=pd.DataFrame()
+            return phrase_df
+        
+        phrase_df=pd.melt(cur_df,id_vars=compound_id_vars,value_vars=['w1','w2','w3'],value_name='context')
+        
+        return phrase_df
+        
 
-    modifier_df=pd.melt(cur_df,id_vars=['modifier','year','count'],value_vars=['head','w1','w2'],value_name='context')
-    modifier_df=modifier_df.loc[modifier_df.context.isin(contexts)]
-    
-    head_df=pd.melt(cur_df,id_vars=['head','year','count'],value_vars=['modifier','w1','w2','w3'],value_name='context')
-    head_df=head_df.loc[head_df.context.isin(contexts)]
-    
-    return compound_df,modifier_df,head_df
-
-def mid1_parser(df): # _ N N _ _
+def mid1_parser(df,phrases=False): # _ N N _ _
     cur_df=df.copy()
-    try:
-        cur_df[['w1','modifier','head','w2','w3']]=cur_df.lemma_pos.str.split(' ',expand=True)
-    except ValueError:
-        compound_df=pd.DataFrame()
-        modifier_df=pd.DataFrame()
-        head_df=pd.DataFrame()
+    
+    if not phrases:
+        try:
+            cur_df[['w1','modifier','head','w2','w3']]=cur_df.lemma_pos.str.split(' ',expand=True)
+        except ValueError:
+            compound_df=pd.DataFrame()
+            modifier_df=pd.DataFrame()
+            head_df=pd.DataFrame()
+            return compound_df,modifier_df,head_df
+
+        compound_df=pd.melt(cur_df,id_vars=compound_id_vars,value_vars=['w1','w2','w3'],value_name='context')
+
+        modifier_df=pd.melt(cur_df,id_vars=modifier_id_vars,value_vars=['head','w1','w2','w3'],value_name='context')
+
+        head_df=pd.melt(cur_df,id_vars=head_id_vars,value_vars=['modifier','w1','w2','w3'],value_name='context')
+
         return compound_df,modifier_df,head_df
-    
-    compound_df=pd.melt(cur_df,id_vars=['modifier','head','year','count'],value_vars=['w1','w2','w3'],value_name='context')
-    compound_df=compound_df.loc[compound_df.context.isin(contexts)]
+    else:
+        try:
+            cur_df[['w1','modifier','head','w2','w3']]=cur_df.lemma_pos.str.split(' ',expand=True)
+        except ValueError:
+            phrase_df=pd.DataFrame()
+            return phrase_df
+        
+        phrase_df=pd.melt(cur_df,id_vars=compound_id_vars,value_vars=['w1','w2','w3'],value_name='context')
+        
+        return phrase_df
 
-    modifier_df=pd.melt(cur_df,id_vars=['modifier','year','count'],value_vars=['head','w1','w2','w3'],value_name='context')
-    modifier_df=modifier_df.loc[modifier_df.context.isin(contexts)]
-    
-    head_df=pd.melt(cur_df,id_vars=['head','year','count'],value_vars=['modifier','w1','w2','w3'],value_name='context')
-    head_df=head_df.loc[head_df.context.isin(contexts)]
-    
-    return compound_df,modifier_df,head_df
-
-def mid2_parser(df): # _ _ N N _
+def mid2_parser(df,phrases=False): # _ _ N N _
     cur_df=df.copy()
-    try:
-        cur_df[['w1','w2','modifier','head','w3']]=cur_df.lemma_pos.str.split(' ',expand=True)
-    except ValueError:
-        compound_df=pd.DataFrame()
-        modifier_df=pd.DataFrame()
-        head_df=pd.DataFrame()
+    
+    if not phrases:
+        try:
+            cur_df[['w1','w2','modifier','head','w3']]=cur_df.lemma_pos.str.split(' ',expand=True)
+        except ValueError:
+            compound_df=pd.DataFrame()
+            modifier_df=pd.DataFrame()
+            head_df=pd.DataFrame()
+            return compound_df,modifier_df,head_df
+
+        compound_df=pd.melt(cur_df,id_vars=compound_id_vars,value_vars=['w1','w2','w3'],value_name='context')
+
+        modifier_df=pd.melt(cur_df,id_vars=modifier_id_vars,value_vars=['head','w1','w2','w3'],value_name='context')
+
+        head_df=pd.melt(cur_df,id_vars=head_id_vars,value_vars=['modifier','w1','w2','w3'],value_name='context')
+
         return compound_df,modifier_df,head_df
-       
-    compound_df=pd.melt(cur_df,id_vars=['modifier','head','year','count'],value_vars=['w1','w2','w3'],value_name='context')
-    compound_df=compound_df.loc[compound_df.context.isin(contexts)]
+    else:
+        try:
+            cur_df[['w1','w2','modifier','head','w3']]=cur_df.lemma_pos.str.split(' ',expand=True)
+        except ValueError:
+            phrase_df=pd.DataFrame()
+            return phrase_df
+        
+        phrase_df=pd.melt(cur_df,id_vars=compound_id_vars,value_vars=['w1','w2','w3'],value_name='context')
+        
+        return phrase_df
 
-    modifier_df=pd.melt(cur_df,id_vars=['modifier','year','count'],value_vars=['head','w1','w2','w3'],value_name='context')
-    modifier_df=modifier_df.loc[modifier_df.context.isin(contexts)]
-    
-    head_df=pd.melt(cur_df,id_vars=['head','year','count'],value_vars=['modifier','w1','w2','w3'],value_name='context')
-    head_df=head_df.loc[head_df.context.isin(contexts)]
-    
-    return compound_df,modifier_df,head_df
-
-def right_side_parser(df): # _ _ _ N N
+def right_side_parser(df,phrases=False): # _ _ _ N N
     cur_df=df.copy()
-    try:
-        cur_df[['w1','w2','w3','modifier','head']]=cur_df.lemma_pos.str.split(' ',expand=True)
-    except ValueError:
-        compound_df=pd.DataFrame()
-        modifier_df=pd.DataFrame()
-        head_df=pd.DataFrame()
+    
+    if not phrases:
+        try:
+            cur_df[['w1','w2','w3','modifier','head']]=cur_df.lemma_pos.str.split(' ',expand=True)
+        except ValueError:
+            compound_df=pd.DataFrame()
+            modifier_df=pd.DataFrame()
+            head_df=pd.DataFrame()
+            return compound_df,modifier_df,head_df
+
+        compound_df=pd.melt(cur_df,id_vars=compound_id_vars,value_vars=['w1','w2','w3'],value_name='context')
+
+        modifier_df=pd.melt(cur_df,id_vars=modifier_id_vars,value_vars=['head','w1','w2','w3'],value_name='context')
+
+        head_df=pd.melt(cur_df,id_vars=head_id_vars,value_vars=['modifier','w2','w3'],value_name='context')
+
         return compound_df,modifier_df,head_df
-    
-    compound_df=pd.melt(cur_df,id_vars=['modifier','head','year','count'],value_vars=['w1','w2','w3'],value_name='context')
-    compound_df=compound_df.loc[compound_df.context.isin(contexts)]
-    
-    modifier_df=pd.melt(cur_df,id_vars=['modifier','year','count'],value_vars=['head','w1','w2','w3'],value_name='context')
-    modifier_df=modifier_df.loc[modifier_df.context.isin(contexts)]
-    
-    head_df=pd.melt(cur_df,id_vars=['head','year','count'],value_vars=['modifier','w2','w3'],value_name='context')
-    head_df=head_df.loc[head_df.context.isin(contexts)]
-    
-    return compound_df,modifier_df,head_df
+
+    else:
+        try:
+            cur_df[['w1','w2','w3','modifier','head']]=cur_df.lemma_pos.str.split(' ',expand=True)
+        except ValueError:
+            phrase_df=pd.DataFrame()
+            return phrase_df
+        
+        phrase_df=pd.melt(cur_df,id_vars=compound_id_vars,value_vars=['w1','w2','w3'],value_name='context')
+        
+        return phrase_df
 
 
 
-def syntactic_reducer(df):
+def syntactic_reducer(df,phrases=False):
     pattern=df.iloc[0].comp_class
-    if pattern==1: # N N _ _ N N
+    if pattern==1: # N N _ N N
         compound_left_df,modifier_left_df,head_left_df=left_side_parser(df)
         compound_right_df,modifier_right_df,head_right_df=right_side_parser(df)
         
@@ -128,83 +188,142 @@ def syntactic_reducer(df):
         final_head_df=pd.concat([head_left_df,head_right_df],ignore_index=True)
            
     elif pattern==2: # N N _ _ _
-        final_compound_df,final_modifier_df,final_head_df=left_side_parser(df)
+        if not phrases:
+            final_compound_df,final_modifier_df,final_head_df=left_side_parser(df)
+        else:
+            final_phrases_df=left_side_parser(df,phrases=True)
 
     elif pattern==3: # _ N N _ _
-        final_compound_df,final_modifier_df,final_head_df=mid1_parser(df)
+        if not phrases:
+            final_compound_df,final_modifier_df,final_head_df=mid1_parser(df)
+        else:
+            final_phrases_df=mid1_parser(df,phrases=True)
     
     elif pattern==4: # _ _ N N _
-        final_compound_df,final_modifier_df,final_head_df=mid2_parser(df)
+        if not phrases:
+            final_compound_df,final_modifier_df,final_head_df=mid2_parser(df)
+        else:
+            final_phrases_df=mid2_parser(df,phrases=True)
         
     elif pattern==5: # _ _ _ N N
-        final_compound_df,final_modifier_df,final_head_df=right_side_parser(df)
+        if not phrases:
+            final_compound_df,final_modifier_df,final_head_df=right_side_parser(df)   
+        else:
+            final_phrases_df=right_side_parser(df,phrases=True)       
 
-    return final_compound_df,final_modifier_df,final_head_df
-
-
-
-
-def compound_extracter(df):
-    if df.loc[df.comp_class==1].shape[0]!=0:
-        sides_comp_df,sides_mod_df,sides_head_df=syntactic_reducer(df.loc[df.comp_class==1])
+    if not phrases:
+        return final_compound_df,final_modifier_df,final_head_df
     else:
-        sides_comp_df=pd.DataFrame()
-        sides_mod_df=pd.DataFrame()
-        sides_head_df=pd.DataFrame()
+        return final_phrases_df
+
+
+
+
+def compound_extracter(df,phrases=False):
     
-    if df.loc[df.comp_class==2].shape[0]!=0:
-        left_comp_df,left_mod_df,left_head_df=syntactic_reducer(df.loc[df.comp_class==2])
-    else:
-        left_comp_df=pd.DataFrame()
-        left_mod_df=pd.DataFrame()
-        left_head_df=pd.DataFrame()       
+    comp_df_list=[]
+    head_df_list=[]
+    mod_df_list=[]
+    phrase_df_list=[]
+    if not phrases:
         
-    if df.loc[df.comp_class==3].shape[0]!=0:
-        mid1_comp_df,mid1_mod_df,mid1_head_df=syntactic_reducer(df.loc[df.comp_class==3])
-    else:
-        mid1_comp_df=pd.DataFrame()
-        mid1_mod_df=pd.DataFrame()
-        mid1_head_df=pd.DataFrame()
-        
-    if df.loc[df.comp_class==4].shape[0]!=0:
-        mid2_comp_df,mid2_mod_df,mid2_head_df=syntactic_reducer(df.loc[df.comp_class==4])
-    else:
-        mid2_comp_df=pd.DataFrame()
-        mid2_mod_df=pd.DataFrame()
-        mid2_head_df=pd.DataFrame()
+        for i in range(1,6):
+            
+            if df.loc[df.comp_class==i].shape[0]!=0:
+                cur_comp_df,cur_mod_df,cur_head_df=syntactic_reducer(df.loc[df.comp_class==i])
 
-    if df.loc[df.comp_class==5].shape[0]!=0:
-        right_comp_df,right_mod_df,right_head_df=syntactic_reducer(df.loc[df.comp_class==5])
-        
-    else:
-        right_comp_df=pd.DataFrame()
-        right_mod_df=pd.DataFrame()
-        right_head_df=pd.DataFrame()
-
-    compounds=pd.concat([sides_comp_df,left_comp_df,mid1_comp_df,mid2_comp_df,right_comp_df],ignore_index=True,sort=False)
-    modifiers=pd.concat([sides_mod_df,left_mod_df,mid1_mod_df,mid2_mod_df,right_mod_df],ignore_index=True,sort=False)
-    heads=pd.concat([sides_head_df,left_head_df,mid1_head_df,mid2_head_df,right_head_df],ignore_index=True,sort=False)
+                comp_df_list.append(cur_comp_df)
+                mod_df_list.append(cur_mod_df)
+                head_df_list.append(cur_head_df)
     
-    if len(compounds)==0:
+        compounds=pd.concat(comp_df_list,ignore_index=True,sort=False)
+        modifiers=pd.concat(mod_df_list,ignore_index=True,sort=False)
+        heads=pd.concat(head_df_list,ignore_index=True,sort=False)
+
+        
+        compounds.dropna(inplace=True)
+        compounds=compounds.groupby(['modifier','head','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+        compounds.reset_index(inplace=True)
+
+        modifiers.dropna(inplace=True)
+        modifiers=modifiers.groupby(['modifier','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+        modifiers.reset_index(inplace=True)
+
+        heads.dropna(inplace=True)
+        heads=heads.groupby(['head','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+        heads.reset_index(inplace=True)
+
         return compounds,modifiers,heads
     
-    compounds.dropna(inplace=True)
-    compounds=compounds.groupby(['modifier','head','context','year'])['count'].sum().to_frame()
-    compounds.reset_index(inplace=True)
+    else:
+        for i in range(2,6):
+            cur_df=df.loc[df.lemma_pos.str.contains(phrase_dict[i])].copy()
+            if cur_df.shape[0]!=0:
+                cur_df.comp_class=i
+                cur_phrase_df=syntactic_reducer(cur_df,phrases=True)
+                phrase_df_list.append(cur_phrase_df)
+
+        if phrase_df_list==[]:
+            return None
+        else:
+            phrases=pd.concat(phrase_df_list,ignore_index=True,sort=False)
+
+            phrases.dropna(inplace=True)
+            phrases=phrases.groupby(['modifier','head','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+            phrases.reset_index(inplace=True)
+
+            return phrases
     
-    modifiers.dropna(inplace=True)
-    modifiers=modifiers.groupby(['modifier','context','year'])['count'].sum().to_frame()
-    modifiers.reset_index(inplace=True)
     
-    heads.dropna(inplace=True)
-    heads=heads.groupby(['head','context','year'])['count'].sum().to_frame()
-    heads.reset_index(inplace=True)
-    
-    return compounds,modifiers,heads
+def word_reducer(df):
+    pattern=df.iloc[0].comp_class
+    if pattern==1: # N _ _ _ _
+        df[['word','w1','w2','w3','w4']]=df.lemma_pos.str.split(' ',expand=True)
+        word_df=pd.melt(df,id_vars=word_id_vars,value_vars=['w1','w2','w3'],value_name='context')
+        
+    elif pattern==2: # _ N _ _ _
+        df[['w1','word','w2','w3','w4']]=df.lemma_pos.str.split(' ',expand=True)
+        word_df=pd.melt(df,id_vars=word_id_vars,value_vars=['w1','w2','w3','w4'],value_name='context')
+
+    elif pattern==3: # _ _ N _ _
+        df[['w1','w2','word','w3','w4']]=df.lemma_pos.str.split(' ',expand=True)
+        word_df=pd.melt(df,id_vars=word_id_vars,value_vars=['w1','w2','w3','w4'],value_name='context')
+
+    elif pattern==4: # _ _ _ N _
+        df[['w1','w2','w3','word','w4']]=df.lemma_pos.str.split(' ',expand=True)
+        word_df=pd.melt(df,id_vars=word_id_vars,value_vars=['w1','w2','w3','w4'],value_name='context')
+
+    elif pattern==5: # _ _ _ _ N
+        df[['w1','w2','w3','w4','word']]=df.lemma_pos.str.split(' ',expand=True)
+        word_df=pd.melt(df,id_vars=word_id_vars,value_vars=['w2','w3','w4'],value_name='context')
+
+    return word_df
 
 
+def word_extractor(df):
+    word_df_list=[]
 
-def parallelize_dataframe(df):
+    for i in range(1,6):
+        cur_df=df.loc[df.lemma_pos.str.contains(word_dict[i])].copy()
+        if cur_df.shape[0]!=0:
+            cur_df.comp_class=i
+            cur_word_df=word_reducer(cur_df)
+            word_df_list.append(cur_word_df)
+            
+    if word_df_list==[]:
+        return None
+    else:
+
+        words=pd.concat(word_df_list,ignore_index=True,sort=False)
+        
+        words.dropna(inplace=True)
+        words=words.groupby(['word','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+        words.reset_index(inplace=True)
+        
+        return words
+        
+
+def parallelize_dataframe(df,phrases=False):
     num_partitions=round(0.95*mp.cpu_count())
     df_split = np.array_split(df, num_partitions)
     print("Done splitting the datasets")
@@ -213,83 +332,173 @@ def parallelize_dataframe(df):
     cur_time=time.time()
     print("Starting parallelizing")
     if not args.word:
-
-        results=pool.map_async(compound_extracter,df_split)
-        pool.close()
-        pool.join()
-
-        results=results.get()
-
         
-        print("Done parallelizing")
-        print("Total time taken",round(time.time()-cur_time),"secs")
-        compound_list = [ result[0] for result in results]
-        compounds=pd.concat(compound_list,ignore_index=True)
-        compounds=compounds.groupby(['modifier','head','context','year'])['count'].sum().to_frame()
-        compounds.reset_index(inplace=True)
-        
-        if not isfile(f'{args.output}/compounds.csv'):
-            compounds.to_csv(f'{args.output}/compounds.csv',sep="\t",index=False)
+        if not phrases:
+            #Processing heads, modifiers and compounds for Compound Aware
+
+            results=pool.map_async(compound_extracter,df_split)
+            pool.close()
+            pool.join()
+
+            results=results.get()
+
+            print("Done parallelizing")
+            compound_list = [ result[0] for result in results]
+            compounds=pd.concat(compound_list,ignore_index=True)
+            compounds=compounds.groupby(['modifier','head','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+            compounds.reset_index(inplace=True)
+
+            modifier_list = [ result[1] for result in results]
+            modifiers=pd.concat(modifier_list,ignore_index=True)
+            modifiers=modifiers.groupby(['modifier','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+            modifiers.reset_index(inplace=True)
+
+            head_list = [ result[2] for result in results]
+            heads=pd.concat(head_list,ignore_index=True)
+            heads=heads.groupby(['head','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+            heads.reset_index(inplace=True)
+            print("Total time taken",round(time.time()-cur_time),"secs")
+
+            return compounds,modifiers,heads
         else:
-            compounds.to_csv(f'{args.output}/compounds.csv', mode='a',sep="\t", header=False,index=False)
-        
-        
-        modifier_list = [ result[1] for result in results]
-        modifiers=pd.concat(modifier_list,ignore_index=True)
-        modifiers=modifiers.groupby(['modifier','context','year'])['count'].sum().to_frame()
-        modifiers.reset_index(inplace=True)
-
-        if not isfile(f'{args.output}/modifiers.csv'):
-            modifiers.to_csv(f'{args.output}/modifiers.csv',sep="\t",index=False)
-        else:
-            modifiers.to_csv(f'{args.output}/modifiers.csv', mode='a',sep="\t",header=False,index=False)
-        
-        head_list = [ result[2] for result in results]
-        heads=pd.concat(head_list,ignore_index=True)
-        heads=heads.groupby(['head','context','year'])['count'].sum().to_frame()
-        heads.reset_index(inplace=True)
-
-        if not isfile(f'{args.output}/heads.csv'):
-            heads.to_csv(f'{args.output}/heads.csv',sep="\t",index=False)
-        else:
-            heads.to_csv(f'{args.output}/heads.csv', mode='a',sep="\t",header=False,index=False)
             
-#        phrase_list = [ result[3] for result in results]
-#        phrases=pd.concat(phrase_list,ignore_index=True)
-#        phrases=phrases.groupby(['modifier','head','context','year'])['count'].sum().to_frame()
-#        phrases.reset_index(inplace=True)
-        
-#        if not isfile(f'{args.output}/phrases.csv'):
-#            phrases.to_csv(f'{args.output}/phrases.csv',sep="\t",index=False)
-#        else:
-#            phrases.to_csv(f'{args.output}/phrases.csv', mode='a',sep="\t",header=False,index=False)
+            #Processing phrases for Compound Agnostic
+            results=pool.starmap_async(compound_extracter,zip(df_split,repeat(phrases)))
+            pool.close()
+            pool.join()
 
-    else:
-        words_list=[]
-        results=pool.map_async(cdsm_word_reducer,df_split)
-  
+            phrase_list=results.get()
+            
+            print("Done parallelizing")
+            
+            phrases=pd.concat(phrase_list,ignore_index=True)
+            phrases=phrases.groupby(['modifier','head','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+            phrases.reset_index(inplace=True)
+            print("Total time taken",round(time.time()-cur_time),"secs")
+
+            return phrases
         
+    else:
+        
+        #Processing words for Compound Agnostic
+
+        words_list=[]
+        results=pool.map_async(word_extractor,df_split)
+
         pool.close()
         pool.join()
-        print("Done parallelizing")
-        print("Total time taken",round(time.time()-cur_time),"secs")
         words_list=results.get()
-        words = pd.concat(words_list,ignore_index=True,sort=False)
-        words=words.groupby(['word','context','year'])['count'].sum().to_frame()
-        words.reset_index(inplace=True)
-        print(words.shape)
-                
-        if not isfile(f'{args.output}/words.csv'):
-            words.to_csv(f'{args.output}/words.csv',sep="\t",index=False,header=True)
-        else:
-            words.to_csv(f'{args.output}/words.csv', mode='a',sep="\t", header=False,index=False)
-        
-    print("Done concatenations \n")
-    
-    
-curr_df=pd.read_pickle(args.data)
 
-parallelize_dataframe(curr_df)
+        print("Done parallelizing")
+        
+        words = pd.concat(words_list,ignore_index=True)
+        words=words.groupby(['word','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+        words.reset_index(inplace=True)
+        print("Total time taken",round(time.time()-cur_time),"secs")
+        
+        return words
+    
+
+    
+    
+def parquet_processor(f):   
+    cur_fname=f.split('.')[0].split('/')[-1]
+    print(f'Current parquet file: {f}')
+    cur_parq=fastparquet.ParquetFile(f)
+
+    print(f'Number of partitions: {len(cur_parq.row_groups)}')
+    compounds_list=[]
+    modifiers_list=[]
+    heads_list=[]
+    phrases_list=[]
+    words_list=[]
+
+    
+    for i,cur_df in enumerate(cur_parq.iter_row_groups()):
+        print(f'Partition {i+1} out of {len(cur_parq.row_groups)}\n')
+        cur_df.drop(['pos_sent'],axis=1,inplace=True)
+        
+        if not args.word:
+            reduced_df=cur_df.loc[cur_df.comp_class!=0].reset_index(drop=True)
+            cur_compounds,cur_modifiers,cur_heads=parallelize_dataframe(reduced_df)
+            compounds_list.append(cur_compounds)
+            modifiers_list.append(cur_modifiers)
+            heads_list.append(cur_heads)
+
+            #Gathering phrases
+            #Removing compound classes as they are already gathered
+            #Use old comp_class to now store phrase_class
+            print("Phrases")
+
+
+            cur_phrases=parallelize_dataframe(cur_df,phrases=True)
+            #print(cur_phrases.shape[0])
+            phrases_list.append(cur_phrases)
+            
+        else:
+            print("Words")
+            cur_words=parallelize_dataframe(cur_df)
+            words_list.append(cur_words)
+
+    if not args.word:
+
+        compounds=pd.concat(compounds_list,ignore_index=True)
+        comp_before=compounds.shape[0]
+        compounds=compounds.groupby(['modifier','head','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+        comp_after=compounds.shape[0]
+
+        print(f"Compound before : {comp_before}, after : {comp_after} Change in percentage : {(comp_before-comp_after)/comp_before*100:0.2f}%")
+
+        compounds.reset_index(inplace=True)
+        compounds.to_pickle(f'{args.output}/compounds/{cur_fname}.pkl')
+
+        modifiers=pd.concat(modifiers_list,ignore_index=True)
+        mod_before=modifiers.shape[0]
+        modifiers=modifiers.groupby(['modifier','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+        mod_after=modifiers.shape[0]
+
+        print(f"Modifier before : {mod_before}, after : {mod_after} Change in percentage : {(mod_before-mod_after)/mod_before*100:0.2f}%")
+
+        modifiers.reset_index(inplace=True)
+        modifiers.to_pickle(f'{args.output}/modifiers/{cur_fname}.pkl')
+
+        heads=pd.concat(heads_list,ignore_index=True)
+        head_before=heads.shape[0]
+        heads=heads.groupby(['head','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+        head_after=heads.shape[0]
+
+        print(f"Head before : {head_before}, after : {head_after} Change in percentage : {(head_before-head_after)/head_before*100:0.2f}%")
+
+        heads.reset_index(inplace=True)
+        heads.to_pickle(f'{args.output}/heads/{cur_fname}.pkl')
+
+        phrases=pd.concat(phrases_list,ignore_index=True)
+        phr_before=phrases.shape[0]
+        phrases=phrases.groupby(['modifier','head','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+        phr_after=phrases.shape[0]
+
+        print(f"Phrase before : {phr_before}, after : {phr_after} Change in percentage : {(phr_before-phr_after)/phr_before*100:0.2f}%")
+
+        phrases.reset_index(inplace=True)
+        phrases.to_pickle(f'{args.output}/phrases/{cur_fname}.pkl')
+        
+    else:
+        
+        words=pd.concat(words_list,ignore_index=True)
+        words_before=words.shape[0]
+        words=words.groupby(['word','num_comp','context','year','comp_ner_sent'])['count'].sum().to_frame()
+        words_after=words.shape[0]
+
+        print(f"Words before : {words_before}, after : {words_after} Change in percentage : {(words_before-words_after)/words_before*100:0.2f}%")
+
+        words.reset_index(inplace=True)
+        words.to_pickle(f'{args.output}/words/{cur_fname}.pkl')
+        
+
+    print("Done with file \n")
+    
+
+parquet_processor(args.file)
 
 
 

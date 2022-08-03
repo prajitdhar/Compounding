@@ -21,7 +21,7 @@ parser.add_argument('--outfilename', type=str, help='name of the output file to 
 
 args = parser.parse_args()
 
-to_save_path='/mnt/dhr/CreateChallenge_ICC_0821/reddit-5-grams-compound-type'
+to_save_path='/data/dharp/compounds/datasets/reddit-5-grams-compound-type'
 #keep_string=r"(.+_(NOUN|ADV|VERB|ADJ|X|PRT|CONJ|PRON|DET|ADP|NUM|\.)|_END_)\s*"
 nn='(?!(?:NOUN|PROPN)).*'
 comp='(?:ADJ|NOUN|PROPN)\s(?:NOUN|PROPN)'
@@ -32,7 +32,7 @@ n3=f'^{nn}\s{comp}\s{nn}\s{word}$'
 n4=f'^{word}\s{nn}\s{comp}\s{nn}$'
 n5=f'^{word}\s{word}\s{nn}\s{comp}$'
 
-fmodel = fasttext.load_model('/mnt/dhr/CreateChallenge_ICC_0821/lid.176.bin')
+fmodel = fasttext.load_model('/data/dharp/packages/lid.176.bin')
 nlp = spacy.load('en_core_web_lg')
 
 def sent_maker(sent_lst):
@@ -157,10 +157,11 @@ def index_processor(df):
 
     return index_df
 
-CHUNKSIZE=10_000_000
-dfs = pd.read_csv(args.infile, chunksize=CHUNKSIZE) #fivegram_pos, year, count
+CHUNKSIZE=20_000_000
+dfs = pd.read_csv(args.infile, chunksize=CHUNKSIZE,header=None,index_col=0) #fivegram_pos, year, count
 
 for i,df in enumerate(dfs):
+    df.columns=['fivegram_pos','year','count']
     index_df=df.groupby(['fivegram_pos'])['count'].sum().reset_index()
     index_df.columns=['old_index','total_count']
 

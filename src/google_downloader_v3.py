@@ -5,9 +5,7 @@ import numpy as np
 import multiprocessing as mp
 from multiprocessing import Pool
 import csv
-import fastparquet
 import spacy
-import glob, os
 import re
 
 
@@ -17,17 +15,24 @@ import argparse
 parser = argparse.ArgumentParser(description='Program to download google ngram data for version 3')
 
 parser.add_argument('--file', type=int,
-                    help='number of file for which to extract data')
-
+                    help='File from google V3, for which data needs to be extracted')
+parser.add_argument('--spath', type=str,
+                    help='directory where to save output')
 
 args = parser.parse_args()
 
 
-to_save_path='/data/dharp/compounds/datasets/'
+
+to_save_path=args.spath
+
 keep_string=r"(.+_(NOUN|ADV|VERB|ADJ|X|PRT|CONJ|PRON|DET|ADP|NUM|\.)|_END_)\s*"
-nn='(?!(?:NOUN|PROPN)).*'
-comp='(?:ADJ|NOUN|PROPN)\s(?:NOUN|PROPN)'
+
 word='.*'
+
+nn='(?!(?:NOUN|PROPN)).*'
+comp='(?:NOUN|PROPN)\s(?:NOUN|PROPN)'
+
+ner_cats=['CARDINAL', 'DATE', 'EVENT', 'FAC', 'GPE', 'LANGUAGE', 'LAW', 'LOC', 'MONEY', 'NORP', 'ORDINAL', 'ORG', 'PERCENT', 'PERSON', 'PRODUCT', 'QUANTITY', 'TIME', 'WORK_OF_ART']
 n1=f'^{comp}\s{nn}\s{comp}$'
 n2=f'^{comp}\s{nn}\s{word}\s{word}$'
 n3=f'^{nn}\s{comp}\s{nn}\s{word}$'
@@ -81,41 +86,22 @@ def ner_lemma_reducer(sent):
     ner_sent=[]
     lemma=[]
     pos=[]
-    #parse=[]
     is_comp=False
-    ner_token=[]
-    ner_length=[]
-    ner=[]
+    comp_ner_type=[]
     parsed_sent=nlp(sent)
     for token in parsed_sent:
-        #parse.append(token.text)
         lemma.append(token.lemma_)
         pos.append(token.pos_)
-        if token.ent_type_=="":
-            to_add="NONNER"
-        else:
-            to_add=token.ent_type_
-        ner_token.append(to_add)
+
         if token.dep_=="compound":
             is_comp=True
-    #print(parse)
-    #parse_sent=' '.join(parse)
+            if token.ent_type_!="":
+                comp_ner_type.append(token.ent_type_)
+    comp_ner_sent=' '.join(comp_ner_type)
     lemma_sent=' '.join(lemma)
     pos_sent=' '.join(pos)
-    ner_token_sent=' '.join(ner_token)
-    #dep_sent=' '.join(dep)
-    ner_length=0
-    if parsed_sent.ents:
-        for ent in parsed_sent.ents:
-            #cur_ner=
-            #cur_ner='_'.join([str(ent.start_char), str(ent.end_char), ent.label_])
-            ner_length+=ent.end_char-ent.start_char
-            #ner.append(cur_ner)
-    #else:
-        #ner.append("")
-    ner_sent=' '.join(ner)
-    
-    return ner_token_sent,ner_length,lemma_sent,pos_sent,is_comp
+   
+    return lemma_sent,pos_sent,is_comp,comp_ner_sent
 
 def lang_tagger(parsed_sent):
     labels,confs=fmodel.predict(parsed_sent,k=-1,threshold=0.1)
@@ -157,10 +143,7 @@ def index_processor(df):
     results=np.vectorize(ner_lemma_reducer)(df.sent.values)
     results_df=pd.DataFrame(results)
     results_df=results_df.transpose()
-    #results_df.columns=ner_token_sent,ner_length,lemma_sent,pos_sent,is_comp
-    results_df.columns=['ner_token_sent','ner_length','lemma_sent','pos_sent','is_comp']
-
-    results_df=results_df.loc[~results_df.ner_token_sent.str.contains("PERSON PERSON")]
+    results_df.columns=['lemma_sent','pos_sent','num_comp','comp_ner_sent']
 
     index_df=pd.concat([df,results_df],axis=1,ignore_index=False)
 
@@ -174,19 +157,11 @@ def index_processor(df):
     index_df=index_df.loc[index_df.nwords==5]
     
     index_df.lemma_sent=index_df.lemma_sent.str.lower()
-    #index_df.pos_sent=index_df.pos_sent.str.replace('PROPN','NOUN',regex=False)
-    #index_df.pos_sent=index_df.pos_sent.str.replace('AUX','VERB',regex=False)
-    #index_df.pos_sent=index_df.pos_sent.str.replace('CCONJ','CONJ',regex=False)
-    #index_df.g_pos=index_df.g_pos.str.replace('.','PUNCT',regex=False)
-    #index_df.g_pos=index_df.g_pos.str.replace('PRT','ADP',regex=False)
     if index_df.shape[0]==0:
-        return index_df
+        return pd.DataFrame()
     index_df['lemma_pos']=str_joiner(index_df)
     index_df['nX']=index_df.pos_sent.str.count('X')-index_df.pos_sent.str.count('AUX')
-    index_df=index_df.loc[~(index_df.nX>1)]
-    
-    index_df['ner_perc']=index_df.ner_length/index_df.sent.str.len()
-   
+    index_df=index_df.loc[~(index_df.nX>1)]   
     index_df['comp_class']=0
 
     index_df.loc[index_df.pos_sent.str.contains(n1),'comp_class']=1
@@ -194,10 +169,13 @@ def index_processor(df):
     index_df.loc[index_df.pos_sent.str.contains(n3),'comp_class']=3
     index_df.loc[index_df.pos_sent.str.contains(n4),'comp_class']=4
     index_df.loc[~(index_df.pos_sent.str.contains(n1))& index_df.pos_sent.str.contains(n5),'comp_class']=5
-    index_df.drop(['old_index','g_pos','lang','lang_conf','nwords','nX','lemma_sent','ner_length'],axis=1,inplace=True)
+    
+    index_df.drop(['old_index','g_pos','lang','lang_conf','nwords','nX','lemma_sent'],axis=1,inplace=True)
     index_year_df=year_count_split(index_df)
     index_df=index_df.merge(index_year_df, on='lemma_pos',how='right')
-    index_df=index_df.groupby(['lemma_pos','pos_sent','year','comp_class'])['count'].sum().to_frame().reset_index()
+    index_df['count']=index_df['count'].astype("int64")
+    index_df['year']=index_df['year'].astype("int64")
+    index_df=index_df.groupby(['lemma_pos','pos_sent','year','comp_class','num_comp','comp_ner_sent'])['count'].sum().to_frame().reset_index()
     return index_df
 
 
@@ -209,31 +187,36 @@ lnk=f'http://storage.googleapis.com/books/ngrams/books/20200217/eng/5-{i:05}-of-
 print(lnk)
 index_df   = pd.read_csv(lnk, compression='gzip', header=None, sep="\n", quoting=csv.QUOTE_NONE)
     
-with open(f'{to_save_path}/V3stats.txt','a') as f:
-    f.write(str(index_df.memory_usage()[0]/(1024*1024))+'\n')
-    
+
 index_df[['old_index','year_counts']]=index_df[0].str.split('\t',n=1,expand=True)
 index_df=index_df.loc[index_df.old_index.str.match("^"+keep_string*5+"$",na=False)]
 index_df.drop(0,axis=1,inplace=True)
 
 if index_df.shape[0]!=0:
-    num_partitions=round(0.95*mp.cpu_count())
-    cur_time=time.time()
-    df_split = np.array_split(index_df, num_partitions)
-    pool = Pool(num_partitions)
-    print('Started parallelization')
-    results=pool.map_async(index_processor,df_split)
-    pool.close()
-    pool.join()
+    if index_df.shape[0]<10_000:
+        cur_time=time.time()
+        new_index_df=index_processor(index_df)
+        print(f'Total time taken {round(time.time()-cur_time)} secs')
+    else:
+        num_partitions=round(0.95*mp.cpu_count())
+        cur_time=time.time()
+        df_split = np.array_split(index_df, num_partitions)
+        pool = Pool(num_partitions)
+        print('Started parallelization')
+        results=pool.map_async(index_processor,df_split)
+        pool.close()
+        pool.join()
 
 
 
 
-    print(f'Total time taken {round(time.time()-cur_time)} secs')
-    curr_df_list=results.get()
-    new_index_df=pd.concat(curr_df_list,ignore_index=True)
+        print(f'Total time taken {round(time.time()-cur_time)} secs')
+        curr_df_list=results.get()
+        new_index_df=pd.concat(curr_df_list,ignore_index=True)
     if new_index_df.shape[0]!=0:
-        new_index_df.to_pickle(f'{to_save_path}/googleV3/{i}.pkl')
+        new_index_df.to_pickle(f'{to_save_path}/{i}.pkl')
+else:
+    print(f'{i} is empty')
 
     
 

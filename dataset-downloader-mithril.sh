@@ -1,8 +1,11 @@
 #!/bin/sh
 
 
-LETTERS="a_ ad ha wa he no wi fo re as on we ma pr ar ip sh ca so hi bu al se de by"
 
-for l in $LETTERS; do
-python /data/dharp/compounds/Compounding/src/dataset_downloader-large.py --letter $l --chunksize 100000000 --output /data/dharp/compounds/datasets/
+FILES=`awk '{print $2}' /data/dharp/compounds/datasets/mithril_fcat.txt`
+
+for f in $FILES; do
+curfile=`basename -s .pkl $f`
+python /data/dharp/compounds/Compounding/src/google_downloader_v3.py --file $curfile --spath /data/dharp/compounds/datasets/;
 done
+

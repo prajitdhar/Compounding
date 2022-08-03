@@ -7,43 +7,28 @@ import time
 import dask.dataframe as dd
 from fastparquet import write
 import fastparquet
+import multiprocessing as mp
+import snappy
+import argparse
 
 
-all_pkl_files=[]
-pkl_file_sizes=[]
-path='/data/dharp/compounds/datasets/googleV3/'
-for filename in glob.glob(path+'*pkl'):
-    pkl_file_sizes.append(os.path.getsize(filename))
-    all_pkl_files.append(filename)
-    
-    
-pkl_df=pd.DataFrame(all_pkl_files,pkl_file_sizes)
-pkl_df.reset_index(inplace=True)
-pkl_df.columns=['fsize','fname']
-pkl_df['fsize_perc']=pkl_df.fsize/pkl_df.fsize.sum()*100
-pkl_df.sort_values(by=['fsize'],ascending=False,inplace=True,ignore_index=True)
-pkl_df.fsize/=1024*1024
+parser = argparse.ArgumentParser(description='Program to combine pickle data into parquet files for version 3')
+
+parser.add_argument('--server', type=str,
+                    help='which server to be used')
+parser.add_argument('--spath', type=str,
+                    help='directory where to save output')
+
+args = parser.parse_args()
+
+pkl_df=pd.read_csv(f'/data/dharp/compounds/datasets/{args.server}_fcat.txt',sep="\t")
 
 
 
-maxvalue = 30_000
-
-lastvalue = 0
-newcum = []
-labels=[]
-cur_label=1
-for row in pkl_df.itertuples():
-    thisvalue =  row.fsize + lastvalue
-    if thisvalue > maxvalue:
-        thisvalue = 0
-        cur_label+=1
-    newcum.append( thisvalue )
-    labels.append(cur_label)
-    lastvalue = thisvalue
-pkl_df['fcat']=labels
 
 
 def write_to_parquet(data_bin):
+    num_partitions=round(0.95*mp.cpu_count())
     print(data_bin.iloc[0].fcat)
     cur_time=time.time()
     df_list=[]
@@ -58,9 +43,10 @@ def write_to_parquet(data_bin):
     total_df_shape=concat_df.shape[0]
     print('Done concatenating')
     
-    ddf = dd.from_pandas(concat_df, npartitions=30)
-    
-    ddf=ddf.groupby(['lemma_pos','pos_sent','year','comp_class'])['count'].sum()
+    ddf = dd.from_pandas(concat_df, npartitions=20)
+
+    ddf=ddf.groupby(['lemma_pos','pos_sent','year','comp_class','num_comp','comp_ner_sent'])['count'].sum()
+
     print('Done grouping')
     ddf=ddf.to_frame().reset_index().compute()
     
@@ -71,12 +57,14 @@ def write_to_parquet(data_bin):
     path=f'{save_path}/df_{row.fcat}.parq', 
     engine='fastparquet',
     compression='snappy',
-    row_group_offsets=10_000_000)
+    row_group_offsets=25_000_000)
     print(f"Finished df {row.fcat} ; Before : {total_df_shape}, After : {after_shape} Change in percentage : {(total_df_shape-after_shape)/total_df_shape*100:0.2f}%")
     print(f'Time taken {time.time()-cur_time} secs')
     
+
     
-save_path='/data/dharp/compounds/datasets/entire_df/'
+    
+save_path=args.spath
 
 
 pkl_df.groupby('fcat').apply(write_to_parquet)
