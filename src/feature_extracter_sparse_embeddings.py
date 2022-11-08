@@ -27,7 +27,7 @@ args = parser.parse_args()
 
 
 
-test_df=pd.read_csv('/data/dharp/compounds/Compounding/data/all_compounds.txt',sep='\t')
+test_df=pd.read_csv('../data/all_compounds.txt',sep='\t')
 
 
 copy_df=test_df.copy()
@@ -355,11 +355,11 @@ if args.contextual:
     print("CompoundAware Model")
     print("Loading the constituent and compound datasets")
 
-    complete_compounds=pd.read_pickle(args.inputdir+"/compounds_1.pkl")
+    complete_compounds=pd.read_pickle(args.inputdir+"/compounds.pkl")
     
-    complete_modifiers=pd.read_pickle(args.inputdir+"/modifiers_1.pkl")
+    complete_modifiers=pd.read_pickle(args.inputdir+"/modifiers.pkl")
 
-    complete_heads=pd.read_pickle(args.inputdir+"/heads_1.pkl")
+    complete_heads=pd.read_pickle(args.inputdir+"/heads.pkl")
     
     
     if not args.tag:
@@ -467,7 +467,7 @@ if args.contextual:
                 tag_str='UnTagged'
 
             print('Storing compounds')
-            compounds_final.to_csv(f'{args.inputdir}/features_{comp_str}_{tag_str}_{str(temporal)}_{str(cutoff)}.csv',sep='\t',index=False)
+            compounds_final.to_csv(f'{args.outputdir}/features_{comp_str}_{tag_str}_{str(temporal)}_{str(cutoff)}.csv',sep='\t',index=False)
 
 else:
     pass
