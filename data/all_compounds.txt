@@ -12,7 +12,7 @@ modifier_mean	modifier_std	head_mean	head_std	compound_mean	compound_std	modifie
 1.592593	1.472193	1.444444	1.770820	1.518519	1.449658	silver_noun	spoon_noun
 3.107143	1.371633	2.862069	1.357588	3.333333	1.273665	rush_noun	hour_noun
 2.000000	1.839732	4.620690	0.997023	3.851852	1.267944	china_noun	clay_noun
-1.400000	1.083205	5.000000	0.000000	3.038462	1.224141	cocktail_noun	dres_noun
+1.400000	1.083205	5.000000	0.000000	3.038462	1.224141	cocktail_noun	dress_noun
 4.666667	0.537484	4.933333	0.249444	4.666667	0.471405	mailing_noun	list_noun
 4.814815	0.771580	0.517241	1.037925	2.448276	1.248066	spelling_noun	bee_noun
 4.666667	0.649786	4.766667	0.615540	4.400000	0.757188	public_noun	service_noun
@@ -76,7 +76,7 @@ modifier_mean	modifier_std	head_mean	head_std	compound_mean	compound_std	modifie
 4.344828	0.992241	4.689655	0.531974	4.571429	0.903508	interest_noun	rate_noun
 4.862069	0.344828	5.000000	0.000000	4.931034	0.253395	engine_noun	room_noun
 4.607143	0.672909	2.000000	1.281740	2.720000	0.917388	blame_noun	game_noun
-3.733333	1.948219	3.866667	1.978776	3.724138	1.836349	bras_noun	ring_noun
+3.733333	1.948219	3.866667	1.978776	3.724138	1.836349	brass_noun	ring_noun
 0.500000	0.562731	4.655172	1.152983	1.807692	1.074861	panda_noun	car_noun
 4.900000	0.300000	4.533333	0.956847	4.821429	0.382993	research_noun	project_noun
 4.733333	0.442217	4.413793	0.720021	4.655172	0.657889	call_noun	center_noun
@@ -106,6 +106,7 @@ modifier_mean	modifier_std	head_mean	head_std	compound_mean	compound_std	modifie
 3.9545	1.3965	2.3182	1.3428	3.2273	1.3428	cocoa_noun	butter_noun
 4.4583	1.0206	4.0833	0.8836	4.4583	0.8836	computer_noun	expert_noun
 3.4545	1.405	4.3636	1.3988	3.6364	1.3988	contact_noun	lenses_noun
+3.4545	1.405	4.3636	1.3988	3.6364	1.3988	contact_noun	lens_noun
 4.1304	1.29	0.087	1.1369	0.7391	1.1369	copy_noun	cat_noun
 4.7826	1.0426	4.0435	1.4378	4.3913	1.4378	crime_noun	rate_noun
 4.4643	1.1049	4.4286	0.9993	4.5357	0.9993	day_noun	shift_noun

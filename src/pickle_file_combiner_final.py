@@ -16,6 +16,8 @@ parser = argparse.ArgumentParser(description='Program to combine pickle data int
 parser.add_argument('--setting', type=str,
                     help='comp:Compounds mod:Modifiers head:Heads phr:Phrases const:Constituent')
 parser.add_argument('--spath', type=str,
+                    help='directory where to datasets are stored')
+parser.add_argument('--opath', type=str,
                     help='directory where to save output')
 
 args = parser.parse_args()
@@ -39,10 +41,10 @@ elif args.setting=="const":
     
 random.shuffle(pkl_files)
 
-
-contexts=pd.read_pickle('/data/dharp/compounds/datasets/contexts/contexts_top50k.pkl')
-heads=pd.read_pickle('/data/dharp/compounds/datasets/contexts/heads.pkl')
-modifiers=pd.read_pickle('/data/dharp/compounds/datasets/contexts/modifiers.pkl')
+if args.setting
+contexts=pd.read_pickle(f'{args.spath}/contexts/contexts_top50k.pkl')
+heads=pd.read_pickle(f'{args.spath}/contexts/heads.pkl')
+modifiers=pd.read_pickle(f'{args.spath}/contexts/modifiers.pkl')
 
 
 div_lsts=np.array_split(pkl_files, 10)
@@ -55,18 +57,11 @@ def mem_reducer(pkl_file):
     df=pd.read_pickle(pkl_file)
     df["year"] = pd.to_numeric(df["year"], downcast="unsigned")
     orig_shape=df.shape[0]
-    #print(orig_shape,((orig_shape-df.shape[0])/orig_shape*100))
     df=df.loc[df['year']>=1800]
-    #print(df.shape[0],((orig_shape-df.shape[0])/orig_shape*100))
     df=df.loc[df.modifier.isin(modifiers)]
-    #print(df.shape[0],((orig_shape-df.shape[0])/orig_shape*100))
     df=df.loc[df['head'].isin(heads)]
-    #print(df.shape[0],((orig_shape-df.shape[0])/orig_shape*100))
     df=df.loc[df.context.isin(contexts)]
-    #print(df.shape[0],((orig_shape-df.shape[0])/orig_shape*100))
-    #df["comp_ner_sent"] = df["comp_ner_sent"].astype("category")
     df=df.groupby(['modifier','head','context','year'])['count'].sum().to_frame().reset_index()
-    #print(df.shape[0],((orig_shape-df.shape[0])/orig_shape*100))
     print(f'Done with file {pkl_file} in {round(time.time()-cur_time)} secs and current size is {round(df.shape[0]/orig_shape*100,2)}% of the original dataset')
     return df
 
