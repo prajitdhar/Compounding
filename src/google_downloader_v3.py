@@ -8,7 +8,10 @@ import csv
 import spacy
 import re
 
+from nltk.tokenize.treebank import TreebankWordDetokenizer as Detok
+detokenizer = Detok()
 
+fasttext.FastText.eprint = lambda x: None
 import argparse
 
 
@@ -25,22 +28,32 @@ args = parser.parse_args()
 
 to_save_path=args.spath
 
-keep_string=r"(.+_(NOUN|ADV|VERB|ADJ|X|PRT|CONJ|PRON|DET|ADP|NUM|\.)|_END_)\s*"
+#keep_string=r"(.+_(NOUN|ADV|VERB|ADJ|X|PRT|CONJ|PRON|DET|ADP|NUM|\.)|_END_|_START_)\s*"
+keep_string=r"(.+_(NOUN|ADV|VERB|ADJ|X|PRT|CONJ|PRON|DET|ADP|NUM|\.)|_NOUN_|_ADV_|_VERB_|_ADJ_|_X_|_PRT_|_CONJ_|_PRON_|_DET_|_ADP_|_NUM_|_\._)"
 
 word='.*'
 
 nn='(?!(?:NOUN|PROPN)).*'
-comp='(?:NOUN|PROPN)\s(?:NOUN|PROPN)'
+nn_comp='(?:NOUN|PROPN)\s(?:NOUN|PROPN)'
+an_comp='ADJ\s(?:NOUN|PROPN)'
 
 ner_cats=['CARDINAL', 'DATE', 'EVENT', 'FAC', 'GPE', 'LANGUAGE', 'LAW', 'LOC', 'MONEY', 'NORP', 'ORDINAL', 'ORG', 'PERCENT', 'PERSON', 'PRODUCT', 'QUANTITY', 'TIME', 'WORK_OF_ART']
-n1=f'^{comp}\s{nn}\s{comp}$'
-n2=f'^{comp}\s{nn}\s{word}\s{word}$'
-n3=f'^{nn}\s{comp}\s{nn}\s{word}$'
-n4=f'^{word}\s{nn}\s{comp}\s{nn}$'
-n5=f'^{word}\s{word}\s{nn}\s{comp}$'
+n1=f'^{nn_comp}\s{nn}\s{nn_comp}$'
+n2=f'^{nn_comp}\s{nn}\s{word}\s{word}$'
+n3=f'^{nn}\s{nn_comp}\s{nn}\s{word}$'
+n4=f'^{word}\s{nn}\s{nn_comp}\s{nn}$'
+n5=f'^{word}\s{word}\s{nn}\s{nn_comp}$'
 
-fmodel = fasttext.load_model('/data/dharp/packages/lid.176.bin')
-nlp = spacy.load('en_core_web_lg')
+a1=f'^{an_comp}\s{nn}\s{an_comp}$'
+a2=f'^{an_comp}\s{nn}\s{word}\s{word}$'
+a3=f'^{nn}\s{an_comp}\s{nn}\s{word}$'
+a4=f'^{word}\s{nn}\s{an_comp}\s{nn}$'
+a5=f'^{word}\s{word}\s{nn}\s{an_comp}$'
+
+
+c1=f'^{nn_comp}\s{nn}\s{an_comp}$'
+c2=f'^{an_comp}\s{nn}\s{nn_comp}$'
+
 
 
 def delist_lang(lst):
@@ -86,22 +99,33 @@ def ner_lemma_reducer(sent):
     ner_sent=[]
     lemma=[]
     pos=[]
-    is_comp=False
+    dep=[]
     comp_ner_type=[]
     parsed_sent=nlp(sent)
     for token in parsed_sent:
         lemma.append(token.lemma_)
         pos.append(token.pos_)
-
+        dep.append(token.dep_)
         if token.dep_=="compound":
-            is_comp=True
             if token.ent_type_!="":
                 comp_ner_type.append(token.ent_type_)
+
+    comp_ner_sent=' '.join(comp_ner_type)
+    if len(parsed_sent)<5:
+        new_lemma_list=["eos"]*(5-len(parsed_sent))
+        new_pos_list=["X"]*(5-len(parsed_sent))
+        lemma.extend(new_lemma_list)
+        pos.extend(new_pos_list)
+        
     comp_ner_sent=' '.join(comp_ner_type)
     lemma_sent=' '.join(lemma)
     pos_sent=' '.join(pos)
+    
+    dep_sent=' '.join(dep)
+        
+    num_count=len(re.findall("compound\s(?!compound)", dep_sent))
    
-    return lemma_sent,pos_sent,is_comp,comp_ner_sent
+    return lemma_sent,pos_sent,num_count,comp_ner_sent
 
 def lang_tagger(parsed_sent):
     labels,confs=fmodel.predict(parsed_sent,k=-1,threshold=0.1)
@@ -110,21 +134,6 @@ def lang_tagger(parsed_sent):
     assert len(lang_list)==len(significance_list)
     return lang_list,significance_list
 
-def str_joiner(df):
-    #print(df)
-    new_df=pd.DataFrame()
-    try:
-        new_df[['l1','l2','l3','l4','l5']]=df.lemma_sent.str.split(" ",expand=True)
-        new_df[['p1','p2','p3','p4','p5']]=df.pos_sent.str.split(" ",expand=True)
-    except:
-        print(df)
-    new_df['lemma_pos']=new_df.l1+"_"+new_df.p1+" "+\
-                        new_df.l2+"_"+new_df.p2+" "+\
-                        new_df.l3+"_"+new_df.p3+" "+\
-                        new_df.l4+"_"+new_df.p4+" "+\
-                        new_df.l5+"_"+new_df.p5
-    return new_df['lemma_pos']
-
 
 def year_count_split(df):
     trial_df=pd.concat([df.lemma_pos, df.year_counts.str.split("\t", expand=True)], axis=1)
@@ -132,50 +141,109 @@ def year_count_split(df):
     trial_df[['year','count']] = trial_df.value.str.split(",", n=3, expand=True)[[0,1]]
     return trial_df.drop(['value'],axis=1).reset_index(drop=True)
 
+def str_joiner(df):
+    #print(df)
+    new_df=pd.DataFrame()
+    try:
+        new_df[['l1','l2','l3','l4','l5']]=df.lemma_sent.str.split(" ",expand=True,n=4)
+        new_df[['p1','p2','p3','p4','p5']]=df.pos_sent.str.split(" ",expand=True,n=4)
+    except:
+        return pd.DataFrame()
+    new_df['lemma_pos']=new_df.l1+"_"+new_df.p1+" "+\
+                        new_df.l2+"_"+new_df.p2+" "+\
+                        new_df.l3+"_"+new_df.p3+" "+\
+                        new_df.l4+"_"+new_df.p4+" "+\
+                        new_df.l5+"_"+new_df.p5
+    return new_df['lemma_pos']
+
+def year_count_split(df):
+    trial_df=pd.concat([df.old_index, df.year_counts.str.split("\t", expand=True)], axis=1)
+    trial_df=pd.melt(trial_df, id_vars=["old_index"], value_vars=list(range(len(trial_df.columns)-1))).dropna().drop("variable", axis = 1)
+    trial_df[['year','count']] = trial_df.value.str.split(",", n=3, expand=True)[[0,1]]
+    return trial_df.drop(['value'],axis=1).reset_index(drop=True)
+
 
 def index_processor(df):
-    df.reset_index(inplace=True,drop=True)
-    ret_lst=sent_maker(df.old_index)
     
-    df['sent']=ret_lst[0]
-    df['g_pos']=ret_lst[1]
+    df['sent']=np.vectorize(detokenizer.detokenize)(df.old_index.str.split(" ").values)
+    df['sent']=df.sent.str.replace('\s*,\s*',', ',regex=False).copy()
+    df['sent']=df.sent.str.replace('\s*\.\s*','. ',regex=False).copy()
+    df['sent']=df.sent.str.replace('\s*\?\s*','? ',regex=False).copy()
+    df['sent']=df.sent.str.replace('__',' ',regex=False).copy()
+
+    df['sent']=df.sent.str.replace('_START_ ','',regex=False).copy()
+    df['sent']=df['sent'].str.replace(' _END_','',regex=False).copy()
+     
+    #df['sent']=df['sent'].str.replace(r"(.+)'\s(.+)",r"\1'\2",regex=True).copy()
+    #df['sent']=df['sent'].str.replace(r"(.+)\s'(.+)",r"\1'\2",regex=True).copy()
+
+    lang_list,significance_list=lang_tagger(df.sent.values.tolist())
+    df['lang']=lang_list
+    df['lang_conf']=significance_list
+    df.lang=df.lang.str.split('_',n=4).str[-1]
     
-    results=np.vectorize(ner_lemma_reducer)(df.sent.values)
-    results_df=pd.DataFrame(results)
-    results_df=results_df.transpose()
-    results_df.columns=['lemma_sent','pos_sent','num_comp','comp_ner_sent']
+    df=df.loc[(df.lang=='en') &(df.lang_conf==True)]
 
-    index_df=pd.concat([df,results_df],axis=1,ignore_index=False)
-
-    lang_list,significance_list=lang_tagger(index_df.sent.values.tolist())
-    index_df['lang']=lang_list
-    index_df['lang_conf']=significance_list
-    index_df.lang=index_df.lang.str.split('_',n=4).str[-1]
-    index_df=index_df.loc[(index_df.lang=='en') &(index_df.lang_conf==True)]
-
-    index_df['nwords']=index_df.pos_sent.str.count(' ').add(1)
-    index_df=index_df.loc[index_df.nwords==5]
+    lemma_sent,pos_sent,comp_count,comp_ner_sent=np.vectorize(ner_lemma_reducer)(df.sent.values)
+    pd.options.mode.chained_assignment = None
+    df['lemma_sent']=lemma_sent
+    df['pos_sent']=pos_sent
+    df['comp_count']=comp_count
+    df['comp_ner_sent']=comp_ner_sent
     
-    index_df.lemma_sent=index_df.lemma_sent.str.lower()
-    if index_df.shape[0]==0:
+    df['is_comp']=False
+    df.loc[df.comp_count!=0,'is_comp']=True
+    #results_df=results_df.loc[~results_df.ner_token_sent.str.contains("PERSON PERSON")]
+
+    #index_df=pd.concat([df,results_df],axis=1,ignore_index=True)
+
+    #return results_df,df
+
+    #index_df=index_df.loc[(index_df.lang=='en') &(index_df.lang_conf==True)]
+
+    df['nwords']=df.pos_sent.str.count(' ').add(1).copy()
+    
+    pd.options.mode.chained_assignment = 'warn'
+    df=df.loc[df.nwords==5]
+    
+    df.lemma_sent=df.lemma_sent.str.lower()
+
+    #index_df.pos_sent=index_df.pos_sent.str.replace('PROPN','NOUN',regex=False)
+    #index_df.pos_sent=index_df.pos_sent.str.replace('AUX','VERB',regex=False)
+    #index_df.pos_sent=index_df.pos_sent.str.replace('CCONJ','CONJ',regex=False)
+    #index_df.g_pos=index_df.g_pos.str.replace('.','PUNCT',regex=False)
+    #index_df.g_pos=index_df.g_pos.str.replace('PRT','ADP',regex=False)
+    if df.shape[0]==0:
         return pd.DataFrame()
-    index_df['lemma_pos']=str_joiner(index_df)
-    index_df['nX']=index_df.pos_sent.str.count('X')-index_df.pos_sent.str.count('AUX')
-    index_df=index_df.loc[~(index_df.nX>1)]   
-    index_df['comp_class']=0
-
-    index_df.loc[index_df.pos_sent.str.contains(n1),'comp_class']=1
-    index_df.loc[~(index_df.pos_sent.str.contains(n1))& index_df.pos_sent.str.contains(n2),'comp_class']=2
-    index_df.loc[index_df.pos_sent.str.contains(n3),'comp_class']=3
-    index_df.loc[index_df.pos_sent.str.contains(n4),'comp_class']=4
-    index_df.loc[~(index_df.pos_sent.str.contains(n1))& index_df.pos_sent.str.contains(n5),'comp_class']=5
     
-    index_df.drop(['old_index','g_pos','lang','lang_conf','nwords','nX','lemma_sent'],axis=1,inplace=True)
-    index_year_df=year_count_split(index_df)
-    index_df=index_df.merge(index_year_df, on='lemma_pos',how='right')
+    df['lemma_pos']=str_joiner(df)
+    df['nX']=df.pos_sent.str.count('X')-df.pos_sent.str.count('AUX')
+    df=df.loc[~(df.nX==5)]
+       
+    df['comp_class']=0
+
+    df.loc[df.pos_sent.str.contains(n1),'comp_class']=1
+    df.loc[~(df.pos_sent.str.contains(n1))& df.pos_sent.str.contains(n2),'comp_class']=2
+    df.loc[df.pos_sent.str.contains(n3),'comp_class']=3
+    df.loc[df.pos_sent.str.contains(n4),'comp_class']=4
+    df.loc[~(df.pos_sent.str.contains(n1))& df.pos_sent.str.contains(n5),'comp_class']=5
+    
+    df.loc[df.pos_sent.str.contains(a1),'comp_class']=6
+    df.loc[~(df.pos_sent.str.contains(a1))& df.pos_sent.str.contains(a2),'comp_class']=7
+    df.loc[df.pos_sent.str.contains(a3),'comp_class']=8
+    df.loc[df.pos_sent.str.contains(a4),'comp_class']=9
+    df.loc[~(df.pos_sent.str.contains(a1))& df.pos_sent.str.contains(a5),'comp_class']=10
+
+    df.loc[df.pos_sent.str.contains(c1),'comp_class']=11
+    df.loc[df.pos_sent.str.contains(c2),'comp_class']=12
+
+    df.drop(['sent','pos_sent','lang','lang_conf','nwords','nX','lemma_sent'],axis=1,inplace=True)
+
+    index_year_df=year_count_split(df)
+    index_df=df.merge(index_year_df, on='old_index',how='right')
     index_df['count']=index_df['count'].astype("int64")
     index_df['year']=index_df['year'].astype("int64")
-    index_df=index_df.groupby(['lemma_pos','pos_sent','year','comp_class','num_comp','comp_ner_sent'])['count'].sum().to_frame().reset_index()
+    index_df=index_df.groupby(['lemma_pos','year','comp_class','is_comp','comp_ner_sent'])['count'].sum().to_frame().reset_index()
     return index_df
 
 
@@ -185,36 +253,37 @@ print(i)
 
 lnk=f'http://storage.googleapis.com/books/ngrams/books/20200217/eng/5-{i:05}-of-19423.gz'
 print(lnk)
-index_df   = pd.read_csv(lnk, compression='gzip', header=None, sep="\n", quoting=csv.QUOTE_NONE)
-    
+index_df   = pd.read_csv(lnk, compression='gzip', header=None, sep=u"\u0001", quoting=csv.QUOTE_NONE)    
 
 index_df[['old_index','year_counts']]=index_df[0].str.split('\t',n=1,expand=True)
-index_df=index_df.loc[index_df.old_index.str.match("^"+keep_string*5+"$",na=False)]
+index_df=index_df.loc[~index_df.old_index.str.contains(keep_string,na=False,regex=True)]
 index_df.drop(0,axis=1,inplace=True)
+index_df.reset_index(drop=True,inplace=True)
 
-if index_df.shape[0]!=0:
-    if index_df.shape[0]<10_000:
-        cur_time=time.time()
-        new_index_df=index_processor(index_df)
-        print(f'Total time taken {round(time.time()-cur_time)} secs')
-    else:
-        num_partitions=round(0.95*mp.cpu_count())
-        cur_time=time.time()
-        df_split = np.array_split(index_df, num_partitions)
-        pool = Pool(num_partitions)
-        print('Started parallelization')
-        results=pool.map_async(index_processor,df_split)
-        pool.close()
-        pool.join()
+if index_df.shape[0]<10_000:
+    
+    cur_time=time.time()
+    new_index_df=index_processor(index_df)
+    print(f'Total time taken {round(time.time()-cur_time)} secs')
+    
+else:
+    num_partitions=round(0.95*mp.cpu_count())
+    cur_time=time.time()
+    df_split = np.array_split(index_df, num_partitions)
+    pool = Pool(num_partitions)
+    print('Started parallelization')
+    results=pool.map_async(index_processor,df_split)
+    pool.close()
+    pool.join()
+        
+        
+    curr_df_list=results.get()
+    new_index_df=pd.concat(curr_df_list,ignore_index=True)
+    print(f'Total time taken {round(time.time()-cur_time)} secs')
 
-
-
-
-        print(f'Total time taken {round(time.time()-cur_time)} secs')
-        curr_df_list=results.get()
-        new_index_df=pd.concat(curr_df_list,ignore_index=True)
-    if new_index_df.shape[0]!=0:
-        new_index_df.to_pickle(f'{to_save_path}/{i}.pkl')
+    
+if new_index_df.shape[0]!=0:
+    new_index_df.to_pickle(f'{to_save_path}/{i}.pkl')
 else:
     print(f'{i} is empty')
 

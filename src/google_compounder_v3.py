@@ -8,7 +8,6 @@ import pickle
 import argparse
 from multiprocessing import Pool
 import multiprocessing as mp
-from os.path import isfile
 from itertools import repeat
 
 
@@ -27,10 +26,10 @@ parser.add_argument('--output', type=str,
 
 args = parser.parse_args()
 
-compound_id_vars=['modifier','head','year','count','num_comp','comp_ner_sent']
-modifier_id_vars=['modifier','year','count','num_comp','comp_ner_sent']
-head_id_vars=['head','year','count','num_comp','comp_ner_sent']
-word_id_vars=['word','year','count','num_comp','comp_ner_sent']
+compound_id_vars=['modifier','head','year','count']#,'num_comp','comp_ner_sent']
+modifier_id_vars=['modifier','year','count']#,'num_comp','comp_ner_sent']
+head_id_vars=['head','year','count']#,'num_comp','comp_ner_sent']
+word_id_vars=['word','year','count']#,'num_comp','comp_ner_sent']
 
 word='.+_.+'
 comp='.+_(?:NOUN|PROPN)\s.+_(?:NOUN|PROPN)'
@@ -416,7 +415,6 @@ def parquet_processor(f):
     
     for i,cur_df in enumerate(cur_parq.iter_row_groups()):
         print(f'Partition {i+1} out of {len(cur_parq.row_groups)}\n')
-        cur_df.drop(['pos_sent'],axis=1,inplace=True)
         
         if not args.word:
             reduced_df=cur_df.loc[cur_df.comp_class!=0].reset_index(drop=True)
