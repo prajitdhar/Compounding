@@ -1,10 +1,11 @@
 #!/bin/sh
 
-FILES=({0..2000})
+FILES=`awk '{print $1}' /data/dharp/compounds/datasets/new_latinum_fcat_2.txt`
 
 
-for f in "${FILES[@]}"; do
-echo $f
-    python /data/dharp/compounds/Compounding/src/google_downloader_v3.py --file $f --spath /datanaco/dharp/compounds/datasets/googleV3/ 2>&1 | tee -a google_v3_latinum.txt;
+
+for f in $FILES; do
+curfile=`basename -s .pkl $f`
+python /data/dharp/compounds/Compounding/src/google_downloader_v3.py --file $curfile --spath /datanaco/dharp/compounds/datasets/googleV3/ 2>&1 | tee -a google_v3_latinum.txt;
 done
 

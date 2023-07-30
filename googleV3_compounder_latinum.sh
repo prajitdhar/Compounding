@@ -1,9 +1,9 @@
 #!/bin/sh
 
-FILES=$(seq 1 30)
+DECADES=$(seq 1980 10 2010)
 
-for f in $FILES; do
+for d in $DECADES; do
 
-    python /data/dharp/compounds/Compounding/src/google_compounder_v3.py --file /datanaco/dharp/compounds/datasets/googleV3/df_$f.parq --output /data/dharp/compounds/datasets/ 2>&1 | tee -a google_v3_compounder_latinum.txt
+    python /data/dharp/compounds/Compounding/src/google_compounder_v3.py --data /datanaco/dharp/compounds/datasets/googleV3/ --output /data/dharp/compounds/datasets --decade $d --word 2>&1 | tee -a google_v3_compounder_word_latinum.txt
     
 done

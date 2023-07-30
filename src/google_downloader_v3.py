@@ -7,9 +7,12 @@ from multiprocessing import Pool
 import csv
 import spacy
 import re
+import warnings
+import os
 
 from nltk.tokenize.treebank import TreebankWordDetokenizer as Detok
 detokenizer = Detok()
+
 
 fasttext.FastText.eprint = lambda x: None
 import argparse
@@ -28,8 +31,8 @@ args = parser.parse_args()
 
 to_save_path=args.spath
 
-#keep_string=r"(.+_(NOUN|ADV|VERB|ADJ|X|PRT|CONJ|PRON|DET|ADP|NUM|\.)|_END_|_START_)\s*"
-keep_string=r"(.+_(NOUN|ADV|VERB|ADJ|X|PRT|CONJ|PRON|DET|ADP|NUM|\.)|_NOUN_|_ADV_|_VERB_|_ADJ_|_X_|_PRT_|_CONJ_|_PRON_|_DET_|_ADP_|_NUM_|_\._)"
+keep_string=r"(.+_(NOUN|ADV|VERB|ADJ|X|PRT|CONJ|PRON|DET|ADP|NUM|\.)|_END_|_START_)\s*"
+try_keep_string=r"(.+_(NOUN|ADV|VERB|ADJ|X|PRT|CONJ|PRON|DET|ADP|NUM|\.)|_NOUN_|_ADV_|_VERB_|_ADJ_|_X_|_PRT_|_CONJ_|_PRON_|_DET_|_ADP_|_NUM_|_\._)"
 
 word='.*'
 
@@ -55,6 +58,8 @@ c1=f'^{nn_comp}\s{nn}\s{an_comp}$'
 c2=f'^{an_comp}\s{nn}\s{nn_comp}$'
 
 
+fmodel = fasttext.load_model('/data/dharp/packages/lid.176.bin')
+nlp = spacy.load('en_core_web_lg')
 
 def delist_lang(lst):
     lang_lst=[]
@@ -126,6 +131,9 @@ def ner_lemma_reducer(sent):
     num_count=len(re.findall("compound\s(?!compound)", dep_sent))
    
     return lemma_sent,pos_sent,num_count,comp_ner_sent
+
+def year_binner(year,val=10):
+    return year - year%val
 
 def lang_tagger(parsed_sent):
     labels,confs=fmodel.predict(parsed_sent,k=-1,threshold=0.1)
@@ -241,9 +249,15 @@ def index_processor(df):
 
     index_year_df=year_count_split(df)
     index_df=df.merge(index_year_df, on='old_index',how='right')
+
     index_df['count']=index_df['count'].astype("int64")
     index_df['year']=index_df['year'].astype("int64")
-    index_df=index_df.groupby(['lemma_pos','year','comp_class','is_comp','comp_ner_sent'])['count'].sum().to_frame().reset_index()
+
+    index_df['decade']=year_binner(index_df['year'].values,10)
+    index_df['decade']=index_df['decade'].astype("int64")
+    index_df=index_df.loc[index_df.decade>=1800]
+    
+    index_df=index_df.groupby(['lemma_pos','decade','comp_class','is_comp','comp_ner_sent'])['count'].sum().to_frame().reset_index()
     return index_df
 
 
@@ -255,37 +269,54 @@ lnk=f'http://storage.googleapis.com/books/ngrams/books/20200217/eng/5-{i:05}-of-
 print(lnk)
 index_df   = pd.read_csv(lnk, compression='gzip', header=None, sep=u"\u0001", quoting=csv.QUOTE_NONE)    
 
-index_df[['old_index','year_counts']]=index_df[0].str.split('\t',n=1,expand=True)
-index_df=index_df.loc[~index_df.old_index.str.contains(keep_string,na=False,regex=True)]
-index_df.drop(0,axis=1,inplace=True)
-index_df.reset_index(drop=True,inplace=True)
+with warnings.catch_warnings():
+    warnings.simplefilter(action='ignore', category=UserWarning)
+    index_df[['old_index','year_counts']]=index_df[0].str.split('\t',n=1,expand=True)
+    index_df=index_df.loc[~index_df.old_index.str.contains(try_keep_string,na=False,regex=True)]
+    index_df.drop(0,axis=1,inplace=True)
+    index_df.reset_index(drop=True,inplace=True)
 
-if index_df.shape[0]<10_000:
-    
-    cur_time=time.time()
-    new_index_df=index_processor(index_df)
-    print(f'Total time taken {round(time.time()-cur_time)} secs')
-    
-else:
-    num_partitions=round(0.95*mp.cpu_count())
-    cur_time=time.time()
-    df_split = np.array_split(index_df, num_partitions)
-    pool = Pool(num_partitions)
-    print('Started parallelization')
-    results=pool.map_async(index_processor,df_split)
-    pool.close()
-    pool.join()
-        
-        
-    curr_df_list=results.get()
-    new_index_df=pd.concat(curr_df_list,ignore_index=True)
-    print(f'Total time taken {round(time.time()-cur_time)} secs')
-
-    
-if new_index_df.shape[0]!=0:
-    new_index_df.to_pickle(f'{to_save_path}/{i}.pkl')
-else:
+if index_df.shape[0]==0:
     print(f'{i} is empty')
+    
+else:
+
+    if index_df.shape[0]<10_000:
+    
+        cur_time=time.time()
+        new_index_df=index_processor(index_df)
+        print(f'Total time taken {round(time.time()-cur_time)} secs')
+    
+    else:
+        num_partitions=round(0.95*mp.cpu_count())
+        cur_time=time.time()
+        df_split = np.array_split(index_df, num_partitions)
+        pool = Pool(num_partitions)
+        print('Started parallelization')
+        results=pool.map_async(index_processor,df_split)
+        pool.close()
+        pool.join()
+        
+        
+        curr_df_list=results.get()
+        new_index_df=pd.concat(curr_df_list,ignore_index=True)
+        print(f'Total time taken {round(time.time()-cur_time)} secs')
+
+    
+    if new_index_df.shape[0]!=0:
+        
+        decade_lists=new_index_df.decade.unique().tolist()
+
+        for decade in decade_lists:
+
+            path = f"{to_save_path}/{decade}"
+
+            if not os.path.exists(path):
+                os.makedirs(path)
+            new_index_df.loc[new_index_df.decade==decade].reset_index(drop=True).to_pickle(f'{path}/{i}.pkl')
+        
+    else:
+        print(f'{i} is empty')
 
     
 
