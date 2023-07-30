@@ -1,0 +1,9 @@
+python src/coha_feature_extracter_sparse_embeddings.py --tag --inputdir ../Compounding/datasets/ --outputdir ../Compounding/datasets/features/ --plotdir ./compositionality_over_time/Plots/coha_new/
+
+
+
+python src/coha_feature_extracter_sparse_embeddings.py --contextual --inputdir ../Compounding/datasets/ --outputdir ../Compounding/datasets/features/ --plotdir ./compositionality_over_time/Plots/coha_new/
+
+
+
+python src/coha_feature_extracter_sparse_embeddings.py --inputdir ../Compounding/datasets/ --outputdir ../Compounding/datasets/features/ --plotdir ./compositionality_over_time/Plots/coha_new/
