@@ -52,22 +52,71 @@ comp_ratings_df=pd.concat([reddy_df,cordeiro90_df,cordeiro100_df])
 
 
 def testset_tagger(df):
+
+    #### NOUN NOUN
+    
     copy_df_1=df.copy()
     copy_df_1.modifier=copy_df_1.modifier+'_NOUN'
     copy_df_1['head']=copy_df_1['head']+'_NOUN'
 
+    ### PROPN NOUN
+
     copy_df_2=df.copy()
     copy_df_2.modifier=copy_df_2.modifier+'_PROPN'
     copy_df_2['head']=copy_df_2['head']+'_NOUN'
+    
+    ### NOUN PROPN
 
     copy_df_3=df.copy()
     copy_df_3.modifier=copy_df_3.modifier+'_NOUN'
     copy_df_3['head']=copy_df_3['head']+'_PROPN'
+    
+    ### PROPN PROPN    
 
     copy_df_4=df.copy()
     copy_df_4.modifier=copy_df_4.modifier+'_PROPN'
     copy_df_4['head']=copy_df_4['head']+'_PROPN'
     
+   
+    ### ADJ/NOUN NOUN
+    
+    copy_df_5=df.copy()
+    
+    copy_df_5.loc[copy_df_5.is_adj==True,"modifier"]+="_ADJ"
+    copy_df_5.loc[copy_df_5.is_adj==False,"modifier"]+="_NOUN"
+    copy_df_5['head']=copy_df_5['head']+'_NOUN'   
+    
+    
+    ### ADJ/NOUN PROPN
+    
+    copy_df_6=df.copy()
+    copy_df_6.loc[copy_df_6.is_adj==True,"modifier"]+="_ADJ"
+    copy_df_6.loc[copy_df_6.is_adj==False,"modifier"]+="_NOUN"
+    copy_df_6['head']=copy_df_6['head']+'_PROPN'  
+
+    
+    #### ADJ/PROPN NOUN
+    
+    copy_df_7=df.copy()
+    copy_df_7.loc[copy_df_7.is_adj==True,"modifier"]+="_ADJ"
+    copy_df_7.loc[copy_df_7.is_adj==False,"modifier"]+="_PROPN"
+    copy_df_7['head']=copy_df_7['head']+'_NOUN' 
+    
+    
+    #### ADJ/PROPN PROPN
+    
+    copy_df_8=df.copy()
+    copy_df_8.loc[copy_df_8.is_adj==True,"modifier"]+="_ADJ"
+    copy_df_8.loc[copy_df_8.is_adj==False,"modifier"]+="_PROPN"
+    copy_df_8['head']=copy_df_8['head']+'_PROPN' 
+    
+    
+    complete_df=pd.concat([copy_df_1,copy_df_2,copy_df_3,copy_df_4,copy_df_5,copy_df_6,copy_df_7,copy_df_8],ignore_index=True)
+                           
+    return complete_df
+
+comp_ratings_df=testset_tagger(comp_ratings_df)
+comp_ratings_df.drop_duplicates(inplace=True)
     
 def process_decades_compound(dec_list,input_dir,ctype='compound'):
 
@@ -197,24 +246,29 @@ def process_cutoff_constituent(df,ctype='word'):
 def ppmi(ppmi_df):
     
     ppmi_cols=ppmi_df.columns.tolist()
-    ppmi_cols[-1]="XY"
+    ppmi_cols=['XY' if 'count' in x else x for x in ppmi_cols]
     ppmi_df.columns=ppmi_cols
 
-    Y_star=ppmi_df.groupby(['context'])['XY'].sum().to_frame()
+    ppmi_time_counts=ppmi_df.groupby('time')['XY'].sum().to_frame()
+    ppmi_time_counts.columns=['N']
+
+
+    Y_star=ppmi_df.groupby(['context','time'])['XY'].sum().to_frame()
     Y_star.columns=['Y']
 
-    ppmi_df=pd.merge(ppmi_df,Y_star.reset_index(),on=['context'])
+    ppmi_df=pd.merge(ppmi_df,Y_star.reset_index(),on=['context','time'])
+    
+    X_cols=[x for x in ppmi_cols if x not in ['context','XY'] ]
 
-    X_star=ppmi_df.groupby(ppmi_cols[:-2])['XY'].sum().to_frame()
+
+    X_star=ppmi_df.groupby(X_cols)['XY'].sum().to_frame()
     X_star.columns=['X']
 
-    ppmi_df=pd.merge(ppmi_df,X_star.reset_index(),on=ppmi_cols[:-2])
-
-    numerator_count=ppmi_df.X.sum()
-
-    ppmi_df['count']=np.log2((ppmi_df['XY']*numerator_count+1)/(ppmi_df['X']*ppmi_df['Y']+1))
-    ppmi_df.loc[ppmi_df['count']<=0,'count']=0
-    ppmi_df.drop(['XY','X','Y'],axis=1,inplace=True)
+    ppmi_df=pd.merge(ppmi_df,X_star.reset_index(),on=X_cols)
+    ppmi_df=pd.merge(ppmi_df,ppmi_time_counts.reset_index(),on=['time'])
+    ppmi_df['count']=np.log2((ppmi_df['XY']*ppmi_df['N'])/(ppmi_df['X']*ppmi_df['Y']))
+    ppmi_df=ppmi_df.loc[ppmi_df['count']>=0]
+    ppmi_df.drop(['XY','X','Y','N'],axis=1,inplace=True)
     
     return ppmi_df
 
@@ -365,7 +419,7 @@ def calculate_compound_features(compounds,modifiers,heads,all_comps,not_found_co
 
     frequency_feat=frequency_feat.merge(compound_time_counts.reset_index(),on='time')
     frequency_feat=frequency_feat.merge(modifier_time_counts.reset_index(),on='time')
-    frequency_feat=frequency_feat.merge(compound_time_counts.reset_index(),on='time')
+    frequency_feat=frequency_feat.merge(head_time_counts.reset_index(),on='time')
 
     frequency_feat.set_index(['modifier','head','time'],inplace=True)
     frequency_feat.columns=['comp_freq','mod_freq','head_freq','N','mod_time_count','head_time_count']
