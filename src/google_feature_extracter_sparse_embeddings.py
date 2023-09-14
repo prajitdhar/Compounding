@@ -49,7 +49,8 @@ cordeiro100_df['source']='cordeiro100'
     
 comp_ratings_df=pd.concat([reddy_df,cordeiro90_df,cordeiro100_df])
 #comp_ratings_df.drop_duplicates(inplace=True)
-
+if args.tag:
+    comp_ratings_df=testset_tagger(comp_ratings_df)
 
 def testset_tagger(df):
 
@@ -114,9 +115,6 @@ def testset_tagger(df):
     complete_df=pd.concat([copy_df_1,copy_df_2,copy_df_3,copy_df_4,copy_df_5,copy_df_6,copy_df_7,copy_df_8],ignore_index=True)
                            
     return complete_df
-
-comp_ratings_df=testset_tagger(comp_ratings_df)
-comp_ratings_df.drop_duplicates(inplace=True)
     
 def process_decades_compound(dec_list,input_dir,ctype='compound'):
 
