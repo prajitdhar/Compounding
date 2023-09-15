@@ -199,7 +199,7 @@ def process_decades_constituent(dec_list,input_dir,ctype='word'):
             complete_df=complete_df.groupby([ctype,'time','context'])['count'].sum().to_frame().reset_index()
         
         print("Saving file")
-        complete_df.to_pickle(f"{input_dir}/{ctype}s/{args.temporal}_{dec_list[0]}.pkl")
+        complete_df.to_pickle(f"{input_dir}/{ctype}s/{args.temporal}_{dec_list[0]}_{tag_str}.pkl")
 
     return complete_df
 
