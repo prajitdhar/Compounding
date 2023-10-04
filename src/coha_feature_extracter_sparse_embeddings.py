@@ -54,17 +54,7 @@ def testset_tagger(df):
     copy_df_1.modifier=copy_df_1.modifier+'_NOUN'
     copy_df_1['head']=copy_df_1['head']+'_NOUN'
 
-    ### PROPN NOUN
 
-    copy_df_2=df.copy()
-    copy_df_2.modifier=copy_df_2.modifier+'_PROPN'
-    copy_df_2['head']=copy_df_2['head']+'_NOUN'
-    
-    ### NOUN PROPN
-
-    copy_df_3=df.copy()
-    copy_df_3.modifier=copy_df_3.modifier+'_NOUN'
-    copy_df_3['head']=copy_df_3['head']+'_PROPN'
     
     ### PROPN PROPN    
 
@@ -82,21 +72,7 @@ def testset_tagger(df):
     copy_df_5['head']=copy_df_5['head']+'_NOUN'   
     
     
-    ### ADJ/NOUN PROPN
-    
-    copy_df_6=df.copy()
-    copy_df_6.loc[copy_df_6.is_adj==True,"modifier"]+="_ADJ"
-    copy_df_6.loc[copy_df_6.is_adj==False,"modifier"]+="_NOUN"
-    copy_df_6['head']=copy_df_6['head']+'_PROPN'  
 
-    
-    #### ADJ/PROPN NOUN
-    
-    copy_df_7=df.copy()
-    copy_df_7.loc[copy_df_7.is_adj==True,"modifier"]+="_ADJ"
-    copy_df_7.loc[copy_df_7.is_adj==False,"modifier"]+="_PROPN"
-    copy_df_7['head']=copy_df_7['head']+'_NOUN' 
-    
     
     #### ADJ/PROPN PROPN
     
@@ -106,9 +82,14 @@ def testset_tagger(df):
     copy_df_8['head']=copy_df_8['head']+'_PROPN' 
     
     
-    complete_df=pd.concat([copy_df_1,copy_df_2,copy_df_3,copy_df_4,copy_df_5,copy_df_6,copy_df_7,copy_df_8],ignore_index=True)
+    complete_df=pd.concat([copy_df_1,copy_df_4,copy_df_5,copy_df_8],ignore_index=True)
                            
     return complete_df
+    
+comp_ratings_df=pd.concat([reddy_df,cordeiro90_df,cordeiro100_df])
+#comp_ratings_df.drop_duplicates(inplace=True)
+if args.tag:
+    comp_ratings_df=testset_tagger(comp_ratings_df)
     
 comp_ratings_df=pd.concat([reddy_df,cordeiro90_df,cordeiro100_df])
 #comp_ratings_df.drop_duplicates(inplace=True)
@@ -520,148 +501,6 @@ def calculate_cosine_features(compounds,modifiers,heads,not_found_compounds_df):
     return cosine_sim_feat
 
 
-def calculate_setting_similarity(compounds,modifiers,heads,compounds_agnostic,modifiers_agnostic,heads_agnostic,compound_list_df):
-    
-    
-    mod_cols=modifiers.columns.tolist()
-    mod_cols=['count' if 'count' in x else x for x in mod_cols]
-    modifiers.columns=mod_cols
-
-    head_cols=heads.columns.tolist()
-    head_cols=['count' if 'count' in x else x for x in head_cols]
-    heads.columns=head_cols
-
-    comp_cols=compounds.columns.tolist()
-    comp_cols=['count' if 'count' in x else x for x in comp_cols]
-    compounds.columns=comp_cols
-
-    
-    mod_agn_cols=modifiers_agnostic.columns.tolist()
-    mod_agn_cols=['count' if 'count' in x else x for x in mod_agn_cols]
-    modifiers_agnostic.columns=mod_agn_cols
-    
-    head_agn_cols=heads_agnostic.columns.tolist()
-    head_agn_cols=['count' if 'count' in x else x for x in head_agn_cols]
-    heads_agnostic.columns=head_agn_cols
-    
-    comp_agn_cols=compounds_agnostic.columns.tolist()
-    comp_agn_cols=['count' if 'count' in x else x for x in comp_agn_cols]
-    compounds_agnostic.columns=comp_agn_cols
-    
-    print('Calculating denominator values')
-
-    compound_denom=compounds.copy()
-    compound_denom['count']=compound_denom['count']**2
-    compound_denom=compound_denom.groupby(['modifier','head','time'])['count'].sum().to_frame()
-    compound_denom['count']=np.sqrt(compound_denom['count'])
-    compound_denom.columns=['compound_denom']
-    
-    compound_agnostic_denom=compounds_agnostic.copy()
-    compound_agnostic_denom['count']=compound_agnostic_denom['count']**2
-    compound_agnostic_denom=compound_agnostic_denom.groupby(['modifier','head','time'])['count'].sum().to_frame()
-    compound_agnostic_denom['count']=np.sqrt(compound_agnostic_denom['count'])
-    compound_agnostic_denom.columns=['compound_agn_denom']
-    
-
-    modifier_denom=modifiers.copy()
-    modifier_denom['count']=modifier_denom['count']**2
-    modifier_denom=modifier_denom.groupby(['modifier','time'])['count'].sum().to_frame()
-    modifier_denom['count']=np.sqrt(modifier_denom['count'])
-    modifier_denom.columns=['modifier_denom']
-    
-    modifier_agnostic_denom=modifiers_agnostic.copy()
-    modifier_agnostic_denom['count']=modifier_agnostic_denom['count']**2
-    modifier_agnostic_denom=modifier_agnostic_denom.groupby(['modifier','time'])['count'].sum().to_frame()
-    modifier_agnostic_denom['count']=np.sqrt(modifier_agnostic_denom['count'])
-    modifier_agnostic_denom.columns=['modifier_agn_denom']
-    
-    
-    head_denom=heads.copy()
-    head_denom['count']=head_denom['count']**2
-    head_denom=head_denom.groupby(['head','time'])['count'].sum().to_frame()
-    head_denom['count']=np.sqrt(head_denom['count'])
-    head_denom.columns=['head_denom']
-    
-    head_agnostic_denom=heads_agnostic.copy()
-    head_agnostic_denom['count']=head_agnostic_denom['count']**2
-    head_agnostic_denom=head_agnostic_denom.groupby(['head','time'])['count'].sum().to_frame()
-    head_agnostic_denom['count']=np.sqrt(head_agnostic_denom['count'])
-    head_agnostic_denom.columns=['head_agn_denom'] 
-    
-    
-    mod_cols=modifiers.columns.tolist()
-    mod_cols=['mod_count' if 'count' in x else x for x in mod_cols]
-    modifiers.columns=mod_cols
-
-    head_cols=heads.columns.tolist()
-    head_cols=['head_count' if 'count' in x else x for x in head_cols]
-    heads.columns=head_cols
-
-    comp_cols=compounds.columns.tolist()
-    comp_cols=['comp_count' if 'count' in x else x for x in comp_cols]
-    compounds.columns=comp_cols
-
-    
-    mod_agn_cols=modifiers_agnostic.columns.tolist()
-    mod_agn_cols=['mod_agn_count' if 'count' in x else x for x in mod_agn_cols]
-    modifiers_agnostic.columns=mod_agn_cols
-    
-    head_agn_cols=heads_agnostic.columns.tolist()
-    head_agn_cols=['head_agn_count' if 'count' in x else x for x in head_agn_cols]
-    heads_agnostic.columns=head_agn_cols
-    
-    comp_agn_cols=compounds_agnostic.columns.tolist()
-    comp_agn_cols=['comp_agn_count' if 'count' in x else x for x in comp_agn_cols]
-    compounds_agnostic.columns=comp_agn_cols
-
-    print('Calculating cosine features')
-
-    compound_setting_sim=pd.merge(compounds,compounds_agnostic,on=["modifier",'head',"context",'time'])
-    compound_setting_sim['numerator']=compound_setting_sim['comp_count']*compound_setting_sim['comp_agn_count']
-    compound_setting_sim=compound_setting_sim.groupby(['modifier','head','time'])['numerator'].sum().to_frame()
-
-    compound_setting_sim=pd.merge(compound_setting_sim.reset_index(),compound_denom.reset_index(),on=["modifier","head",'time'])
-    compound_setting_sim=pd.merge(compound_setting_sim,compound_agnostic_denom.reset_index(),on=["modifier","head",'time'])
-
-    compound_setting_sim['sim_bw_settings_comp']=compound_setting_sim['numerator']/(compound_setting_sim['compound_denom']*compound_setting_sim['compound_agn_denom'])
-    
-    compound_setting_sim=pd.merge(compound_setting_sim,compound_list_df,on=["modifier",'head','time'],how='outer')
-
-    compound_setting_sim.set_index(['modifier','head','time'],inplace=True)
-    compound_setting_sim.drop(['numerator','compound_denom','compound_agn_denom'],axis=1,inplace=True)
-
-    head_setting_sim=pd.merge(heads,heads_agnostic,on=['head',"context",'time'])
-    head_setting_sim['numerator']=head_setting_sim['head_count']*head_setting_sim['head_agn_count']
-    head_setting_sim=head_setting_sim.groupby(['head','time'])['numerator'].sum().to_frame()
-
-    head_setting_sim=pd.merge(head_setting_sim.reset_index(),head_denom.reset_index(),on=["head",'time'])
-    head_setting_sim=pd.merge(head_setting_sim,head_agnostic_denom.reset_index(),on=["head",'time'])
-
-    head_setting_sim['sim_bw_settings_head']=head_setting_sim['numerator']/(head_setting_sim['head_denom']*head_setting_sim['head_agn_denom'])
-    head_setting_sim.set_index(['head','time'],inplace=True)
-    head_setting_sim.drop(['numerator','head_denom','head_agn_denom'],axis=1,inplace=True)
-    
-    
-    
-    compound_setting_sim=pd.merge(compound_setting_sim.reset_index(),head_setting_sim.reset_index(),on=["head",'time'])
-
-
-    modifier_setting_sim=pd.merge(modifiers,modifiers_agnostic,on=['modifier',"context",'time'])
-    modifier_setting_sim['numerator']=modifier_setting_sim['mod_count']*modifier_setting_sim['mod_agn_count']
-    modifier_setting_sim=modifier_setting_sim.groupby(['modifier','time'])['numerator'].sum().to_frame()
-
-    modifier_setting_sim=pd.merge(modifier_setting_sim.reset_index(),modifier_denom.reset_index(),on=["modifier",'time'])
-    modifier_setting_sim=pd.merge(modifier_setting_sim,modifier_agnostic_denom.reset_index(),on=["modifier",'time'])
-
-    modifier_setting_sim['sim_bw_settings_modifier']=modifier_setting_sim['numerator']/(modifier_setting_sim['modifier_denom']*modifier_setting_sim['modifier_agn_denom'])
-    modifier_setting_sim.set_index(['modifier','time'],inplace=True)
-    modifier_setting_sim.drop(['numerator','modifier_denom','modifier_agn_denom'],axis=1,inplace=True)
-
-    compound_setting_sim=pd.merge(compound_setting_sim,modifier_setting_sim.reset_index(),on=["modifier",'time'])
-    
-    return compound_setting_sim
-
-
 def plotting(compound_df,sim_df):
     
     print('Plotting')
@@ -931,6 +770,157 @@ def plotting(compound_df,sim_df):
                 cur_ratings_df.to_csv(f'{args.outputdir}/features_{cur_tag}_{comp_str}_{tag_str}_{temp_cutoff_str}.csv',sep='\t',index=False)
 
 
+def calculate_setting_similarity(compounds_aware,modifiers_aware,heads_aware,compounds_agnostic,modifiers_agnostic,heads_agnostic,compound_list_df):
+    
+    mod_awr_cols=modifiers_aware.columns.tolist()
+    mod_awr_cols=['count' if 'count' in x else x for x in mod_awr_cols]
+    modifiers_aware.columns=mod_awr_cols
+
+    head_awr_cols=heads_aware.columns.tolist()
+    head_awr_cols=['count' if 'count' in x else x for x in head_awr_cols]
+    heads_aware.columns=head_awr_cols
+
+    comp_awr_cols=compounds_aware.columns.tolist()
+    comp_awr_cols=['count' if 'count' in x else x for x in comp_awr_cols]
+    compounds_aware.columns=comp_awr_cols
+
+    
+    mod_agn_cols=modifiers_agnostic.columns.tolist()
+    mod_agn_cols=['count' if 'count' in x else x for x in mod_agn_cols]
+    modifiers_agnostic.columns=mod_agn_cols
+    
+    head_agn_cols=heads_agnostic.columns.tolist()
+    head_agn_cols=['count' if 'count' in x else x for x in head_agn_cols]
+    heads_agnostic.columns=head_agn_cols
+    
+    comp_agn_cols=compounds_agnostic.columns.tolist()
+    comp_agn_cols=['count' if 'count' in x else x for x in comp_agn_cols]
+    compounds_agnostic.columns=comp_agn_cols
+    
+    print('Calculating setting frequency values')
+    
+    
+    num_modifiers_features_df=(modifiers_aware.groupby(['modifier','time'])['count'].agg(perc_token_modifier='sum', perc_type_modifier='size')/modifiers_agnostic.groupby(['modifier','time'])['count'].agg(perc_token_modifier='sum', perc_type_modifier='size')).reset_index()
+    num_heads_features_df=(heads_aware.groupby(['head','time'])['count'].agg(perc_token_head='sum', perc_type_head='size')/heads_agnostic.groupby(['head','time'])['count'].agg(perc_token_head='sum', perc_type_head='size')).reset_index()
+
+    num_compounds_features_df=(compounds_aware.groupby(['modifier','head','time'])['count'].agg(perc_token_comp='sum', perc_type_comp='size')/compounds_agnostic.groupby(['modifier','head','time'])['count'].agg(perc_token_comp='sum', perc_type_comp='size')).reset_index()
+    num_compounds_features_df=pd.merge(num_compounds_features_df,num_modifiers_features_df,on=['modifier','time'])
+    num_compounds_features_df=pd.merge(num_compounds_features_df,num_heads_features_df,on=['head','time'])
+    
+    print('Calculating denominator values')
+
+    compound_aware_denom=compounds_aware.copy()
+    compound_aware_denom['count']=compound_aware_denom['count']**2
+    compound_aware_denom=compound_aware_denom.groupby(['modifier','head','time'])['count'].sum().to_frame()
+    compound_aware_denom['count']=np.sqrt(compound_aware_denom['count'])
+    compound_aware_denom.columns=['compound_awr_denom']
+    
+    compound_agnostic_denom=compounds_agnostic.copy()
+    compound_agnostic_denom['count']=compound_agnostic_denom['count']**2
+    compound_agnostic_denom=compound_agnostic_denom.groupby(['modifier','head','time'])['count'].sum().to_frame()
+    compound_agnostic_denom['count']=np.sqrt(compound_agnostic_denom['count'])
+    compound_agnostic_denom.columns=['compound_agn_denom']
+    
+
+    modifier_aware_denom=modifiers_aware.copy()
+    modifier_aware_denom['count']=modifier_aware_denom['count']**2
+    modifier_aware_denom=modifier_aware_denom.groupby(['modifier','time'])['count'].sum().to_frame()
+    modifier_aware_denom['count']=np.sqrt(modifier_aware_denom['count'])
+    modifier_aware_denom.columns=['modifier_awr_denom']
+    
+    modifier_agnostic_denom=modifiers_agnostic.copy()
+    modifier_agnostic_denom['count']=modifier_agnostic_denom['count']**2
+    modifier_agnostic_denom=modifier_agnostic_denom.groupby(['modifier','time'])['count'].sum().to_frame()
+    modifier_agnostic_denom['count']=np.sqrt(modifier_agnostic_denom['count'])
+    modifier_agnostic_denom.columns=['modifier_agn_denom']
+    
+    
+    head_aware_denom=heads_aware.copy()
+    head_aware_denom['count']=head_aware_denom['count']**2
+    head_aware_denom=head_aware_denom.groupby(['head','time'])['count'].sum().to_frame()
+    head_aware_denom['count']=np.sqrt(head_aware_denom['count'])
+    head_aware_denom.columns=['head_awr_denom']
+    
+    head_agnostic_denom=heads_agnostic.copy()
+    head_agnostic_denom['count']=head_agnostic_denom['count']**2
+    head_agnostic_denom=head_agnostic_denom.groupby(['head','time'])['count'].sum().to_frame()
+    head_agnostic_denom['count']=np.sqrt(head_agnostic_denom['count'])
+    head_agnostic_denom.columns=['head_agn_denom'] 
+    
+    
+    mod_awr_cols=modifiers_aware.columns.tolist()
+    mod_awr_cols=['mod_awr_count' if 'count' in x else x for x in mod_awr_cols]
+    modifiers_aware.columns=mod_awr_cols
+
+    head_awr_cols=heads_aware.columns.tolist()
+    head_awr_cols=['head_awr_count' if 'count' in x else x for x in head_awr_cols]
+    heads_aware.columns=head_awr_cols
+
+    comp_awr_cols=compounds_aware.columns.tolist()
+    comp_awr_cols=['comp_awr_count' if 'count' in x else x for x in comp_awr_cols]
+    compounds_aware.columns=comp_awr_cols
+
+    
+    mod_agn_cols=modifiers_agnostic.columns.tolist()
+    mod_agn_cols=['mod_agn_count' if 'count' in x else x for x in mod_agn_cols]
+    modifiers_agnostic.columns=mod_agn_cols
+    
+    head_agn_cols=heads_agnostic.columns.tolist()
+    head_agn_cols=['head_agn_count' if 'count' in x else x for x in head_agn_cols]
+    heads_agnostic.columns=head_agn_cols
+    
+    comp_agn_cols=compounds_agnostic.columns.tolist()
+    comp_agn_cols=['comp_agn_count' if 'count' in x else x for x in comp_agn_cols]
+    compounds_agnostic.columns=comp_agn_cols
+
+    print('Calculating cosine setting features')
+
+    compound_setting_sim=pd.merge(compounds_aware,compounds_agnostic,on=["modifier",'head',"context",'time'])
+    compound_setting_sim['numerator']=compound_setting_sim['comp_awr_count']*compound_setting_sim['comp_agn_count']
+    compound_setting_sim=compound_setting_sim.groupby(['modifier','head','time'])['numerator'].sum().to_frame()
+
+    compound_setting_sim=pd.merge(compound_setting_sim.reset_index(),compound_aware_denom.reset_index(),on=["modifier","head",'time'])
+    compound_setting_sim=pd.merge(compound_setting_sim,compound_agnostic_denom.reset_index(),on=["modifier","head",'time'])
+
+    compound_setting_sim['sim_bw_settings_comp']=compound_setting_sim['numerator']/(compound_setting_sim['compound_awr_denom']*compound_setting_sim['compound_agn_denom'])
+    
+    compound_setting_sim=pd.merge(compound_setting_sim,compound_list_df,on=["modifier",'head','time'],how='outer')
+
+    compound_setting_sim.set_index(['modifier','head','time'],inplace=True)
+    compound_setting_sim.drop(['numerator','compound_awr_denom','compound_agn_denom'],axis=1,inplace=True)
+
+    head_setting_sim=pd.merge(heads_aware,heads_agnostic,on=['head',"context",'time'])
+    head_setting_sim['numerator']=head_setting_sim['head_awr_count']*head_setting_sim['head_agn_count']
+    head_setting_sim=head_setting_sim.groupby(['head','time'])['numerator'].sum().to_frame()
+
+    head_setting_sim=pd.merge(head_setting_sim.reset_index(),head_aware_denom.reset_index(),on=["head",'time'])
+    head_setting_sim=pd.merge(head_setting_sim,head_agnostic_denom.reset_index(),on=["head",'time'])
+
+    head_setting_sim['sim_bw_settings_head']=head_setting_sim['numerator']/(head_setting_sim['head_awr_denom']*head_setting_sim['head_agn_denom'])
+    head_setting_sim.set_index(['head','time'],inplace=True)
+    head_setting_sim.drop(['numerator','head_awr_denom','head_agn_denom'],axis=1,inplace=True)
+    
+    compound_setting_sim=pd.merge(compound_setting_sim.reset_index(),head_setting_sim.reset_index(),on=["head",'time'])
+
+
+    modifier_setting_sim=pd.merge(modifiers_aware,modifiers_agnostic,on=['modifier',"context",'time'])
+    modifier_setting_sim['numerator']=modifier_setting_sim['mod_awr_count']*modifier_setting_sim['mod_agn_count']
+    modifier_setting_sim=modifier_setting_sim.groupby(['modifier','time'])['numerator'].sum().to_frame()
+
+    modifier_setting_sim=pd.merge(modifier_setting_sim.reset_index(),modifier_aware_denom.reset_index(),on=["modifier",'time'])
+    modifier_setting_sim=pd.merge(modifier_setting_sim,modifier_agnostic_denom.reset_index(),on=["modifier",'time'])
+
+    modifier_setting_sim['sim_bw_settings_modifier']=modifier_setting_sim['numerator']/(modifier_setting_sim['modifier_awr_denom']*modifier_setting_sim['modifier_agn_denom'])
+    modifier_setting_sim.set_index(['modifier','time'],inplace=True)
+    modifier_setting_sim.drop(['numerator','modifier_awr_denom','modifier_agn_denom'],axis=1,inplace=True)
+
+    compound_setting_sim=pd.merge(compound_setting_sim,modifier_setting_sim.reset_index(),on=["modifier",'time'])
+    
+    compound_setting_sim=pd.merge(compound_setting_sim,num_compounds_features_df,on=["modifier","head",'time'])
+    
+    return compound_setting_sim
+
+
 def merge_comp_ratings(features_df):
 
     features_df=pd.pivot_table(features_df, index=['modifier','head'], columns=['time'])
@@ -944,17 +934,15 @@ def merge_comp_ratings(features_df):
         cur_year+=1
 
     features_df.columns=new_columns
-    cur_ratings_df_na=features_df.reset_index().merge(comp_ratings_df,on=['modifier','head'])
+    cur_ratings_df_na=features_df.reset_index().merge(comp_ratings_df,on=['modifier','head'],how='right')
 
 
     imputer= SimpleImputer(strategy="median")
-    features_df = features_df.reset_index().merge(comp_ratings_df[['modifier', 'head']], on=['modifier','head'], how='right')
-    features_df.set_index(['modifier', 'head'], inplace=True)
     df_med=pd.DataFrame(imputer.fit_transform(features_df))
     df_med.columns=features_df.columns
     df_med.index=features_df.index
 
-    cur_ratings_df_med=df_med.reset_index().merge(comp_ratings_df,on=['modifier','head'])
+    cur_ratings_df_med=df_med.reset_index().merge(comp_ratings_df,on=['modifier','head'],how='right')
     
     return cur_ratings_df_na,cur_ratings_df_med
 
@@ -1164,14 +1152,13 @@ for temporal in temporal_list:
 
         features_aware_df=pd.merge(cosine_sim_feat_aware,compound_setting_sim,on=['modifier','head','time'],how='outer')
         features_aware_df=features_aware_df.merge(compound_features_aware,on=['modifier','head','time'],how='left')
-        features_aware_df=features_aware_df.merge(compound_list_aware_df,on=['modifier','head','time'],how='right')
+
 
 
         print('Combining all compound agnostic features')
 
-        features_agnostic_df=pd.merge(cosine_sim_feat_agnostic,compound_setting_sim,on=['modifier','head','time'],how='outer')
-        features_agnostic_df=features_agnostic_df.merge(compound_features_agnostic,on=['modifier','head','time'],how='left')
-        features_agnostic_df=features_agnostic_df.merge(compound_list_agnostic_df,on=['modifier','head','time'],how='right')
+        features_agnostic_df=pd.merge(cosine_sim_feat_agnostic,compound_features_agnostic,on=['modifier','head','time'],how='outer')
+
 
         if args.ppmi:
             ppmi_str="PPMI"
@@ -1187,11 +1174,8 @@ for temporal in temporal_list:
 
         cur_ratings_aware_df_na,cur_ratings_aware_df_med=merge_comp_ratings(features_aware_df)
         cur_ratings_agnostic_df_na,cur_ratings_agnostic_df_med=merge_comp_ratings(features_agnostic_df)
-        cur_ratings_aware_df_na.loc[:,~cur_ratings_aware_df_na.columns.str.contains('setting')].to_csv(f'{args.outputdir}/features_CompoundAware_woSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_na.csv',sep='\t',index=False)
-        cur_ratings_aware_df_med.loc[:,~cur_ratings_aware_df_med.columns.str.contains('setting')].to_csv(f'{args.outputdir}/features_CompoundAware_woSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_med.csv',sep='\t',index=False)
-
-        cur_ratings_agnostic_df_na.loc[:,~cur_ratings_agnostic_df_na.columns.str.contains('setting')].to_csv(f'{args.outputdir}/features_CompoundAgnostic_woSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_na.csv',sep='\t',index=False)
-        cur_ratings_agnostic_df_med.loc[:,~cur_ratings_agnostic_df_med.columns.str.contains('setting')].to_csv(f'{args.outputdir}/features_CompoundAgnostic_woSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_med.csv',sep='\t',index=False)
+        
+        print(cur_ratings_aware_df_na.shape[0])
 
 
         cur_ratings_aware_df_na.to_csv(f'{args.outputdir}/features_CompoundAware_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_na.csv',sep='\t',index=False)
@@ -1199,6 +1183,3 @@ for temporal in temporal_list:
 
         cur_ratings_agnostic_df_na.to_csv(f'{args.outputdir}/features_CompoundAgnostic_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_na.csv',sep='\t',index=False)
         cur_ratings_agnostic_df_med.to_csv(f'{args.outputdir}/features_CompoundAgnostic_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_med.csv',sep='\t',index=False)
-    
-    
-    
