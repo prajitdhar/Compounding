@@ -213,7 +213,7 @@ def merge_comp_ratings(features_df):
 
 
 cutoff_list=[0,10,50,100,500,1000]
-temporal_list=[10000,10,20,50,100]
+temporal_list=[10,20,50,100]
 
 
 if args.ppmi:
@@ -227,20 +227,29 @@ else:
     tag_str='UnTagged'
 
     
+unique_mod_list=comp_ratings_df[['modifier']].drop_duplicates()['modifier'].to_list()
+unique_head_list=comp_ratings_df[['head']].drop_duplicates()['head'].to_list() 
+unique_constituent_list=list(set(unique_mod_list+unique_head_list))
+    
 complete_phrases=pd.read_pickle(args.inputdir+"/phrases.pkl")
+complete_phrases=complete_phrases.loc[(complete_phrases.modifier.isin(unique_mod_list))&(complete_phrases['head'].isin(unique_head_list))]            
 
 
 complete_words=pd.read_pickle(args.inputdir+"/words.pkl")
-    
-    
+complete_words=complete_words.loc[complete_words.word.isin(unique_constituent_list)]
+
     
     
 complete_compounds=pd.read_pickle(args.inputdir+"/compounds.pkl")
-   
+complete_compounds=complete_compounds.loc[(complete_compounds.modifier.isin(unique_mod_list))&(complete_compounds['head'].isin(unique_head_list))]            
+
 
 complete_modifiers=pd.read_pickle(args.inputdir+"/modifiers.pkl")
+complete_modifiers=complete_modifiers.loc[complete_modifiers.modifier.isin(unique_mod_list)]
+
 
 complete_heads=pd.read_pickle(args.inputdir+"/heads.pkl")
+complete_heads=complete_heads.loc[complete_heads['head'].isin(unique_head_list)]
 
     
 if not args.tag:
@@ -404,12 +413,12 @@ for temporal in temporal_list:
 
 
         print(cur_ratings_aware_df_na.shape[0])
+        print(cur_ratings_aware_df_na..drop_duplicates().shape[0])
 
         print('Saving feature datasets')
 
+        cur_ratings_aware_df_na.drop_duplicates().to_csv(f'{args.outputdir}/temporal_CompoundAware_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_na.csv',sep='\t',index=False)
+        cur_ratings_aware_df_med.drop_duplicates().to_csv(f'{args.outputdir}/temporal_CompoundAware_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_med.csv',sep='\t',index=False)
 
-        cur_ratings_aware_df_na.to_csv(f'{args.outputdir}/temporal_CompoundAware_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_na.csv',sep='\t',index=False)
-        cur_ratings_aware_df_med.to_csv(f'{args.outputdir}/temporal_CompoundAware_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_med.csv',sep='\t',index=False)
-
-        cur_ratings_agnostic_df_na.to_csv(f'{args.outputdir}/temporal_CompoundAgnostic_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_na.csv',sep='\t',index=False)
-        cur_ratings_agnostic_df_med.to_csv(f'{args.outputdir}/temporal_CompoundAgnostic_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_med.csv',sep='\t',index=False)
+        cur_ratings_agnostic_df_na.drop_duplicates().to_csv(f'{args.outputdir}/temporal_CompoundAgnostic_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_na.csv',sep='\t',index=False)
+        cur_ratings_agnostic_df_med.drop_duplicates()to_csv(f'{args.outputdir}/temporal_CompoundAgnostic_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_med.csv',sep='\t',index=False)

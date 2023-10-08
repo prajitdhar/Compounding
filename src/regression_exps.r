@@ -18,18 +18,19 @@ options(error = quote({
 }))
 
 option_list = list(
-  make_option(c("-p", "--ppmi"), type="character", default="PPMI"),
-  make_option(c("-s", "--setting"), type="character", default="Agnostic"),
-  make_option(c("-m", "--median"), type="character", default="med"),
-  make_option(c("-c", "--cpus"), type="integer", default=30)
-  
+  make_option(c( "--corpus"), type="character", default="google"),
+  make_option(c( "--ppmi"), type="character", default="PPMI"),
+  make_option(c( "--setting"), type="character", default="Agnostic"),
+  make_option(c( "--median"), type="character", default="med"),
+  make_option(c( "--cpus"), type="integer", default=30),
+  make_option(c( "--year"), type="character", default="10,20,50,100,10000")
 ); 
-opt_parser = OptionParser(option_list=option_list);
-opt = parse_args(opt_parser);
+opt_parser = OptionParser(option_list=option_list)
+opt = parse_args(opt_parser)
 
 seed_list<-c(1001,1111,1221,1331,1441,1551,1661,1771,1881,1991)
 cut_off<-c(0,10,50,100,500,1000)
-time_off<-c(10000,10,20,50,100)
+time_off<-as.numeric(unlist(strsplit(opt$year, split=",")))
 
 
 lambda <- 10^seq(-3, 3, length = 100)
@@ -51,10 +52,10 @@ list_of_vi_50<-list()
 list_of_vi_100<-list()
 list_of_rsqr=list()
 
-corpus_list<-c("google")
+corpus_list<-opt$corpus
 
 ratings_list<-c("reddy","cordeiro90","cordeiro100")#,"reddy_true","cordeiro90_true","cordeiro100_true")
-tagged_list<-c("Tagged")
+tagged_list<-c("UnTagged","Tagged")
 
 ppmi_setting_list<-c(opt$ppmi)
 comp_setting_list<-c(opt$setting)
@@ -66,16 +67,6 @@ caret_spearman <- function(data, lev = NULL, model = NULL) {
   spearman_val <- cor(x = data$pred, y = data$obs, method = "spearman")
   c(Spearman = spearman_val)
 }
-
-needed_cols<-c('modifier','head','avgModifier','stdevModifier','avgHead','stdevHead','compositionality','stdevHeadModifier','is_adj','compound','source')
-
-cordeiro_cols<-c('arith_mean_sim.','beta.','geom_mean_sim.','sim_cpf_0.','sim_cpf_100.','sim_cpf_25.','sim_cpf_50.','sim_cpf_75.','sim_cpf_beta.')
-cosine_sim_cols<-c("sim_bw_constituents.",'sim_with_head.','sim_with_modifier.')
-
-with_setting_cols<-c("sim_bw_settings_comp.","sim_bw_settings_head.","sim_bw_settings_modifier.")
-info_theory_cols<-c("local_mi.","log_ratio.","ppmi.")
-freq_cols<-c("comp_freq.","comp_tf.","head_freq.","head_tf.","log_comp_freq.","log_head_freq.","log_head_freq_new.","log_mod_freq.","log_mod_freq_new.","mod_freq.","mod_tf.")
-prod_cols<-c("head_family_size.","head_family_size_new.","head_prod.","mod_family_size.","mod_family_size_new.","mod_prod.")
 
 
 
@@ -90,8 +81,18 @@ for (c in corpus_list){
             
             for (im in impute_list) {
               
-              print(paste0("/data/dharp/compounds/datasets/",c,"/features_Compound",a,"_withSetting_",p,"_",t,"_",i,"_",j,"_",im,".csv")) 
+              
+              
+              #print(paste0("/data/dharp/compounds/datasets/",c,"/features_Compound",a,"_withSetting_",p,"_",t,"_",i,"_",j,"_",im,".csv")) 
               input_df<-read.csv(paste0("/data/dharp/compounds/datasets/",c,"/features_Compound",a,"_withSetting_",p,"_",t,"_",i,"_",j,"_",im,".csv"),sep = '\t')
+              input_df <- input_df %>% distinct()
+              
+              if (a=="Aware" & i!=10000) {
+                temp_features_df<-read.csv(paste0("/data/dharp/compounds/datasets/",c,"/temporal_Compound",a,"_withSetting_",p,"_",t,"_",i,"_",j,"_",im,".csv"),sep = '\t')
+                temp_features_df<-temp_features_df %>% distinct()
+                input_df<-merge(input_df,temp_features_df,all.x=TRUE)
+                input_df <- input_df %>% distinct()
+              }
               
               for (r in ratings_list){
                 
@@ -102,7 +103,7 @@ for (c in corpus_list){
                 
                 
                 if (t=="Tagged") {
-                  compounds_list<-c("all","an","nn")
+                  compounds_list<-c("an","nn")
                 }
                 else {
                   compounds_list<-c("all")
@@ -168,6 +169,10 @@ for (c in corpus_list){
                       break
                     }
                     for (pr in to_predict_list){
+                      if (file.exists(paste0("~/rsquared_",c,"_",t,"_",p,"_",a,"_",i,"_",j,"_",im,"_",r,"_",k,"_",f,"_",pr,".csv"))) {
+                        print(paste0("~/rsquared_",c,"_",t,"_",p,"_",a,"_",i,"_",j,"_",im,"_",r,"_",k,"_",f,"_",pr,".csv exists"))
+                        next
+                      }
                       
                       if (pr=="compound") {
                         trainY<-df_features %>% select(compositionality)
@@ -185,6 +190,10 @@ for (c in corpus_list){
                       }                               
                       
                       print(paste0(c," ",t," ",p," ",a," ",i," ",j," ",im," ",r," ",k," ",f," ",pr))
+                      print(dim(trainX))
+                      if (sum(is.na(trainX))>1 & im=="med") {
+                        print("NAs found")}  
+                      preprocess_list<-c("nzv","medianImpute", "center", "scale")
                       
                       for (s in seed_list)  {
                         set.seed(s)
@@ -192,13 +201,6 @@ for (c in corpus_list){
                         for(z in 1:13) seeds[[z]] <- sample.int(n=1000, 10)
                         #for the last model
                         seeds[[14]]<-sample.int(1000, 1)
-                        
-                        if (im=="na") {
-                          preprocess_list<-c("nzv","medianImpute", "center", "scale")
-                        }
-                        else {
-                          preprocess_list<-c("nzv", "center", "scale")
-                        }
                         
                         
                         elastic_model <- train(trainX,trainY,method = "glmnet",metric = "Rsquared",
@@ -210,7 +212,7 @@ for (c in corpus_list){
                                                         preProcess = preprocess_list)
                         
                         
-                        perf_elastic<-data.frame(corpus=c,tag=t,ppmi=p,setting=a,timespan=i,cutoff=j,impute=im,dataset=r,pattern=k,features=f,y=pr,n=nrow(trainX),seed=s,ml_algo="elastic",method=getTrainPerf(elastic_model)[,"method"],TrainRsquared=getTrainPerf(elastic_model)[,"TrainRsquared"],TrainSpearman=getTrainPerf(elastic_spearman_model)[,"TrainSpearman"])
+                        perf_elastic<-data.frame(npred=length(predictors(elastic_model)),corpus=c,tag=t,ppmi=p,setting=a,timespan=i,cutoff=j,impute=im,dataset=r,pattern=k,features=f,y=pr,n=nrow(trainX),seed=s,ml_algo="elastic",method=getTrainPerf(elastic_model)[,"method"],TrainRsquared=getTrainPerf(elastic_model)[,"TrainRsquared"],TrainSpearman=getTrainPerf(elastic_spearman_model)[,"TrainSpearman"])
                         
                         varimp_elastic<-data.frame(corpus=c,tag=t,ppmi=p,setting=a,timespan=i,cutoff=j,impute=im,dataset=r,pattern=k,features=f,y=pr,n=nrow(trainX),seed=s,ml_algo="elastic",t(varImp(elastic_model)$importance))
                         
@@ -279,9 +281,9 @@ for (c in corpus_list){
                       }
                       else if (i==100) {
                         varimp_100_df<-bind_rows(list_of_vi_100)
-                        varimp_100_df$cutoff<-as.factor(list_of_vi_100$cutoff)
-                        varimp_100_df[is.na(list_of_vi_100)] <- 0
-                        write.csv(varimp_100_df,paste0("~/varimp_50_",c,"_",t,"_",p,"_",a,"_",i,"_",j,"_",im,"_",r,"_",k,"_",f,"_",pr,".csv"),row.names = FALSE)
+                        varimp_100_df$cutoff<-as.factor(varimp_100_df$cutoff)
+                        varimp_100_df[is.na(varimp_100_df)] <- 0
+                        write.csv(varimp_100_df,paste0("~/varimp_100_",c,"_",t,"_",p,"_",a,"_",i,"_",j,"_",im,"_",r,"_",k,"_",f,"_",pr,".csv"),row.names = FALSE)
                         list_of_vi_100<-list()
                         
                       } 
