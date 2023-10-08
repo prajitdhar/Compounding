@@ -155,6 +155,21 @@ def ppmi(ppmi_df):
     return ppmi_df
 
 
+def cosine_bw_rows(df):
+    df_orig=df.copy()
+    df_shifted=df.shift().copy()
+    denom_df_orig=(df_orig**2).sum(axis=1)
+    denom_df_shifted=(df_shifted**2).sum(axis=1)
+    denominator=np.sqrt(denom_df_orig*denom_df_shifted)
+    numerator=(df_orig*df_shifted).sum(axis=1)
+    if df.index.nlevels==3:
+        cosine_sim_df=(numerator/denominator).reset_index(level=[0,1],drop=True)
+    else:
+        cosine_sim_df=(numerator/denominator).reset_index(level=[0],drop=True)        
+    cosine_sim_df.dropna(inplace=True)
+    cosine_sim_df=cosine_sim_df.to_frame()
+    return cosine_sim_df
+
 
 def temporal_features(compounds,modifiers,heads,compound_list_df):
     
@@ -413,7 +428,7 @@ for temporal in temporal_list:
 
 
         print(cur_ratings_aware_df_na.shape[0])
-        print(cur_ratings_aware_df_na..drop_duplicates().shape[0])
+        print(cur_ratings_aware_df_na.drop_duplicates().shape[0])
 
         print('Saving feature datasets')
 
@@ -421,4 +436,4 @@ for temporal in temporal_list:
         cur_ratings_aware_df_med.drop_duplicates().to_csv(f'{args.outputdir}/temporal_CompoundAware_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_med.csv',sep='\t',index=False)
 
         cur_ratings_agnostic_df_na.drop_duplicates().to_csv(f'{args.outputdir}/temporal_CompoundAgnostic_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_na.csv',sep='\t',index=False)
-        cur_ratings_agnostic_df_med.drop_duplicates()to_csv(f'{args.outputdir}/temporal_CompoundAgnostic_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_med.csv',sep='\t',index=False)
+        cur_ratings_agnostic_df_med.drop_duplicates().to_csv(f'{args.outputdir}/temporal_CompoundAgnostic_withSetting_{ppmi_str}_{tag_str}_{temp_cutoff_str}_med.csv',sep='\t',index=False)
