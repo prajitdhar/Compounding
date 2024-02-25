@@ -1,95 +1,95 @@
-compound	compositionality	head	modifier	avgHead	stdevHead	avgModifier	stdevModifier	stdevHeadModifier	is_adj
-ancient_history	1.9474	history	ancient	2.8421	2.1151	2.0	1.5275	1.5802	True
-armchair_critic	1.3333	critic	armchair	4.5556	1.3382	0.8333	0.9852	1.2834	False
-baby_buggy	3.9444	buggy	baby	3.6667	1.4142	4.5	1.0432	1.3921	False
-bad_hat	0.625	hat	bad	0.0	0.0	4.25	1.291	0.9574	True
-benign_tumour	4.6875	tumour	benign	4.875	0.5	4.5	1.2649	1.0145	True
-benign_tumor	4.6875	tumor	benign	4.875	0.5	4.5	1.2649	1.0145	True
-big_fish	0.85	fish	big	0.6	0.9947	2.75	1.8317	1.0894	True
-birth_rate	4.6	rate	birth	4.65	0.8127	4.7	0.7327	0.5982	False
-black_cherry	3.1053	cherry	black	4.3684	1.4225	2.6316	2.0605	1.6294	True
-bow_tie	4.25	tie	bow	4.6875	1.0145	4.25	1.2383	1.2383	False
-brain_teaser	2.6471	teaser	brain	2.2941	1.4902	3.3529	1.5387	1.3201	False
-busy_bee	0.875	bee	busy	0.3333	0.702	4.4583	0.8836	0.9918	True
-carpet_bombing	1.2353	bombing	carpet	4.9412	0.2425	0.7059	1.1048	1.2005	False
-cellular_phone	3.7778	phone	cellular	5.0	0.0	3.2778	1.5645	1.5168	True
-close_call	1.5882	call	close	0.9412	1.1974	3.4118	1.7342	1.372	True
-closed_book	0.6842	book	closed	0.5263	1.1239	2.1579	1.8032	1.1082	True
-computer_program	4.5	program	computer	4.5556	0.8556	4.6667	0.8402	0.9852	False
-computer_programme	4.5	programme	computer	4.5556	0.8556	4.6667	0.8402	0.9852	False
-con_artist	2.1	artist	con	1.25	1.1642	4.5	1.0	1.4473	False
-cooking_stove	4.6842	stove	cooking	4.6316	0.684	4.6842	0.671	0.5824	False
-cotton_candy	1.7895	candy	cotton	4.3158	0.9459	1.1053	1.1496	1.1343	False
-critical_review	4.0588	review	critical	4.7647	0.4372	3.3529	1.6934	1.144	True
-dead_end	1.3158	end	dead	4.2105	1.1343	0.2632	0.7335	1.455	True
-dirty_money	2.2105	money	dirty	4.1579	1.5728	1.8947	1.4489	1.5121	True
-dirty_word	2.4762	word	dirty	4.1429	1.4243	2.0	1.3784	1.721	True
-disc_jockey	1.25	jockey	disc	1.0	1.5218	2.55	1.7313	1.4096	False
-divine_service	3.1053	service	divine	3.7368	1.1945	4.0	1.3744	1.5949	True
-dry_land	3.95	land	dry	4.85	0.3663	3.85	1.4965	1.2344	True
-dry_wall	3.3333	wall	dry	4.5556	0.9218	3.5	1.5049	1.645	True
-dust_storm	3.85	storm	dust	3.95	1.4681	4.2	1.4726	1.5985	False
-eager_beaver	0.3636	beaver	eager	0.1818	0.6645	4.4091	1.2212	0.7895	True
-economic_aid	4.3333	aid	economic	4.3333	0.686	4.1111	1.0786	0.8402	True
-elbow_grease	0.5556	grease	elbow	0.1667	0.5145	0.9444	0.8726	0.7048	False
-elbow_room	0.6087	room	elbow	0.6957	1.259	1.3913	1.4378	0.9409	False
-entrance_hall	4.1667	hall	entrance	3.8333	1.2005	4.7778	0.4278	1.0432	False
-eternal_rest	3.25	rest	eternal	2.45	1.4318	4.3	1.5594	1.6504	True
-fish_story	1.6842	story	fish	4.8421	0.3746	1.5263	1.8369	1.7655	False
-flower_child	0.5	child	flower	0.65	0.8127	1.1	0.7881	0.6882	False
-food_market	3.8235	market	food	3.9412	1.2976	4.5294	1.2805	1.6292	False
-foot_soldier	1.9474	soldier	foot	3.3684	1.921	1.3158	1.3355	1.2681	False
-front_man	1.6364	man	front	1.5909	1.8168	2.4545	1.5032	1.4653	False
-goose_egg	0.4762	egg	goose	0.5714	0.9258	0.381	0.74	0.8136	False
-grey_matter	2.3889	matter	grey	3.4444	1.2472	2.2222	1.0603	1.3346	True
-gray_matter	2.3889	matter	gray	3.4444	1.2472	2.2222	1.0603	1.3346	True
-guinea_pig	0.4545	pig	guinea	0.5455	0.8579	0.5455	0.8579	0.9625	False
-half_sister	2.8421	sister	half	4.7895	0.6306	2.8421	1.6754	1.3023	True
-half_wit	1.1579	wit	half	1.2632	1.3267	1.3684	1.3	1.4245	True
-health_check	4.1667	check	health	4.0556	1.3492	4.8889	0.3234	0.9852	False
-high_life	1.6667	life	high	3.0556	1.6968	2.0	1.4552	1.2834	True
-inner_circle	1.5556	circle	inner	1.1111	1.2314	3.1667	1.3394	1.4234	True
-inner_product	3.0	product	inner	3.8	1.7403	3.1333	1.6417	1.6903	True
-insane_asylum	3.95	asylum	insane	3.85	1.2258	4.15	1.2258	1.099	False
-insurance_company	5.0	company	insurance	4.8889	0.4714	5.0	0.0	0.0	False
-insurance_policy	4.15	policy	insurance	4.0	1.4142	4.5	1.2354	1.3089	False
-iron_collar	3.875	collar	iron	4.125	1.4549	3.9375	1.2894	1.2042	False
-labour_union	4.7647	union	labour	4.8824	0.3321	4.7647	0.4372	0.4372	False
-labor_union	4.7647	union	labor	4.8824	0.3321	4.7647	0.4372	0.4372	False
-life_belt	2.8421	belt	life	3.1053	1.7287	3.3158	1.2933	1.6754	False
-life_vest	3.4444	vest	life	3.8333	1.2485	3.1667	1.5811	1.4642	False
-lime_tree	4.6111	tree	lime	4.7222	1.1785	4.6111	1.2433	1.2433	False
-loan_shark	1.0	shark	loan	0.5789	1.0706	4.5789	0.9612	1.2472	False
-loose_woman	2.5263	woman	loose	4.8947	0.3153	2.2105	1.6526	1.467	True
-mail_service	4.6875	service	mail	4.4375	0.8921	4.875	0.3416	0.6021	False
-market_place	3.0	place	market	2.3158	2.0015	3.7368	1.3267	1.633	False
-mental_disorder	4.8889	disorder	mental	4.8333	0.5145	4.9444	0.2357	0.3234	True
-middle_school	3.8421	school	middle	4.6842	1.0029	3.6316	1.3829	1.463	False
-milk_tooth	1.4286	tooth	milk	4.9048	0.4364	1.0952	1.3381	1.4687	False
-mother_tongue	0.5882	tongue	mother	0.8235	1.2862	0.5294	0.8745	0.7952	False
-narrow_escape	1.75	escape	narrow	3.5	1.6059	1.65	1.3089	1.3328	True
-net_income	2.9412	income	net	4.7647	0.6642	2.2353	1.8884	1.5601	True
-news_agency	4.3889	agency	news	3.9444	1.5136	4.9444	0.2357	1.2433	False
-noble_gas	1.1765	gas	noble	4.6471	0.8618	0.5294	0.8745	1.2862	True
-nut_case	0.4444	case	nut	0.4444	1.0416	0.4444	1.0416	0.7838	False
-old_flame	0.5789	flame	old	0.3158	0.7493	2.7895	1.5484	1.0706	True
-old_hat	0.3529	hat	old	0.0588	0.2425	3.6471	1.2719	0.6063	True
-old_timer	0.8889	timer	old	0.8889	1.4907	3.6667	1.645	1.4907	True
-phone_book	4.25	book	phone	4.4	0.9947	4.3	0.8645	0.7864	False
-pillow_slip	3.7	slip	pillow	3.0	1.8638	4.65	0.6708	1.3803	False
-pocket_book	1.4167	book	pocket	1.9167	1.8631	1.875	1.191	1.2482	False
-prison_guard	4.8947	guard	prison	4.8421	0.3746	4.8947	0.3153	0.3153	False
-prison_term	4.7895	term	prison	4.4211	0.6925	4.8421	0.3746	0.4189	False
-private_eye	0.8235	eye	private	0.5882	1.1757	3.0588	1.2976	1.1311	True
-record_book	3.7	book	record	3.35	1.8432	4.4	0.8826	1.3416	False
-research_lab	4.75	lab	research	4.75	0.5774	4.875	0.3416	0.4472	False
-sex_bomb	0.5263	bomb	sex	0.2105	0.5353	3.1053	1.7605	0.9048	False
-silver_lining	0.35	lining	silver	0.35	0.5871	0.25	0.5501	0.5871	False
-sound_judgement	3.3889	judgement	sound	4.1667	1.3394	2.0556	1.7648	1.6139	True
-sparkling_water	3.1364	water	sparkling	4.7727	0.6853	2.7273	1.6383	1.4895	True
-street_girl	3.1579	girl	street	4.1579	1.5371	2.6842	1.4927	1.3443	False
-subway_system	4.6316	system	subway	4.4211	0.9016	4.7368	0.4524	0.5973	False
-tennis_elbow	2.5	elbow	tennis	4.3333	1.3284	2.2222	1.8005	1.7573	False
-top_dog	1.05	dog	top	0.35	0.6708	4.1	1.2524	1.3945	False
-wet_blanket	0.2105	blanket	wet	0.3158	0.5824	0.3158	0.5824	0.5353	True
-word_painting	1.625	painting	word	0.4375	0.7274	3.1875	1.5586	1.3102	False
+compound	compositionality	head	modifier	avgHead	stdevHead	avgModifier	stdevModifier	stdevHeadModifier	is_adj	source	is_original
+ancient_history	1.9474	history	ancient	2.8421	2.1151	2.0	1.5275	1.5802	True	cordeiro90	True
+armchair_critic	1.3333	critic	armchair	4.5556	1.3382	0.8333	0.9852	1.2834	False	cordeiro90	True
+baby_buggy	3.9444	buggy	baby	3.6667	1.4142	4.5	1.0432	1.3921	False	cordeiro90	True
+bad_hat	0.625	hat	bad	0.0	0.0	4.25	1.291	0.9574	True	cordeiro90	True
+benign_tumour	4.6875	tumour	benign	4.875	0.5	4.5	1.2649	1.0145	True	cordeiro90	True
+benign_tumor	4.6875	tumor	benign	4.875	0.5	4.5	1.2649	1.0145	True	cordeiro90	False
+big_fish	0.85	fish	big	0.6	0.9947	2.75	1.8317	1.0894	True	cordeiro90	True
+birth_rate	4.6	rate	birth	4.65	0.8127	4.7	0.7327	0.5982	False	cordeiro90	True
+black_cherry	3.1053	cherry	black	4.3684	1.4225	2.6316	2.0605	1.6294	True	cordeiro90	True
+bow_tie	4.25	tie	bow	4.6875	1.0145	4.25	1.2383	1.2383	False	cordeiro90	True
+brain_teaser	2.6471	teaser	brain	2.2941	1.4902	3.3529	1.5387	1.3201	False	cordeiro90	True
+busy_bee	0.875	bee	busy	0.3333	0.702	4.4583	0.8836	0.9918	True	cordeiro90	True
+carpet_bombing	1.2353	bombing	carpet	4.9412	0.2425	0.7059	1.1048	1.2005	False	cordeiro90	True
+cellular_phone	3.7778	phone	cellular	5.0	0.0	3.2778	1.5645	1.5168	True	cordeiro90	True
+close_call	1.5882	call	close	0.9412	1.1974	3.4118	1.7342	1.372	True	cordeiro90	True
+closed_book	0.6842	book	closed	0.5263	1.1239	2.1579	1.8032	1.1082	True	cordeiro90	True
+computer_program	4.5	program	computer	4.5556	0.8556	4.6667	0.8402	0.9852	False	cordeiro90	True
+computer_programme	4.5	programme	computer	4.5556	0.8556	4.6667	0.8402	0.9852	False	cordeiro90	False
+con_artist	2.1	artist	con	1.25	1.1642	4.5	1.0	1.4473	False	cordeiro90	True
+cooking_stove	4.6842	stove	cooking	4.6316	0.684	4.6842	0.671	0.5824	False	cordeiro90	True
+cotton_candy	1.7895	candy	cotton	4.3158	0.9459	1.1053	1.1496	1.1343	False	cordeiro90	True
+critical_review	4.0588	review	critical	4.7647	0.4372	3.3529	1.6934	1.144	True	cordeiro90	True
+dead_end	1.3158	end	dead	4.2105	1.1343	0.2632	0.7335	1.455	True	cordeiro90	True
+dirty_money	2.2105	money	dirty	4.1579	1.5728	1.8947	1.4489	1.5121	True	cordeiro90	True
+dirty_word	2.4762	word	dirty	4.1429	1.4243	2.0	1.3784	1.721	True	cordeiro90	True
+disc_jockey	1.25	jockey	disc	1.0	1.5218	2.55	1.7313	1.4096	False	cordeiro90	True
+divine_service	3.1053	service	divine	3.7368	1.1945	4.0	1.3744	1.5949	True	cordeiro90	True
+dry_land	3.95	land	dry	4.85	0.3663	3.85	1.4965	1.2344	True	cordeiro90	True
+dry_wall	3.3333	wall	dry	4.5556	0.9218	3.5	1.5049	1.645	True	cordeiro90	True
+dust_storm	3.85	storm	dust	3.95	1.4681	4.2	1.4726	1.5985	False	cordeiro90	True
+eager_beaver	0.3636	beaver	eager	0.1818	0.6645	4.4091	1.2212	0.7895	True	cordeiro90	True
+economic_aid	4.3333	aid	economic	4.3333	0.686	4.1111	1.0786	0.8402	True	cordeiro90	True
+elbow_grease	0.5556	grease	elbow	0.1667	0.5145	0.9444	0.8726	0.7048	False	cordeiro90	True
+elbow_room	0.6087	room	elbow	0.6957	1.259	1.3913	1.4378	0.9409	False	cordeiro90	True
+entrance_hall	4.1667	hall	entrance	3.8333	1.2005	4.7778	0.4278	1.0432	False	cordeiro90	True
+eternal_rest	3.25	rest	eternal	2.45	1.4318	4.3	1.5594	1.6504	True	cordeiro90	True
+fish_story	1.6842	story	fish	4.8421	0.3746	1.5263	1.8369	1.7655	False	cordeiro90	True
+flower_child	0.5	child	flower	0.65	0.8127	1.1	0.7881	0.6882	False	cordeiro90	True
+food_market	3.8235	market	food	3.9412	1.2976	4.5294	1.2805	1.6292	False	cordeiro90	True
+foot_soldier	1.9474	soldier	foot	3.3684	1.921	1.3158	1.3355	1.2681	False	cordeiro90	True
+front_man	1.6364	man	front	1.5909	1.8168	2.4545	1.5032	1.4653	False	cordeiro90	True
+goose_egg	0.4762	egg	goose	0.5714	0.9258	0.381	0.74	0.8136	False	cordeiro90	True
+grey_matter	2.3889	matter	grey	3.4444	1.2472	2.2222	1.0603	1.3346	True	cordeiro90	True
+gray_matter	2.3889	matter	gray	3.4444	1.2472	2.2222	1.0603	1.3346	True	cordeiro90	False
+guinea_pig	0.4545	pig	guinea	0.5455	0.8579	0.5455	0.8579	0.9625	False	cordeiro90	True
+half_sister	2.8421	sister	half	4.7895	0.6306	2.8421	1.6754	1.3023	True	cordeiro90	True
+half_wit	1.1579	wit	half	1.2632	1.3267	1.3684	1.3	1.4245	True	cordeiro90	True
+health_check	4.1667	check	health	4.0556	1.3492	4.8889	0.3234	0.9852	False	cordeiro90	True
+high_life	1.6667	life	high	3.0556	1.6968	2.0	1.4552	1.2834	True	cordeiro90	True
+inner_circle	1.5556	circle	inner	1.1111	1.2314	3.1667	1.3394	1.4234	True	cordeiro90	True
+inner_product	3.0	product	inner	3.8	1.7403	3.1333	1.6417	1.6903	True	cordeiro90	True
+insane_asylum	3.95	asylum	insane	3.85	1.2258	4.15	1.2258	1.099	False	cordeiro90	True
+insurance_company	5.0	company	insurance	4.8889	0.4714	5.0	0.0	0.0	False	cordeiro90	True
+insurance_policy	4.15	policy	insurance	4.0	1.4142	4.5	1.2354	1.3089	False	cordeiro90	True
+iron_collar	3.875	collar	iron	4.125	1.4549	3.9375	1.2894	1.2042	False	cordeiro90	True
+labour_union	4.7647	union	labour	4.8824	0.3321	4.7647	0.4372	0.4372	False	cordeiro90	True
+labor_union	4.7647	union	labor	4.8824	0.3321	4.7647	0.4372	0.4372	False	cordeiro90	False
+life_belt	2.8421	belt	life	3.1053	1.7287	3.3158	1.2933	1.6754	False	cordeiro90	True
+life_vest	3.4444	vest	life	3.8333	1.2485	3.1667	1.5811	1.4642	False	cordeiro90	True
+lime_tree	4.6111	tree	lime	4.7222	1.1785	4.6111	1.2433	1.2433	False	cordeiro90	True
+loan_shark	1.0	shark	loan	0.5789	1.0706	4.5789	0.9612	1.2472	False	cordeiro90	True
+loose_woman	2.5263	woman	loose	4.8947	0.3153	2.2105	1.6526	1.467	True	cordeiro90	True
+mail_service	4.6875	service	mail	4.4375	0.8921	4.875	0.3416	0.6021	False	cordeiro90	True
+market_place	3.0	place	market	2.3158	2.0015	3.7368	1.3267	1.633	False	cordeiro90	True
+mental_disorder	4.8889	disorder	mental	4.8333	0.5145	4.9444	0.2357	0.3234	True	cordeiro90	True
+middle_school	3.8421	school	middle	4.6842	1.0029	3.6316	1.3829	1.463	False	cordeiro90	True
+milk_tooth	1.4286	tooth	milk	4.9048	0.4364	1.0952	1.3381	1.4687	False	cordeiro90	True
+mother_tongue	0.5882	tongue	mother	0.8235	1.2862	0.5294	0.8745	0.7952	False	cordeiro90	True
+narrow_escape	1.75	escape	narrow	3.5	1.6059	1.65	1.3089	1.3328	True	cordeiro90	True
+net_income	2.9412	income	net	4.7647	0.6642	2.2353	1.8884	1.5601	True	cordeiro90	True
+news_agency	4.3889	agency	news	3.9444	1.5136	4.9444	0.2357	1.2433	False	cordeiro90	True
+noble_gas	1.1765	gas	noble	4.6471	0.8618	0.5294	0.8745	1.2862	True	cordeiro90	True
+nut_case	0.4444	case	nut	0.4444	1.0416	0.4444	1.0416	0.7838	False	cordeiro90	True
+old_flame	0.5789	flame	old	0.3158	0.7493	2.7895	1.5484	1.0706	True	cordeiro90	True
+old_hat	0.3529	hat	old	0.0588	0.2425	3.6471	1.2719	0.6063	True	cordeiro90	True
+old_timer	0.8889	timer	old	0.8889	1.4907	3.6667	1.645	1.4907	True	cordeiro90	True
+phone_book	4.25	book	phone	4.4	0.9947	4.3	0.8645	0.7864	False	cordeiro90	True
+pillow_slip	3.7	slip	pillow	3.0	1.8638	4.65	0.6708	1.3803	False	cordeiro90	True
+pocket_book	1.4167	book	pocket	1.9167	1.8631	1.875	1.191	1.2482	False	cordeiro90	True
+prison_guard	4.8947	guard	prison	4.8421	0.3746	4.8947	0.3153	0.3153	False	cordeiro90	True
+prison_term	4.7895	term	prison	4.4211	0.6925	4.8421	0.3746	0.4189	False	cordeiro90	True
+private_eye	0.8235	eye	private	0.5882	1.1757	3.0588	1.2976	1.1311	True	cordeiro90	True
+record_book	3.7	book	record	3.35	1.8432	4.4	0.8826	1.3416	False	cordeiro90	True
+research_lab	4.75	lab	research	4.75	0.5774	4.875	0.3416	0.4472	False	cordeiro90	True
+sex_bomb	0.5263	bomb	sex	0.2105	0.5353	3.1053	1.7605	0.9048	False	cordeiro90	True
+silver_lining	0.35	lining	silver	0.35	0.5871	0.25	0.5501	0.5871	False	cordeiro90	True
+sound_judgement	3.3889	judgement	sound	4.1667	1.3394	2.0556	1.7648	1.6139	True	cordeiro90	True
+sparkling_water	3.1364	water	sparkling	4.7727	0.6853	2.7273	1.6383	1.4895	True	cordeiro90	True
+street_girl	3.1579	girl	street	4.1579	1.5371	2.6842	1.4927	1.3443	False	cordeiro90	True
+subway_system	4.6316	system	subway	4.4211	0.9016	4.7368	0.4524	0.5973	False	cordeiro90	True
+tennis_elbow	2.5	elbow	tennis	4.3333	1.3284	2.2222	1.8005	1.7573	False	cordeiro90	True
+top_dog	1.05	dog	top	0.35	0.6708	4.1	1.2524	1.3945	False	cordeiro90	True
+wet_blanket	0.2105	blanket	wet	0.3158	0.5824	0.3158	0.5824	0.5353	True	cordeiro90	True
+word_painting	1.625	painting	word	0.4375	0.7274	3.1875	1.5586	1.3102	False	cordeiro90	True

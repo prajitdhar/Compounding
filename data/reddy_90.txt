@@ -1,92 +1,92 @@
-modifier	head	avgModifier	stdevModifier	avgHead	stdevHead	compositionality	stdevHeadModifier	is_adj	compound
-end	user	3.866667	1.117537	4.866667	0.339935	4.25	0.871165	False	end_user
-firing	line	1.607143	1.654848	1.892857	1.496169	1.703704	1.717337	False	firing_line
-game	plan	2.821429	1.964935	4.862069	0.344828	3.827586	1.233693	False	game_plan
-application	form	4.766667	0.422953	4.862069	0.344828	4.8	0.476095	False	application_form
-snail	mail	0.6	0.8	4.586207	1.099129	1.310345	1.020596	False	snail_mail
-web	site	2.678571	1.69144	3.933333	1.181336	3.785714	1.205853	False	web_site
-flea	market	0.37931	0.805746	4.714286	0.839096	1.517241	1.133219	False	flea_market
-grandfather	clock	0.428571	0.775913	5.0	0.0	2.642857	1.315139	False	grandfather_clock
-diamond	wedding	1.066667	1.289272	3.407407	1.340516	1.703704	1.047566	False	diamond_wedding
-guilt	trip	4.714286	0.589015	0.862069	0.936764	2.185185	1.155888	False	guilt_trip
-silver	spoon	1.592593	1.472193	1.444444	1.77082	1.518519	1.449658	False	silver_spoon
-rush	hour	3.107143	1.371633	2.862069	1.357588	3.333333	1.273665	False	rush_hour
-china	clay	2.0	1.839732	4.62069	0.997023	3.851852	1.267944	False	china_clay
-cocktail	dress	1.4	1.083205	5.0	0.0	3.038462	1.224141	False	cocktail_dress
-mailing	list	4.666667	0.537484	4.933333	0.249444	4.666667	0.471405	False	mailing_list
-spelling	bee	4.814815	0.77158	0.517241	1.037925	2.448276	1.248066	False	spelling_bee
-public	service	4.666667	0.649786	4.766667	0.61554	4.4	0.757188	False	public_service
-head	teacher	2.931034	1.507019	4.517241	1.070633	4.0	1.164965	False	head_teacher
-video	game	4.5	0.718795	5.0	0.0	4.6	0.61101	False	video_game
-spinning	jenny	4.666667	0.544331	0.413793	0.766418	2.275862	1.079481	False	spinning_jenny
-think	tank	3.961538	1.055417	0.466667	0.618241	2.038462	1.125945	False	think_tank
-cash	cow	4.222222	1.06574	0.37037	0.727662	1.555556	1.099944	False	cash_cow
-swan	song	0.37931	0.611036	1.107143	1.14453	0.827586	0.912328	False	swan_song
-monkey	business	0.666667	1.01105	1.851852	1.296825	0.724138	0.689655	False	monkey_business
-snake	oil	0.37037	0.55432	0.814815	1.248318	0.75	1.12202	False	snake_oil
-smoking	gun	0.714286	0.749149	1.0	0.942809	0.714286	0.839096	False	smoking_gun
-balance	sheet	3.821429	0.888561	3.896552	0.95934	3.862069	1.007699	False	balance_sheet
-zebra	crossing	0.758621	0.624509	4.607143	0.859372	1.25	1.022078	False	zebra_crossing
-cutting	edge	0.884615	1.187335	1.730769	1.630424	1.25	1.18397	False	cutting_edge
-radio	station	4.655172	0.956858	4.344828	0.799822	4.466667	0.718022	False	radio_station
-search	engine	4.62069	0.961816	2.25	1.703463	3.32	1.156547	False	search_engine
-shrinking	violet	2.275862	1.435908	0.233333	0.558768	1.068966	1.014754	True	shrinking_violet
-face	value	1.392857	1.112888	4.642857	0.811273	3.037037	0.881139	False	face_value
-human	being	4.862069	0.344828	4.333333	1.135292	4.586207	0.720021	False	human_being
-sacred	cow	1.928571	1.64596	0.964286	1.72134	1.518519	1.524379	True	sacred_cow
-number	crunching	4.482759	0.771058	0.965517	1.129014	2.259259	1.003423	False	number_crunching
-silver	screen	1.413793	1.565077	3.230769	1.449342	2.37931	1.627645	False	silver_screen
-melting	pot	1.0	1.154701	0.481481	0.630718	0.538462	0.634324	False	melting_pot
-kangaroo	court	0.166667	0.372678	4.428571	1.015191	1.366667	1.048279	False	kangaroo_court
-ground	floor	4.655172	0.657889	4.7	0.781025	4.666667	0.596285	False	ground_floor
-rat	run	0.413793	0.616846	2.333333	1.398412	0.793103	0.663289	False	rat_run
-law	firm	4.724138	0.51839	3.892857	1.496169	4.4	0.757188	False	law_firm
-polo	shirt	1.733333	1.412641	5.0	0.0	3.366667	1.378002	False	polo_shirt
-ivory	tower	0.37931	1.031029	0.535714	0.680449	0.464286	0.680449	False	ivory_tower
-lip	service	2.033333	1.251222	1.75	1.404711	1.62069	1.063948	False	lip_service
-health	insurance	4.533333	0.884433	4.833333	0.582142	4.4	1.171893	False	health_insurance
-couch	potato	3.269231	1.482142	0.344828	0.657889	1.413793	1.034483	False	couch_potato
-chain	reaction	2.407407	1.162987	4.517241	0.724958	2.931034	1.142624	False	chain_reaction
-silver	bullet	0.518519	0.995187	0.551724	1.101291	0.666667	1.154701	False	silver_bullet
-graduate	student	4.7	0.458258	5.0	0.0	4.9	0.3	False	graduate_student
-cloud	nine	0.466667	0.618241	0.233333	0.422953	0.333333	0.537484	False	cloud_nine
-front	runner	3.965517	0.964285	1.285714	1.097307	2.655172	1.320289	False	front_runner
-agony	aunt	1.862069	1.224017	0.433333	0.558768	0.758621	0.857228	False	agony_aunt
-rock	bottom	0.740741	0.885797	3.8	1.077033	2.142857	1.186661	False	rock_bottom
-acid	test	0.714286	1.097307	3.896552	1.241379	1.222222	1.257079	False	acid_test
-climate	change	4.896552	0.304543	4.827586	0.37774	4.965517	0.182466	False	climate_change
-lotus	position	1.111111	1.165343	4.777778	0.41574	2.482759	1.221099	False	lotus_position
-sitting	duck	1.482759	1.476732	0.413793	0.670421	0.96	1.03846	True	sitting_duck
-car	park	4.896552	0.402135	4.0	1.095445	4.2	1.045626	False	car_park
-gold	mine	1.37931	1.424267	0.703704	0.808053	0.814815	0.818175	False	gold_mine
-gravy	train	0.296296	0.456623	0.448276	0.769514	0.310345	0.593264	False	gravy_train
-case	study	3.655172	1.122677	4.666667	0.471405	3.7	0.971253	False	case_study
-night	owl	4.466667	0.884433	0.5	0.823754	1.925926	1.274419	False	night_owl
-pecking	order	0.777778	0.916246	3.888889	1.396645	1.689655	0.875074	False	pecking_order
-eye	candy	3.827586	1.052713	0.714286	0.749149	1.482759	1.10237	False	eye_candy
-nest	egg	0.785714	0.976771	0.5	0.866025	0.777778	0.87489	False	nest_egg
-role	model	3.551724	1.220125	4.0	1.032796	4.111111	1.06574	False	role_model
-fashion	plate	4.413793	1.067296	3.307692	2.071217	3.896552	1.422597	False	fashion_plate
-crocodile	tear	0.185185	0.474305	3.785714	1.047348	1.25	1.089725	False	crocodile_tear
-rat	race	0.25	0.50885	2.035714	1.322393	0.857143	0.989743	False	rat_race
-crash	course	0.964286	0.944236	4.233333	0.919541	2.142857	1.273754	False	crash_course
-rocket	science	0.642857	0.971534	1.551724	1.404088	1.428571	1.347712	False	rocket_science
-memory	lane	4.75	0.50885	0.714286	0.795395	2.166667	1.035482	False	memory_lane
-smoking	jacket	1.035714	0.82298	4.896552	0.304543	2.32	1.287478	False	smoking_jacket
-interest	rate	4.344828	0.992241	4.689655	0.531974	4.571429	0.903508	False	interest_rate
-engine	room	4.862069	0.344828	5.0	0.0	4.931034	0.253395	False	engine_room
-blame	game	4.607143	0.672909	2.0	1.28174	2.72	0.917388	False	blame_game
-brass	ring	3.733333	1.948219	3.866667	1.978776	3.724138	1.836349	False	brass_ring
-panda	car	0.5	0.562731	4.655172	1.152983	1.807692	1.074861	False	panda_car
-research	project	4.9	0.3	4.533333	0.956847	4.821429	0.382993	False	research_project
-call	centre	4.733333	0.442217	4.413793	0.720021	4.655172	0.657889	False	call_centre
-call	center	4.733333	0.442217	4.413793	0.720021	4.655172	0.657889	False	call_center
-graveyard	shift	0.37931	0.611036	4.5	0.718795	1.518519	1.16652	False	graveyard_shift
-credit	card	4.666667	0.537484	4.896552	0.304543	4.666667	0.699206	False	credit_card
-cheat	sheet	2.3	1.594783	4.0	0.830455	2.892857	1.112888	False	cheat_sheet
-parking	lot	4.833333	0.372678	4.766667	0.495536	4.7	0.640312	False	parking_lot
-fine	line	3.172414	1.340843	2.033333	1.516209	2.689655	1.206404	True	fine_line
-brick	wall	3.16	2.20327	3.533333	1.857118	3.793103	1.749469	False	brick_wall
-speed	limit	4.933333	0.249444	4.827586	0.37774	4.827586	0.460057	False	speed_limit
-swimming	pool	4.8	0.4	4.9	0.3	4.866667	0.339935	False	swimming_pool
-bank	account	4.866667	0.339935	4.827586	0.460057	4.733333	0.442217	False	bank_account
+modifier	head	avgModifier	stdevModifier	avgHead	stdevHead	compositionality	stdevHeadModifier	is_adj	compound	source	is_original
+end	user	3.866667	1.117537	4.866667	0.339935	4.25	0.871165	False	end_user	reddy	True
+firing	line	1.607143	1.654848	1.892857	1.496169	1.703704	1.717337	False	firing_line	reddy	True
+game	plan	2.821429	1.964935	4.862069	0.344828	3.827586	1.233693	False	game_plan	reddy	True
+application	form	4.766667	0.422953	4.862069	0.344828	4.8	0.476095	False	application_form	reddy	True
+snail	mail	0.6	0.8	4.586207	1.099129	1.310345	1.020596	False	snail_mail	reddy	True
+web	site	2.678571	1.69144	3.933333	1.181336	3.785714	1.205853	False	web_site	reddy	True
+flea	market	0.37931	0.805746	4.714286	0.839096	1.517241	1.133219	False	flea_market	reddy	True
+grandfather	clock	0.428571	0.775913	5.0	0.0	2.642857	1.315139	False	grandfather_clock	reddy	True
+diamond	wedding	1.066667	1.289272	3.407407	1.340516	1.703704	1.047566	False	diamond_wedding	reddy	True
+guilt	trip	4.714286	0.589015	0.862069	0.936764	2.185185	1.155888	False	guilt_trip	reddy	True
+silver	spoon	1.592593	1.472193	1.444444	1.77082	1.518519	1.449658	False	silver_spoon	reddy	True
+rush	hour	3.107143	1.371633	2.862069	1.357588	3.333333	1.273665	False	rush_hour	reddy	True
+china	clay	2.0	1.839732	4.62069	0.997023	3.851852	1.267944	False	china_clay	reddy	True
+cocktail	dress	1.4	1.083205	5.0	0.0	3.038462	1.224141	False	cocktail_dress	reddy	True
+mailing	list	4.666667	0.537484	4.933333	0.249444	4.666667	0.471405	False	mailing_list	reddy	True
+spelling	bee	4.814815	0.77158	0.517241	1.037925	2.448276	1.248066	False	spelling_bee	reddy	True
+public	service	4.666667	0.649786	4.766667	0.61554	4.4	0.757188	False	public_service	reddy	True
+head	teacher	2.931034	1.507019	4.517241	1.070633	4.0	1.164965	False	head_teacher	reddy	True
+video	game	4.5	0.718795	5.0	0.0	4.6	0.61101	False	video_game	reddy	True
+spinning	jenny	4.666667	0.544331	0.413793	0.766418	2.275862	1.079481	False	spinning_jenny	reddy	True
+think	tank	3.961538	1.055417	0.466667	0.618241	2.038462	1.125945	False	think_tank	reddy	True
+cash	cow	4.222222	1.06574	0.37037	0.727662	1.555556	1.099944	False	cash_cow	reddy	True
+swan	song	0.37931	0.611036	1.107143	1.14453	0.827586	0.912328	False	swan_song	reddy	True
+monkey	business	0.666667	1.01105	1.851852	1.296825	0.724138	0.689655	False	monkey_business	reddy	True
+snake	oil	0.37037	0.55432	0.814815	1.248318	0.75	1.12202	False	snake_oil	reddy	True
+smoking	gun	0.714286	0.749149	1.0	0.942809	0.714286	0.839096	False	smoking_gun	reddy	True
+balance	sheet	3.821429	0.888561	3.896552	0.95934	3.862069	1.007699	False	balance_sheet	reddy	True
+zebra	crossing	0.758621	0.624509	4.607143	0.859372	1.25	1.022078	False	zebra_crossing	reddy	True
+cutting	edge	0.884615	1.187335	1.730769	1.630424	1.25	1.18397	False	cutting_edge	reddy	True
+radio	station	4.655172	0.956858	4.344828	0.799822	4.466667	0.718022	False	radio_station	reddy	True
+search	engine	4.62069	0.961816	2.25	1.703463	3.32	1.156547	False	search_engine	reddy	True
+shrinking	violet	2.275862	1.435908	0.233333	0.558768	1.068966	1.014754	True	shrinking_violet	reddy	True
+face	value	1.392857	1.112888	4.642857	0.811273	3.037037	0.881139	False	face_value	reddy	True
+human	being	4.862069	0.344828	4.333333	1.135292	4.586207	0.720021	False	human_being	reddy	True
+sacred	cow	1.928571	1.64596	0.964286	1.72134	1.518519	1.524379	True	sacred_cow	reddy	True
+number	crunching	4.482759	0.771058	0.965517	1.129014	2.259259	1.003423	False	number_crunching	reddy	True
+silver	screen	1.413793	1.565077	3.230769	1.449342	2.37931	1.627645	False	silver_screen	reddy	True
+melting	pot	1.0	1.154701	0.481481	0.630718	0.538462	0.634324	False	melting_pot	reddy	True
+kangaroo	court	0.166667	0.372678	4.428571	1.015191	1.366667	1.048279	False	kangaroo_court	reddy	True
+ground	floor	4.655172	0.657889	4.7	0.781025	4.666667	0.596285	False	ground_floor	reddy	True
+rat	run	0.413793	0.616846	2.333333	1.398412	0.793103	0.663289	False	rat_run	reddy	True
+law	firm	4.724138	0.51839	3.892857	1.496169	4.4	0.757188	False	law_firm	reddy	True
+polo	shirt	1.733333	1.412641	5.0	0.0	3.366667	1.378002	False	polo_shirt	reddy	True
+ivory	tower	0.37931	1.031029	0.535714	0.680449	0.464286	0.680449	False	ivory_tower	reddy	True
+lip	service	2.033333	1.251222	1.75	1.404711	1.62069	1.063948	False	lip_service	reddy	True
+health	insurance	4.533333	0.884433	4.833333	0.582142	4.4	1.171893	False	health_insurance	reddy	True
+couch	potato	3.269231	1.482142	0.344828	0.657889	1.413793	1.034483	False	couch_potato	reddy	True
+chain	reaction	2.407407	1.162987	4.517241	0.724958	2.931034	1.142624	False	chain_reaction	reddy	True
+silver	bullet	0.518519	0.995187	0.551724	1.101291	0.666667	1.154701	False	silver_bullet	reddy	True
+graduate	student	4.7	0.458258	5.0	0.0	4.9	0.3	False	graduate_student	reddy	True
+cloud	nine	0.466667	0.618241	0.233333	0.422953	0.333333	0.537484	False	cloud_nine	reddy	True
+front	runner	3.965517	0.964285	1.285714	1.097307	2.655172	1.320289	False	front_runner	reddy	True
+agony	aunt	1.862069	1.224017	0.433333	0.558768	0.758621	0.857228	False	agony_aunt	reddy	True
+rock	bottom	0.740741	0.885797	3.8	1.077033	2.142857	1.186661	False	rock_bottom	reddy	True
+acid	test	0.714286	1.097307	3.896552	1.241379	1.222222	1.257079	False	acid_test	reddy	True
+climate	change	4.896552	0.304543	4.827586	0.37774	4.965517	0.182466	False	climate_change	reddy	True
+lotus	position	1.111111	1.165343	4.777778	0.41574	2.482759	1.221099	False	lotus_position	reddy	True
+sitting	duck	1.482759	1.476732	0.413793	0.670421	0.96	1.03846	True	sitting_duck	reddy	True
+car	park	4.896552	0.402135	4.0	1.095445	4.2	1.045626	False	car_park	reddy	True
+gold	mine	1.37931	1.424267	0.703704	0.808053	0.814815	0.818175	False	gold_mine	reddy	True
+gravy	train	0.296296	0.456623	0.448276	0.769514	0.310345	0.593264	False	gravy_train	reddy	True
+case	study	3.655172	1.122677	4.666667	0.471405	3.7	0.971253	False	case_study	reddy	True
+night	owl	4.466667	0.884433	0.5	0.823754	1.925926	1.274419	False	night_owl	reddy	True
+pecking	order	0.777778	0.916246	3.888889	1.396645	1.689655	0.875074	False	pecking_order	reddy	True
+eye	candy	3.827586	1.052713	0.714286	0.749149	1.482759	1.10237	False	eye_candy	reddy	True
+nest	egg	0.785714	0.976771	0.5	0.866025	0.777778	0.87489	False	nest_egg	reddy	True
+role	model	3.551724	1.220125	4.0	1.032796	4.111111	1.06574	False	role_model	reddy	True
+fashion	plate	4.413793	1.067296	3.307692	2.071217	3.896552	1.422597	False	fashion_plate	reddy	True
+crocodile	tear	0.185185	0.474305	3.785714	1.047348	1.25	1.089725	False	crocodile_tear	reddy	True
+rat	race	0.25	0.50885	2.035714	1.322393	0.857143	0.989743	False	rat_race	reddy	True
+crash	course	0.964286	0.944236	4.233333	0.919541	2.142857	1.273754	False	crash_course	reddy	True
+rocket	science	0.642857	0.971534	1.551724	1.404088	1.428571	1.347712	False	rocket_science	reddy	True
+memory	lane	4.75	0.50885	0.714286	0.795395	2.166667	1.035482	False	memory_lane	reddy	True
+smoking	jacket	1.035714	0.82298	4.896552	0.304543	2.32	1.287478	False	smoking_jacket	reddy	True
+interest	rate	4.344828	0.992241	4.689655	0.531974	4.571429	0.903508	False	interest_rate	reddy	True
+engine	room	4.862069	0.344828	5.0	0.0	4.931034	0.253395	False	engine_room	reddy	True
+blame	game	4.607143	0.672909	2.0	1.28174	2.72	0.917388	False	blame_game	reddy	True
+brass	ring	3.733333	1.948219	3.866667	1.978776	3.724138	1.836349	False	brass_ring	reddy	True
+panda	car	0.5	0.562731	4.655172	1.152983	1.807692	1.074861	False	panda_car	reddy	True
+research	project	4.9	0.3	4.533333	0.956847	4.821429	0.382993	False	research_project	reddy	True
+call	centre	4.733333	0.442217	4.413793	0.720021	4.655172	0.657889	False	call_centre	reddy	True
+call	center	4.733333	0.442217	4.413793	0.720021	4.655172	0.657889	False	call_center	reddy	False
+graveyard	shift	0.37931	0.611036	4.5	0.718795	1.518519	1.16652	False	graveyard_shift	reddy	True
+credit	card	4.666667	0.537484	4.896552	0.304543	4.666667	0.699206	False	credit_card	reddy	True
+cheat	sheet	2.3	1.594783	4.0	0.830455	2.892857	1.112888	False	cheat_sheet	reddy	True
+parking	lot	4.833333	0.372678	4.766667	0.495536	4.7	0.640312	False	parking_lot	reddy	True
+fine	line	3.172414	1.340843	2.033333	1.516209	2.689655	1.206404	True	fine_line	reddy	True
+brick	wall	3.16	2.20327	3.533333	1.857118	3.793103	1.749469	False	brick_wall	reddy	True
+speed	limit	4.933333	0.249444	4.827586	0.37774	4.827586	0.460057	False	speed_limit	reddy	True
+swimming	pool	4.8	0.4	4.9	0.3	4.866667	0.339935	False	swimming_pool	reddy	True
+bank	account	4.866667	0.339935	4.827586	0.460057	4.733333	0.442217	False	bank_account	reddy	True
