@@ -1,0 +1,6 @@
+ice_NOUN cream_NOUN	1901,12,7	1909,4,3	1910,2,2
+electric_ADJ car_NOUN	1905,5,4
+New_ADJ York_NOUN	1901,10,8
+shop_NOUN owner_NOUN	1901,6,5
+drive_VERB car_NOUN	1905,99,20
+ice_NOUN _NOUN_	1905,99,20

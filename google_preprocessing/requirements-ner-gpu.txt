@@ -1,0 +1,12 @@
+# Fresh Python 3.11 environment; install CUDA torch from the cu124 index FIRST.
+# CUDA toolkit/NVRTC/headers supplied by cluster module cuda/12.4.
+# Do not request spaCy's cuda12x extra: its old CuPy upper bound is unsuitable.
+torch==2.6.0
+duckdb==1.5.5
+pyarrow==25.0.0
+numpy==2.2.6
+spacy==3.8.14
+thinc==8.3.13
+spacy-curated-transformers==0.3.1
+curated-transformers==0.1.1
+cupy-cuda12x==13.6.0

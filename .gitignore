@@ -1,0 +1,72 @@
+# Public source only: research inputs/outputs live outside version control.
+**/data/
+**/runs/
+**/work/
+**/outputs/
+**/results/
+**/logs/
+**/checkpoints/
+**/scratch/
+*.csv
+*.tsv
+*.parquet
+*.pq
+*.pkl
+*.pickle
+*.npy
+*.npz
+*.pt
+*.pth
+*.rds
+*.rda
+*.RData
+*.Rhistory
+*.out
+*.err
+*.log
+*.png
+*.pdf
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+!**/examples/**/*.csv
+!**/examples/**/*.tsv
+!**/tests/test_data/**
+
+# No notebooks are part of this source release.
+*.ipynb
+.ipynb_checkpoints/
+
+# Local configuration and editor/tool state.
+.env
+.env.*
+**/local.*
+!**/*.example
+.vscode/
+.idea/
+.codex
+.codex/
+**/codex.md
+temp.md
+latest.md
+
+# Build/test caches.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+.DS_Store
+
+# Local batch-execution templates and their submission helpers.
+# Keep these rules last so test data and example exceptions cannot re-include them.
+*.slurm
+*.sbatch
+**/slurm/
+

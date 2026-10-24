@@ -1,0 +1,2 @@
+very_ADV cold_ADJ New_ADJ York_NOUN today_NOUN	1901,8,6
+ice_NOUN cream_NOUN shop_NOUN owner_NOUN smiles_VERB	1901,3,2

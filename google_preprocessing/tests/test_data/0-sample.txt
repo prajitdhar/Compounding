@@ -1,0 +1,3 @@
+cream_NOUN=>ice_NOUN	1901,7,5
+water_NOUN=>cold_ADJ	1901,8,6
+drive_VERB=>car_NOUN	1901,20,10

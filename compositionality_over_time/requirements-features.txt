@@ -1,0 +1,7 @@
+# CPU-only numerical feature extraction; no spaCy/PyTorch/CUDA is required.
+# Prefer the repository's .[compositionality] extra for the shared package too.
+duckdb>=1.5
+pyarrow>=14
+numpy>=1.24
+pandas>=2.0
+scipy>=1.10

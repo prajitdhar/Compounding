@@ -1,0 +1,3 @@
+-r requirements.txt
+spacy>=3.7
+

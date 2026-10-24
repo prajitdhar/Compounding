@@ -1,0 +1,3 @@
+cold_ADJ water_NOUN freezes_VERB	1901,8,6
+ice_NOUN cream_NOUN shop_NOUN	1901,3,2
+drive_VERB the_DET car_NOUN	1901,20,10
