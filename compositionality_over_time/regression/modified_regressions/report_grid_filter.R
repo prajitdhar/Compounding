@@ -1,6 +1,6 @@
 # Retain the requested grid when an output directory contains older fits.
 coha_v3_report_grid <- function(frame) {
-  fields <- c(context_mode = "GRID_MODES", context_size = "GRID_VOCABS",
+  fields <- c(corpus = "GRID_CORPUS", context_mode = "GRID_MODES", context_size = "GRID_VOCABS",
               ppmi = "GRID_WEIGHTINGS", setting = "GRID_SETTINGS", tag = "GRID_TAGGINGS",
               timespan = "GRID_TIMESPANS", cutoff = "GRID_CUTOFFS", y = "GRID_TARGETS",
               train_variant = "GRID_TRAIN_VARIANT", test_variant = "GRID_TEST_VARIANT")
@@ -28,6 +28,7 @@ google_v3_validate_results <- function(directory, input_root = Sys.getenv(
     unique(strsplit(value, "[,[:space:]]+")[[1L]])
   }
   modes <- words("GRID_MODES", "local5")
+  corpus <- Sys.getenv("GRID_CORPUS", unset = "google")
   vocabs <- words("GRID_VOCABS", "1000 3000 5000 10000 30000 50000")
   weights <- words("GRID_WEIGHTINGS", "RAW PPMI")
   settings <- words("GRID_SETTINGS", "Agnostic Pooled Aware")
@@ -37,16 +38,17 @@ google_v3_validate_results <- function(directory, input_root = Sys.getenv(
   targets <- words("GRID_TARGETS", "compound head modifier")
   train_variant <- Sys.getenv("GRID_TRAIN_VARIANT", unset = "modified")
   test_variant <- Sys.getenv("GRID_TEST_VARIANT", unset = "modified")
-  if (any(modes != "local5")) stop("Google reports support only local5 context")
   script_arg <- grep("^--file=", commandArgs(FALSE), value = TRUE)
   script_dir <- if (length(script_arg)) dirname(normalizePath(sub("^--file=", "", script_arg[[1L]]))) else getwd()
   # Normally called by the fitter's companion report/statistics scripts.
   if (!file.exists(file.path(script_dir, "regression_exps.r"))) {
     script_dir <- file.path(script_dir, "..", "modified_regressions")
   }
+  source(file.path(script_dir, "coha_v3_regression_data.R"))
+  for (mode in modes) coha_v3_validate_study(corpus, mode)
   code_md5 <- unname(tools::md5sum(file.path(script_dir,
     c("regression_exps.r", "coha_v3_regression_data.R"))))
-  if (anyNA(code_md5)) stop("Cannot identify Google regression source files")
+  if (anyNA(code_md5)) stop("Cannot identify regression source files")
   input_hashes <- new.env(parent = emptyenv())
   input_md5 <- function(paths) {
     vapply(paths, function(path) {
@@ -66,8 +68,8 @@ google_v3_validate_results <- function(directory, input_root = Sys.getenv(
   for (tag in tags) for (mode in modes) for (vocab in vocabs) for (weight in weights) {
     for (setting in settings) for (width in widths) for (cutoff in cutoffs) {
       for (pattern in if (tag == "Tagged") c("nn", "an") else "all") {
-        suffix <- sprintf("google_v3_%s_ctx%s_%s_%s_%s_%s_%s_%s_freq_prod",
-          mode, vocab, tag, weight, setting, width, cutoff, pattern)
+        suffix <- sprintf("%s_v3_%s_ctx%s_%s_%s_%s_%s_%s_%s_freq_prod",
+          corpus, mode, vocab, tag, weight, setting, width, cutoff, pattern)
         if (train_variant != "original" || test_variant != "original") {
           suffix <- paste0(suffix, "_train", train_variant, "_test", test_variant)
         }
@@ -86,6 +88,7 @@ google_v3_validate_results <- function(directory, input_root = Sys.getenv(
           setting, weight, tag, vocab, width, cutoff)))
         if (!all(file.exists(inputs)) || !identical(config$input_md5, input_md5(inputs)) ||
             !identical(config$code_md5, code_md5) || !all(targets %in% config$targets) ||
+            !identical(config$corpus, corpus) || !identical(config$context_mode, mode) ||
             !identical(config$train_variant, train_variant) ||
             !identical(config$test_variant, test_variant)) {
           problems <- c(problems, paste0(suffix, " (input/source identity or target/variant mismatch)"))
@@ -113,7 +116,7 @@ google_v3_validate_results <- function(directory, input_root = Sys.getenv(
         }
         if (is.null(reference_tuning)) reference_tuning <- tuning
         scores <- read.csv(paths[[1L]], check.names = FALSE)
-        expected_cell <- list(corpus = "google", context_mode = mode, context_size = as.integer(vocab),
+        expected_cell <- list(corpus = corpus, context_mode = mode, context_size = as.integer(vocab),
           tag = tag, ppmi = weight, setting = setting, timespan = as.integer(width), cutoff = as.integer(cutoff),
           pattern = pattern, train_variant = train_variant, test_variant = test_variant,
           frequency_family = "freq", productivity_family = "prod", impute = "fold_median")
@@ -131,7 +134,7 @@ google_v3_validate_results <- function(directory, input_root = Sys.getenv(
         recipes <- expand.grid(features = config$feature_sets, y = targets, stringsAsFactors = FALSE)
         observed <- paste(scores$features, scores$y, sep = " -> ")
         skipped <- setdiff(paste(recipes$features, recipes$y, sep = " -> "), observed)
-        rows[[length(rows) + 1L]] <- data.frame(context_mode = mode, context_size = as.integer(vocab),
+        rows[[length(rows) + 1L]] <- data.frame(corpus = corpus, context_mode = mode, context_size = as.integer(vocab),
           tag = tag, ppmi = weight, setting = setting, timespan = as.integer(width), cutoff = as.integer(cutoff),
           pattern = pattern, train_variant = train_variant, test_variant = test_variant,
           folds = tuning$folds, repeats = tuning$repeats, alpha_count = tuning$alpha_count,
@@ -143,7 +146,7 @@ google_v3_validate_results <- function(directory, input_root = Sys.getenv(
       }
     }
   }
-  if (length(problems)) stop("Requested Google regression grid is incomplete or incompatible (",
+  if (length(problems)) stop("Requested regression grid is incomplete or incompatible (",
     length(problems), " cells):\n", paste(head(problems, 20L), collapse = "\n"),
     if (length(problems) > 20L) "\n..." else "",
     "\nFinish/resume those cells, or explicitly narrow the report grid. A cell with no usable models has no completion receipt.")

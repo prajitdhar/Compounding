@@ -115,7 +115,9 @@ def run_configuration(args, temporal_mode, tables, context_size, vocabulary, cov
                 'code_sha256': code_hashes, 'python_version': platform.python_version(),
                 'pandas_version': pd.__version__, 'numpy_version': np.__version__,
                 'compound_vectors': 'identical compound occurrences in all conditions',
-                'association_population': {'CompoundAware': 'eligible', 'CompoundPooled': 'eligible',
+                'compound_population': 'adj_noun_and_noun_noun' if args.tag else 'all_lexical_bigrams',
+                'association_population': {'CompoundAware': 'eligible' if args.tag else 'bigram_counts',
+                                           'CompoundPooled': 'eligible' if args.tag else 'bigram_counts',
                                            'CompoundAgnostic': 'bigram_counts'},
                 'context_vocabulary': {'requested_size': context_size, 'actual_size': len(vocabulary),
                     'selection': 'mean within-decade relative frequency among context-POS unigrams; lexical tie-break',
@@ -125,7 +127,7 @@ def run_configuration(args, temporal_mode, tables, context_size, vocabulary, cov
                     'type_ratio': 'distinct observed contexts after vocabulary selection, before PPMI',
                     'pooled_pair_columns': 'constituent_mod and constituent_head; no averaging'},
                 'frequency_definitions': {'mod_freq/head_freq': 'role counts (Aware), sum of roles (Pooled), unigrams (Agnostic)',
-                    'comp_freq': 'eligible pair occurrences in all settings',
+                    'comp_freq': 'selected pair population occurrences in all settings',
                     'assoc_pair_freq': 'joint count in setting-specific association population',
                     'association_marginals': 'left/right bigram-position marginals; distinct from unigram frequencies'},
                 'ppmi': args.ppmi, 'ppmi_background': 'full per-condition event population before cutoff or rating filtering',
@@ -139,7 +141,7 @@ def run_configuration(args, temporal_mode, tables, context_size, vocabulary, cov
     input_paths = sorted({feature_input_path(args.inputdir, name) for name in FEATURE_TABLES})
     inputs = [artifact(input_manifest_path)] + [artifact(path) for path in input_paths]
     inputs += [artifact(getattr(args, name), name) for name in ['reddy90', 'cordeiro90', 'cordeiro100']]
-    parameters = {key: manifest[key] for key in ['format', 'conditions', 'association_population', 'ppmi',
+    parameters = {key: manifest[key] for key in ['format', 'conditions', 'compound_population', 'association_population', 'ppmi',
                   'ppmi_background', 'frequency_source', 'cutoff_comparison', 'cutoffs',
                   'temporal', 'imputation', 'tagged_targets', 'context_vocabulary', 'setting_features', 'frequency_definitions']}
     parameters['plot'] = getattr(args, 'plot', False)

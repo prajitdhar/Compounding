@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Freeze completed Google wide feature Parquet files as verified R-ready CSVs.
+"""Freeze completed Google or COHA feature Parquet files as verified R-ready CSVs.
 
 This adapter reads only the small final benchmark feature tables, never the
 corpus-sized feature_inputs. Source Parquet, feature caches and manifests remain
@@ -42,6 +42,24 @@ DEFAULT_GRID = {"vocabs": [1000, 3000, 5000, 10000, 30000, 50000],
                 "timespans": [10000, 10, 20, 50, 100],
                 "cutoffs": [0, 10, 50, 100, 500, 1000]}
 POLICIES = {"UnTagged": "all_lexical_bigrams", "Tagged": "adj_noun_or_noun_noun"}
+
+
+def validate_study(corpus, context_mode):
+    """A frozen snapshot describes one corpus and one context definition."""
+    if corpus not in ("google", "coha") or context_mode not in ("local5", "sentence"):
+        raise ValueError("Select corpus google/coha and context mode local5/sentence")
+    if corpus == "google" and context_mode != "local5":
+        raise ValueError("Google supports local5 only")
+
+
+def _manifest_corpus(value):
+    declared = value.get("corpus")
+    name = str(value.get("source_info", {}).get("corpus", {}).get("name", "")).casefold()
+    inferred = ("coha" if name in ("coha", "corpus of historical american english")
+                else "google" if name in ("", "google books ngrams", "google") else None)
+    if inferred is None or (declared is not None and declared != inferred):
+        raise ValueError("Unknown or contradictory feature corpus identity")
+    return inferred
 
 
 def _digest(value):
@@ -149,11 +167,13 @@ def _validate_frame(frame, expected, label):
     return payload
 
 
-def _source_plan(root, grid, rating_hashes):
+def _source_plan(root, grid, rating_hashes, corpus="google", context_mode="local5"):
+    validate_study(corpus, context_mode)
     root = root.resolve()
-    mode = root if root.name == "local5" else root / "local5"
+    mode = (root if root.name == context_mode or any(root.glob("features_*_manifest.json"))
+            else root / context_mode)
     if not mode.is_dir():
-        raise ValueError(f"Missing Google local5 feature directory: {mode}")
+        raise ValueError(f"Missing {corpus} {context_mode} feature directory: {mode}")
     manifests, records, prepares, vocabularies = {}, {}, {}, set()
     for csv_name, parameters in _files(grid):
         kind, weight, tag = (parameters[name] for name in ("kind", "weight", "tagging"))
@@ -171,14 +191,15 @@ def _source_plan(root, grid, rating_hashes):
             if (value.get("schema_version") != 3 or value.get("format") != "parquet"
                     or value.get("feature_definition_version") != FEATURE_DEFINITION_VERSION
                     or value.get("beta_policy") != BETA_POLICY
-                    or value.get("context_mode") != "local5"
+                    or value.get("context_mode") != context_mode
+                    or _manifest_corpus(value) != corpus
                     or value.get("tagged_targets") != (tag == "Tagged")
                     or value.get("ppmi") != (weight == "PPMI")
                     or population != expected_population
                     or block.get("status") != "complete" or block.get("stage") != kind
                     or value.get("context_size") != vocab or value.get("temporal") != width):
                 raise ValueError(f"Incompatible/incomplete feature manifest: {path}")
-            scientific_fields = ("feature_definition_version", "beta_policy", "compound_population",
+            scientific_fields = ("corpus", "feature_definition_version", "beta_policy", "compound_population",
                                  "tagged_targets", "ppmi", "context_mode", "context_size",
                                  "temporal", "context_vocabulary")
             if any(block.get("parameters", {}).get(name) != value.get(name)
@@ -221,7 +242,7 @@ def _source_plan(root, grid, rating_hashes):
                              **parameters}
     if len(vocabularies) != 1:
         raise ValueError("Feature tables use different frozen context vocabularies")
-    identity = {"schema_version": SNAPSHOT_VERSION, "corpus": "google", "context_mode": "local5",
+    identity = {"schema_version": SNAPSHOT_VERSION, "corpus": corpus, "context_mode": context_mode,
                 "grid": grid, "feature_definition_version": FEATURE_DEFINITION_VERSION,
                 "beta_policy": BETA_POLICY, "compound_pair_policy": POLICIES,
                 "rating_sha256": rating_hashes, "context_vocabulary_sha256": next(iter(vocabularies)),
@@ -245,7 +266,9 @@ def snapshot(args):
     root = Path(args.snapshot_root).resolve()
     grid = _grid(args)
     expected_ratings, rating_hashes = _ratings()
-    identity, manifests = _source_plan(Path(args.features_root), grid, rating_hashes)
+    identity, manifests = _source_plan(Path(args.features_root), grid, rating_hashes,
+        getattr(args, "corpus", "google"), getattr(args, "context_mode", "local5"))
+    context_mode = identity["context_mode"]
     fingerprint = _digest(identity)
     if getattr(args, "dry_run", False):
         print(f"Planned {len(identity['files'])} wide CSVs; snapshot identity {fingerprint}", flush=True)
@@ -269,12 +292,12 @@ def snapshot(args):
                 print(f"Reused verified snapshot: {root}", flush=True)
                 return state
         else:
-            if (root / "local5").exists() and any((root / "local5").iterdir()):
+            if (root / context_mode).exists() and any((root / context_mode).iterdir()):
                 raise ValueError("Untracked snapshot files; use a new --snapshot-root")
             state = {"fingerprint": fingerprint, "identity": identity,
                      "compound_pair_policy": POLICIES, "files": {}}
             write_json(state_path, state)
-        (root / "local5").mkdir(exist_ok=True)
+        (root / context_mode).mkdir(exist_ok=True)
         (root / ".checkpoints").mkdir(exist_ok=True)
         for name, value in manifests.items():
             destination = root / "source_manifests" / name
@@ -293,7 +316,7 @@ def snapshot(args):
         total = len(identity["files"])
         source_snapshots = {}
         for index, (name, record) in enumerate(identity["files"].items(), 1):
-            destination = root / "local5" / name
+            destination = root / context_mode / name
             receipt_path = root / ".checkpoints" / (name + ".json")
             path = Path(record["source"])
             before = _stable_record(path)
@@ -349,7 +372,7 @@ def snapshot(args):
         return state
 
 
-def verify_snapshot(root, selected_names=None):
+def verify_snapshot(root, selected_names=None, *, corpus=None, context_mode=None):
     root = Path(root).resolve()
     ready_path, state_path = root / "READY", root / "snapshot.json"
     if not ready_path.is_file() or not state_path.is_file():
@@ -358,8 +381,12 @@ def verify_snapshot(root, selected_names=None):
     if ready.get("snapshot_sha256") != _hash_checked(state_path):
         raise ValueError("Snapshot manifest changed after READY")
     identity = state.get("identity", {})
+    validate_study(identity.get("corpus"), identity.get("context_mode"))
+    if ((corpus is not None and corpus != identity["corpus"])
+            or (context_mode is not None and context_mode != identity["context_mode"])):
+        raise ValueError("Requested corpus/context mode differs from the frozen snapshot")
     if (ready.get("fingerprint") != state.get("fingerprint") or _digest(identity) != state.get("fingerprint")
-            or identity.get("schema_version") != SNAPSHOT_VERSION or identity.get("corpus") != "google"
+            or identity.get("schema_version") != SNAPSHOT_VERSION
             or identity.get("feature_definition_version") != FEATURE_DEFINITION_VERSION
             or identity.get("beta_policy") != BETA_POLICY
             or identity.get("compound_pair_policy") != POLICIES
@@ -371,7 +398,7 @@ def verify_snapshot(root, selected_names=None):
     for name in names:
         if Path(name).name != name:
             raise ValueError("Invalid snapshot filename")
-        record, path = state["files"][name], root / "local5" / name
+        record, path = state["files"][name], root / identity["context_mode"] / name
         if not path.is_file() or path.stat().st_size != record["bytes"]:
             raise ValueError(f"Missing/wrong-size frozen CSV: {path}")
         _hash_checked(path, record["sha256"])
@@ -387,6 +414,10 @@ def parse_args(argv=None):
     for command in ("snapshot", "verify"):
         child = children.add_parser(command)
         child.add_argument("--snapshot-root", required=True)
+        child.add_argument("--corpus", choices=("google", "coha"),
+                           default="google" if command == "snapshot" else None)
+        child.add_argument("--context-mode", choices=("local5", "sentence"),
+                           default="local5" if command == "snapshot" else None)
         for name in DEFAULT_GRID:
             child.add_argument(f"--{name}", nargs="+")
         if command == "snapshot":
@@ -403,8 +434,9 @@ def main(argv=None):
     if supplied:
         state = json.loads((Path(args.snapshot_root) / "snapshot.json").read_text())
         grid = _grid(args, state["identity"]["grid"])
-        return verify_snapshot(args.snapshot_root, [name for name, _ in _files(grid)])
-    return verify_snapshot(args.snapshot_root)
+        return verify_snapshot(args.snapshot_root, [name for name, _ in _files(grid)],
+                               corpus=args.corpus, context_mode=args.context_mode)
+    return verify_snapshot(args.snapshot_root, corpus=args.corpus, context_mode=args.context_mode)
 
 
 if __name__ == "__main__":

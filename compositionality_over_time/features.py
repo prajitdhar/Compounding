@@ -1,10 +1,10 @@
-"""Bounded Google feature preparation and COHA-style sparse experiments.
+"""Bounded Google and COHA feature preparation and sparse experiments.
 
 The four scientific feature_inputs are read-only. Preparation retains full
 population marginals, not just benchmark counts, while storing context vectors
 only for the evaluation targets. Exact pair/word type keys are hash-routed
 WITHOUT time so wider temporal bins can deduplicate types inside bounded
-buckets. Feature jobs never load the original Google matrices into pandas.
+buckets. Feature jobs never load the original corpus matrices into pandas.
 Tagged compounds use ADJ/NOUN-to-NOUN pairs. UnTagged compounds use all
 lexical bigram POS combinations before target POS pooling; context tags stay.
 """
@@ -122,7 +122,7 @@ def _write_parquet(frame, path):
 
 
 def read_context_vocabulary(path):
-    """One row per ranked lemma_POS, NOT one row per Google surface spelling."""
+    """One row per ranked lemma_POS, independent of surface spelling."""
     frame = pd.read_csv(path, sep="\t", keep_default_na=False)
     if "context" not in frame:
         if not {"lemma", "pos"}.issubset(frame):
@@ -145,18 +145,35 @@ def read_context_vocabulary(path):
     return frame
 
 
+def corpus_context(manifest):
+    """Identify scientific input semantics independently of annotation metadata."""
+    corpus = manifest.get("source_info", {}).get("corpus") or {
+        "name": "Google Books Ngrams", "release": "20200217", "subset": "eng"}
+    name = str(corpus.get("name", "")).strip().casefold()
+    is_coha = name in ("coha", "corpus of historical american english")
+    mode = manifest.get("context_mode", manifest.get("mode", "local5"))
+    if manifest.get("mode", mode) != mode:
+        raise ValueError("Conflicting mode and context_mode in feature-input manifest")
+    if not is_coha and mode != "local5":
+        raise ValueError("Google features support local5 only, not sentence contexts")
+    if mode not in ("local5", "sentence"):
+        raise ValueError(f"Unsupported COHA context mode: {mode!r}")
+    return {"corpus": corpus, "corpus_id": "coha" if is_coha else "google", "context_mode": mode}
+
+
 def _inputs(args):
     root = Path(args.inputdir).resolve()
     manifest_path = root / "corpus_manifest.json"
     manifest = json.loads(manifest_path.read_text())
     validate_feature_input_manifest(manifest)
-    if (manifest.get("context_mode", "local5") != "local5"
-            or manifest.get("mode", "local5") != "local5"):
-        raise ValueError("Google features support local5 only, not sentence contexts")
+    corpus_context(manifest)
     files, records = {}, {}
     for name, columns in TABLE_COLUMNS.items():
         path = (root / manifest.get("table_files", {}).get(name, f"{name}.parquet")).resolve()
         record = manifest.get("tables", {}).get(name, {})
+        if not record:
+            record = next((item for item in manifest.get("source_info", {}).get("outputs", [])
+                           if Path(item.get("name", "")).name == path.name), {})
         snapshot = _snapshot(path)
         if record.get("bytes") is not None and record["bytes"] != snapshot["bytes"]:
             raise ValueError(f"Input size differs from published manifest: {name}")
@@ -197,7 +214,8 @@ def _specification(args):
     options = partition_options(args)
     # Annotation enrichment edits the surrounding manifest, not these tables.
     # Only the scientific core identities enter preparation checkpoints.
-    identity = {"version": VERSION, "inputs": records, "tagged_targets": not args.untagged,
+    identity = {"version": VERSION, "inputs": records, **corpus_context(manifest),
+        "tagged_targets": not args.untagged,
         "compound_population": _compound_population(args),
         "context_vocabulary": vocab_record,
         "ratings": [artifact(getattr(args, name), name)
@@ -457,14 +475,14 @@ def prepare(args):
             if _snapshot(record["path"]) != {key: record[key] for key in ("path", "bytes", "mtime_ns")}:
                 raise RuntimeError("A core input changed during feature preparation")
         parent = specification["manifest"].get("source_info", {})
-        preparation_source_info = source_info("feature_prepare", parent.get("corpus",
-            {"name": "Google Books Ngrams", "release": "20200217", "subset": "eng"}),
+        preparation_source_info = source_info("feature_prepare", specification["identity"]["corpus"],
             [{"name": name, **record} for name, record in specification["identity"]["inputs"].items()]
             + [specification["identity"]["context_vocabulary"], *specification["identity"]["ratings"]],
             {"tagged_targets": not args.untagged, "temporal_bins": specification["identity"]["temporal_bins"],
              "feature_definition_version": VERSION,
              "compound_population": _compound_population(args),
-             "context_mode": "local5", "context_vocabulary": specification["identity"]["context_vocabulary"],
+             "context_mode": specification["identity"]["context_mode"],
+             "context_vocabulary": specification["identity"]["context_vocabulary"],
              "evaluation_filter": "only target vectors are restricted; context and occurrence backgrounds use the complete relevant corpus populations",
              "type_routing": "exact full pair/word keys, hashed without time before temporal deduplication"},
             {"column": "time", "unit": "calendar_year", "binning": "floor(time / temporal) * temporal"},
@@ -715,7 +733,7 @@ def _run_configuration(args, specification, size, temporal, tag, output, marker,
     inputs = [{"name":name, **record} for name,record in specification["identity"]["inputs"].items()]
     inputs += [specification["identity"]["context_vocabulary"], *specification["identity"]["ratings"]]
     parent = specification["manifest"].get("source_info", {})
-    corpus = parent.get("corpus", {"name":"Google Books Ngrams","release":"20200217","subset":"eng"})
+    corpus = specification["identity"]["corpus"]
     for family in args.families:
         for weight in args.weights:
             products = []
@@ -745,6 +763,7 @@ def _run_configuration(args, specification, size, temporal, tag, output, marker,
                 _write_parquet(frame,path)
                 products.append(artifact(path))
             semantics = {**parameters, "conditions":args.conditions,"format":"parquet",
+                "corpus":specification["identity"]["corpus_id"],
                 "tagged_targets":not args.untagged,"ppmi":weight=="PPMI",
                 "feature_definition_version":VERSION,"beta_policy":BETA_POLICY,
                 "compound_population":_compound_population(args),
@@ -759,7 +778,8 @@ def _run_configuration(args, specification, size, temporal, tag, output, marker,
                 "temporal_vector_availability":"both periods must retain the vector under the same shared raw cutoff; exact adjacent bins only",
                 "setting_features":{"cosine":"full vector support","token_ratio":"raw role incidences / raw unigram occurrences",
                     "type_ratio":"positive raw context types before PPMI","pooled_pair_columns":"separate constituent_mod and constituent_head"},
-                "imputation":"none; fit only inside training folds","context_mode":"local5"}
+                "imputation":"none; fit only inside training folds",
+                "context_mode":specification["identity"]["context_mode"]}
             envelope = source_info(family,corpus,inputs,semantics,
                 {"column":"time","unit":"calendar_year","bin_sizes":[temporal],
                  "binning":"floor(time / temporal) * temporal","pooled_bin":{"temporal":10000,"time":0}},

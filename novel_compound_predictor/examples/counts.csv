@@ -1,0 +1,12 @@
+modifier,head,time,count
+oil_NOUN,field_NOUN,1980,3
+oil_NOUN,field_NOUN,1990,2
+gas_NOUN,plant_NOUN,1980,4
+gas_NOUN,plant_NOUN,1990,3
+water_NOUN,tank_NOUN,1980,5
+water_NOUN,tank_NOUN,1990,2
+solar_NOUN,panel_NOUN,1980,4
+solar_NOUN,panel_NOUN,1990,2
+oil_NOUN,plant_NOUN,2000,3
+gas_NOUN,tank_NOUN,2000,3
+water_NOUN,panel_NOUN,2000,3

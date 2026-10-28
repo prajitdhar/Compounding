@@ -3,12 +3,7 @@
 This standalone upstream project converts Google Books Ngrams V3 into reusable
 lemma/POS occurrence and context tables. Run it **before** compositionality
 feature generation. The same exported tables can also be used directly by
-novel-compound prediction or later projects without running compositionality
-regressions.
-
-This directory contains only acquisition manifests, extraction, reduction,
-lemmatization, context-vocabulary selection and optional annotation. It does
-not calculate compositionality predictors or fit regression models.
+novel-compound prediction or later projects.
 
 ## Installation and offline example
 
@@ -27,11 +22,10 @@ The extraction/reduction stages do not require a GPU or PyTorch.
 ## Data specification
 
 The program uses the English V3 release `20200217` and Google's own POS and
-dependency annotations. The occurrence `count` is `match_count`; volume counts
-are not interpreted as document frequencies. Context-event mass is not word or
-compound occurrence frequency.
+dependency annotations. The occurrence `count` is `match_count` and the volume counts
+are not stored.
 
-After reduction, lemmatization and export, downstream consumers use:
+After reduction, lemmatization and export, the following files are created:
 
 ```text
 OUTPUT_ROOT/
@@ -49,22 +43,18 @@ OUTPUT_ROOT/
 The `corpus_manifest.json` file records the source corpus, table paths, count
 definitions and completed-export identities. Bigram occurrence counts are
 stored only in `feature_inputs/local5/bigram_counts.parquet`; `tables/` contains
-annotations and optional dependency summaries, not another count-table export.
+annotations and optional dependency summaries.
 Lexical identifiers are lowercased `lemma_POS`. All lexical
-POS combinations are retained in the core tables. ADJ–NOUN/NOUN–NOUN candidates
-form the optional annotation population, not the complete adjacency population.
+POS combinations are retained in the core tables. 
 Context evidence comes from exposed edges of 3/4/5-grams at distances 1/2/3.
 Google data do not provide recoverable sentences or occurrence identifiers.
 
 The fixed vocabulary ranks lemma/POS context types by mean within-decade
-relative frequency, giving decades equal weight. Consumers can select smaller
-vocabularies from that ranking without rerunning extraction. Full-population
-counts and independent occurrence tables must remain available.
+relative frequency, giving decades equal weight. 
 
 ## First run: base extraction and vocabulary
 
-All commands below run from repository root. Choose an external or ignored data
-directory and keep the same root throughout the stages:
+All commands below run from repository root.
 
 ```bash
 export PREPROCESSING=google_preprocessing
@@ -96,7 +86,7 @@ python "$PREPROCESSING/google_v3_pipeline.py" vocab --output "$OUTPUT_ROOT" \
   --top-k 50000 --vocab-output "$OUTPUT_ROOT/context_vocab_equal_decade_50000.tsv"
 ```
 
-Lemmatization uses the supplied Google POS rather than predicting fragment POS.
+Lemmatization uses the supplied Google POS.
 
 ## Context extraction and reusable export
 
@@ -118,25 +108,23 @@ python "$PREPROCESSING/google_v3_pipeline.py" reduce --output "$OUTPUT_ROOT" \
 python "$PREPROCESSING/google_v3_pipeline.py" feature-inputs --output "$OUTPUT_ROOT"
 ```
 
-This completes the upstream stage. Continue in
+This completes the preprossing stage. Continue in
 [compositionality analysis](../compositionality_over_time/README.md), or pass
 the exported bigram tables to [novel-compound prediction](../novel_compound_predictor/README.md).
-No benchmark ratings are needed for preprocessing.
+
 
 ## Optional annotations
 
 [ANNOTATIONS.md](ANNOTATIONS.md) describes candidate NER and dependency evidence.
 These enrich `bigram_annotations.parquet` without replacing the core count and
-context tables. NER uses original cased five-token windows, not lemma sequences.
-Missing evidence remains unknown rather than being silently labelled `NONE`.
+context tables. NER uses original cased five-token windows.
 
 ## Runtime configuration
 
 Activate the appropriate environment before running the Python commands.
 Choose explicit input/output paths, thread counts, memory limits and temporary
-storage for your workload. Commands expose these controls through `--help`;
-RAM limits and spill-storage capacity are separate budgets. No environment is
-activated implicitly, and no machine-specific account or filesystem is needed.
+storage for your workload. See `--help` for further information.
+
 
 ## Tests and source information
 
@@ -147,7 +135,5 @@ python -m unittest discover -s google_preprocessing/tests -v
 Tests and the offline example use temporary constructed data. They do not
 import a downstream analysis project or read real ratings. Shared infrastructure
 lives directly in the root `src/` package. See [SOURCE_INFO.md](SOURCE_INFO.md)
-for completion identities. A completed checkpoint can be reused only with
-matching source, input and parameter identities; select a new output directory
-when those settings change.
+for completion identities.
 

@@ -7,8 +7,11 @@ regression_root <- dirname(script_dir)
 source(file.path(regression_root, "modified_regressions", "coha_v3_regression_data.R"))
 
 main <- function() {
+  corpus <- Sys.getenv("TEST_CORPUS", unset = "google")
+  mode <- Sys.getenv("TEST_CONTEXT_MODE", unset = "local5")
+  coha_v3_validate_study(corpus, mode)
   task_root <- tempfile("google-regression-smoke-")
-  dir.create(file.path(task_root, "inputs", "local5"), recursive = TRUE)
+  dir.create(file.path(task_root, "inputs", mode), recursive = TRUE)
   dir.create(file.path(task_root, "results"))
   on.exit(unlink(task_root, recursive = TRUE), add = TRUE)
   ratings_root <- Sys.getenv("TEST_RATINGS_DIR", unset = file.path(regression_root, "..", "tests", "test_data", "ratings"))
@@ -46,15 +49,15 @@ main <- function() {
       for (j in seq_along(coha_v3_feature_groups$temporal)) {
         temporal[[paste0(coha_v3_feature_groups$temporal[[j]], ":1950")]] <- sin(seq_len(nrow(rows)) * j / 11)
       }
-      write.csv(static, coha_v3_feature_path(input_root, "local5", 5000L, "features", "Agnostic", "RAW", tagging, width, 0L), row.names = FALSE, na = "")
-      if (width != 10000L) write.csv(temporal, coha_v3_feature_path(input_root, "local5", 5000L, "temporal", "Agnostic", "RAW", tagging, width, 0L), row.names = FALSE, na = "")
+      write.csv(static, coha_v3_feature_path(input_root, mode, 5000L, "features", "Agnostic", "RAW", tagging, width, 0L), row.names = FALSE, na = "")
+      if (width != 10000L) write.csv(temporal, coha_v3_feature_path(input_root, mode, 5000L, "temporal", "Agnostic", "RAW", tagging, width, 0L), row.names = FALSE, na = "")
     }
   }
   rscript <- file.path(R.home("bin"), "Rscript")
   fitter <- file.path(regression_root, "modified_regressions", "regression_exps.r")
   fit <- function(tagging, validation = FALSE) {
     arguments <- c(shQuote(fitter), "--input-root", shQuote(input_root), "--output-dir", shQuote(output_root),
-      "--context-mode", "local5", "--context-size", "5000", "--ppmi", "RAW", "--setting", "Agnostic", "--tagging", tagging,
+      "--corpus", corpus, "--context-mode", mode, "--context-size", "5000", "--ppmi", "RAW", "--setting", "Agnostic", "--tagging", tagging,
       "--timespans", "10000,50", "--cutoffs", "0", "--targets", "compound", "--feature-sets",
       "all_no_setting,representation_only,cordeiro,sim_cpf_beta,all,all_static,temporal", "--cores", "1", "--pilot")
     if (validation) arguments <- c(arguments, "--validate-only")
@@ -65,7 +68,7 @@ main <- function() {
   }
   for (tagging in c("UnTagged", "Tagged")) fit(tagging, validation = TRUE)
   for (tagging in c("UnTagged", "Tagged")) fit(tagging)
-  receipts <- list.files(output_root, pattern = "^complete_google_v3_.*\\.rds$", full.names = TRUE)
+  receipts <- list.files(output_root, pattern = paste0("^complete_", corpus, "_v3_.*\\.rds$"), full.names = TRUE)
   stopifnot(length(receipts) == 6L)
   files <- list.files(output_root, pattern = "\\.(csv|rds)$", full.names = TRUE)
   identities <- tools::md5sum(files)
@@ -76,17 +79,18 @@ main <- function() {
   }
   stopifnot(identical(identities, tools::md5sum(files)), identical(mtimes, file.info(files)$mtime))
   predictions <- do.call(rbind, lapply(list.files(output_root, pattern = "^predictions_.*\\.csv$", full.names = TRUE), read.csv))
-  stopifnot(all(predictions$corpus == "google"), all(is.finite(predictions$predicted_spearman)),
+  stopifnot(all(predictions$corpus == corpus), all(predictions$context_mode == mode),
+            all(is.finite(predictions$predicted_spearman)),
             identical(sort(unique(predictions$pattern)), c("all", "an", "nn")),
             all(predictions$train_variant == "modified"), all(predictions$test_variant == "modified"))
   keys <- do.call(paste, c(predictions[c("tag", "pattern", "timespan", "features")], sep = "\r"))
   stopifnot(all(table(keys) == 100L))
   scores <- do.call(rbind, lapply(list.files(output_root, pattern = "^rsquared_.*\\.csv$", full.names = TRUE), read.csv))
   stopifnot(all(scores$train_dim == 180L), all(scores$test_dim == 100L), all(is.finite(scores$CVTrainSpearman)))
-  report_env <- c(GRID_OUT = output_root, GRID_INPUT_ROOT = input_root, GRID_MODES = "local5", GRID_VOCABS = "5000",
+  report_env <- c(GRID_CORPUS = corpus, GRID_OUT = output_root, GRID_INPUT_ROOT = input_root, GRID_MODES = mode, GRID_VOCABS = "5000",
     GRID_WEIGHTINGS = "RAW", GRID_SETTINGS = "Agnostic", GRID_TAGGINGS = "UnTagged Tagged", GRID_TARGETS = "compound",
     GRID_TIMESPANS = "10000,50", GRID_CUTOFFS = "0", GRID_CUTOFF = "0", GRID_TRAIN_VARIANT = "modified", GRID_TEST_VARIANT = "modified",
-    GRID_N_BOOT = "100", GRID_N_PERM = "100", GRID_REFERENCE_MODE = "local5", GRID_REFERENCE_VOCAB = "5000",
+    GRID_N_BOOT = "100", GRID_N_PERM = "100", GRID_REFERENCE_MODE = mode, GRID_REFERENCE_VOCAB = "5000",
     GRID_REFERENCE_WEIGHTING = "RAW", GRID_REFERENCE_SETTING = "Agnostic", GRID_RUN_TEMPORAL = "1", GRID_RUN_ENCODINGS = "0",
     GRID_FOLDS = "3", GRID_REPEATS = "1", GRID_ALPHA_COUNT = "3", GRID_LAMBDA_COUNT = "12", GRID_PERMUTATIONS = "1")
   report <- file.path(regression_root, "modified_regressions", "workflow_report.R")
@@ -96,7 +100,7 @@ main <- function() {
   contrasts <- read.csv(file.path(output_root, "report", "paired_contrasts.csv"))
   stopifnot(all(c("rho_p_primary_holm", "mae_p_family_holm") %in% names(contrasts)),
             identical(sort(unique(contrasts$pattern)), c("all", "an", "nn")))
-  cat("Google regression smoke passed: pilot fits, three interpretations, 180/100 roster, training CV, reports and unchanged resumed checkpoints\n")
+  cat(corpus, mode, "regression smoke passed: pilot fits, three interpretations, 180/100 roster, training CV, reports and unchanged resumed checkpoints\n")
 }
 
 main()

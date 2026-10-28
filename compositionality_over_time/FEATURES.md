@@ -1,6 +1,7 @@
 # Compositionality features
 
-`features.py` consumes the reusable [preprocessing output](../google_preprocessing/README.md).
+`features.py` consumes reusable [Google](../google_preprocessing/README.md) or
+[COHA](../coha_preprocessing/README.md) preprocessing output.
 It neither downloads nor parses a corpus. Run the commands below from repository
 root after installing `.[compositionality]`.
 
@@ -21,6 +22,14 @@ Counts must be unweighted occurrence counts. Context-event sums
 must not be substituted for occurrence frequencies. Also supply the fixed
 ranked context-vocabulary TSV and three separately obtained rating TSVs.
 
+For Google, set `FEATURE_INPUT` to `extracted/feature_inputs/local5/`. For COHA,
+select either `extracted/feature_inputs/local5/` or
+`extracted/feature_inputs/sentence/`. No corpus-selection flag is needed: the
+manifest declares the corpus and context mode. Use the vocabulary exported by
+that preprocessing run, and keep a separate cache/output directory for each
+mode. COHA sentence contexts use eligible complete sentences; its `local5`
+contexts reach three token positions to each side of the target word or pair.
+
 ```bash
 python compositionality_over_time/features.py prepare \
   --inputdir "$FEATURE_INPUT" --outputdir "$FEATURE_OUTPUT" \
@@ -35,6 +44,9 @@ python compositionality_over_time/features.py prepare \
 Preparation is specific to target-tagging mode. Omit `--untagged` for Tagged
 targets and keep its cache/output identities separate. Compatible preparations
 are reused; incompatible inputs/settings are rejected.
+For a restricted grid, pass the same `--context-sizes` and `--temporal-bins`
+lists to both commands. The largest requested context size must fit the supplied
+vocabulary; small synthetic exports need smaller sizes than the default grid.
 
 ## Feature grid
 

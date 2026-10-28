@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run the latest COHA-compatible regression workflow on frozen Google features.
+# Run the regression workflow on frozen Google or COHA features.
 set -euo pipefail
 # Optional trusted local settings; no site environment is activated implicitly.
 [[ -z "${COMPOUNDING_CONFIG:-}" ]] || source "$COMPOUNDING_CONFIG"
@@ -11,7 +11,8 @@ Usage: bash run_regressions.sh [plan|check|fit|report|all]
 
 Inputs must be a validated CSV snapshot made by regression_inputs.py.
 Default: both taggings, six vocabularies, two weightings, three settings,
-five timespans and six cutoffs, using Google local5 only.
+five timespans and six cutoffs. CORPUS defaults to google and MODES to local5.
+For COHA set CORPUS=coha and MODES=local5 or sentence (one mode per snapshot).
 Set BATCH_INDEX to select one tagging/vocabulary/weighting/setting batch.
 Indices follow TAGGINGS > VOCABS > WEIGHTINGS > SETTINGS (last varies fastest).
 Tagged batches automatically fit separate NN and adjective-aware AN rosters.
@@ -31,15 +32,18 @@ case "$ACTION" in
   *) usage >&2; exit 2 ;;
 esac
 
-INPUT_ROOT=${INPUT_ROOT:-runs/compositionality/regressions/inputs_snapshot}
+CORPUS=${CORPUS:-google}
+MODES=${MODES:-local5}
+STUDY_ROOT=runs/compositionality
+[[ "$CORPUS" != coha ]] || STUDY_ROOT+=/coha_${MODES}
+INPUT_ROOT=${INPUT_ROOT:-$STUDY_ROOT/regressions/inputs_snapshot}
 if [[ -z "${OUT:-}" ]]; then
-  OUT=runs/compositionality/regressions/results
+  OUT=$STUDY_ROOT/regressions/results
   [[ "${PILOT:-0}" != 1 ]] || OUT+=_pilot
 fi
 PYTHON_BIN=${PYTHON_BIN:-python3}
 R_ENV=${R_ENV:-r_env}
 RSCRIPT_BIN=${RSCRIPT_BIN:-Rscript}
-MODES=${MODES:-local5}
 TAGGINGS=${TAGGINGS:-"UnTagged Tagged"}
 VOCABS=${VOCABS:-"1000 3000 5000 10000 30000 50000"}
 WEIGHTINGS=${WEIGHTINGS:-"RAW PPMI"}
@@ -63,7 +67,7 @@ RUN_TEMPORAL=${RUN_TEMPORAL:-1}
 RUN_FAMILIES=${RUN_FAMILIES:-1}
 RUN_DIRECT_BASELINE=${RUN_DIRECT_BASELINE:-1}
 RUN_ENCODINGS=${RUN_ENCODINGS:-0}
-REFERENCE_MODE=${REFERENCE_MODE:-local5}
+REFERENCE_MODE=${REFERENCE_MODE:-$MODES}
 REFERENCE_VOCAB=${REFERENCE_VOCAB:-5000}
 REFERENCE_WEIGHTING=${REFERENCE_WEIGHTING:-PPMI}
 REFERENCE_SETTING=${REFERENCE_SETTING:-Agnostic}
@@ -85,8 +89,12 @@ for variable in MODES TAGGINGS VOCABS WEIGHTINGS SETTINGS TIMESPANS CUTOFFS TARG
   printf -v "$variable" '%s' "$(normalize_words "${!variable}")"
   [[ -n "${!variable}" ]] || { echo "Empty $variable" >&2; exit 2; }
 done
-[[ "$MODES" == local5 && "$REFERENCE_MODE" == local5 ]] || {
-  echo "Google regression supports local5 only; there is no sentence mode" >&2; exit 2;
+case "$CORPUS:$MODES" in
+  google:local5|coha:local5|coha:sentence) ;;
+  *) echo "Choose CORPUS=google MODES=local5, or CORPUS=coha with one mode: local5 or sentence" >&2; exit 2 ;;
+esac
+[[ "$REFERENCE_MODE" == "$MODES" ]] || {
+  echo "REFERENCE_MODE must match the snapshot context mode" >&2; exit 2;
 }
 for value in $TAGGINGS; do
   case "$value" in Tagged|UnTagged) ;; *) echo "Invalid TAGGINGS: $value" >&2; exit 2 ;; esac
@@ -164,6 +172,7 @@ verify_snapshot() {
     chosen_tags=("${tag_values[index]}")
   fi
   "$PYTHON_BIN" "$SCRIPT_DIR/regression_inputs.py" verify --snapshot-root "$INPUT_ROOT" \
+    --corpus "$CORPUS" --context-mode "$MODES" \
     --vocabs "${chosen_vocabs[@]}" --taggings "${chosen_tags[@]}" \
     --weightings "${chosen_weights[@]}" --settings "${chosen_settings[@]}" \
     --timespans "${timespan_values[@]}" --cutoffs "${cutoff_values[@]}"
@@ -182,7 +191,8 @@ run_one() {
     fi
   fi
   local -a command=("$RSCRIPT_BIN" "$SCRIPT_DIR/regression/modified_regressions/regression_exps.r"
-    --input-root "$INPUT_ROOT" --output-dir "$OUT" --context-mode local5 --context-size "$vocab"
+    --input-root "$INPUT_ROOT" --output-dir "$OUT" --corpus "$CORPUS"
+    --context-mode "$MODES" --context-size "$vocab"
     --ppmi "$weighting" --setting "$setting" --tagging "$tagging"
     --train-variant "$TRAIN_VARIANT" --test-variant "$TEST_VARIANT"
     --timespans "$timespans" --cutoffs "$CUTOFFS_CSV" --targets "$TARGETS_CSV"
@@ -196,7 +206,7 @@ run_one() {
     check) "${command[@]}" --validate-only ;;
     fit)
       mkdir -p "$OUT/logs"
-      local lock="$OUT/logs/local5_ctx${vocab}_${weighting}_${setting}_${frequency}_${productivity}_${tagging}_train${TRAIN_VARIANT}_test${TEST_VARIANT}.lock"
+      local lock="$OUT/logs/${CORPUS}_${MODES}_ctx${vocab}_${weighting}_${setting}_${frequency}_${productivity}_${tagging}_train${TRAIN_VARIANT}_test${TEST_VARIANT}.lock"
       if (( JOBS > 1 )); then exec setsid --wait flock --close "$lock" "${command[@]}"
       else flock --close "$lock" "${command[@]}"; fi
       ;;
@@ -255,7 +265,7 @@ schedule_one() {
     wait_for_job || status=$?
     if (( status != 0 )); then wait_for_all_jobs || :; return "$status"; fi
   fi
-  local label="local5_${1}_ctx${2}_${3}_${4}_${5:-freq}_${6:-prod}_train${TRAIN_VARIANT}_test${TEST_VARIANT}"
+  local label="${CORPUS}_${MODES}_${1}_ctx${2}_${3}_${4}_${5:-freq}_${6:-prod}_train${TRAIN_VARIANT}_test${TEST_VARIANT}"
   echo "Starting $label ($CORES workers); log: $fit_log_dir/$label.log" >&2
   run_one fit "$@" >"$fit_log_dir/$label.log" 2>&1 &
   job_pids+=("$!"); job_labels+=("$label")
@@ -293,7 +303,7 @@ run_grid() {
 }
 write_report() {
   mkdir -p "$OUT/report"
-  export GRID_MODES=local5 GRID_VOCABS="$VOCABS" GRID_WEIGHTINGS="$WEIGHTINGS"
+  export GRID_CORPUS="$CORPUS" GRID_MODES="$MODES" GRID_VOCABS="$VOCABS" GRID_WEIGHTINGS="$WEIGHTINGS"
   export GRID_SETTINGS="$SETTINGS" GRID_TAGGINGS="$TAGGINGS" GRID_TARGETS="$TARGETS"
   export GRID_TIMESPANS="$TIMESPANS_CSV" GRID_CUTOFFS="$CUTOFFS_CSV"
   export GRID_TRAIN_VARIANT="$TRAIN_VARIANT" GRID_TEST_VARIANT="$TEST_VARIANT"
@@ -308,7 +318,7 @@ write_report() {
     "$RSCRIPT_BIN" "$SCRIPT_DIR/regression/modified_regressions/regression_statistics.R"
   GRID_OUT="$OUT" GRID_INPUT_ROOT="$INPUT_ROOT" GRID_DIRECT_BASELINE="$RUN_DIRECT_BASELINE" \
     GRID_CUTOFF="$REPORT_CUTOFF" GRID_N_BOOT="$N_BOOT" GRID_N_PERM="$N_PERM" \
-    GRID_REFERENCE_MODE=local5 GRID_REFERENCE_VOCAB="$REFERENCE_VOCAB" \
+    GRID_REFERENCE_MODE="$REFERENCE_MODE" GRID_REFERENCE_VOCAB="$REFERENCE_VOCAB" \
     GRID_REFERENCE_WEIGHTING="$REFERENCE_WEIGHTING" GRID_REFERENCE_SETTING="$REFERENCE_SETTING" \
     GRID_RUN_TEMPORAL="$RUN_TEMPORAL" GRID_RUN_ENCODINGS="$RUN_ENCODINGS" \
     "$RSCRIPT_BIN" "$SCRIPT_DIR/regression/modified_regressions/workflow_report.R"

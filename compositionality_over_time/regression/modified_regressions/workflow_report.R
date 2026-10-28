@@ -19,6 +19,7 @@ env_integer <- function(name, default, minimum) {
 }
 
 output_dir <- Sys.getenv("GRID_OUT", unset = "runs/compositionality/regressions/results")
+corpus <- Sys.getenv("GRID_CORPUS", unset = "google")
 report_dir <- file.path(output_dir, "report")
 dir.create(report_dir, recursive = TRUE, showWarnings = FALSE)
 taggings <- env_words("GRID_TAGGINGS", "UnTagged Tagged")
@@ -150,7 +151,7 @@ cv_scores <- cv_scores[order(cv_scores$y, cv_scores$cv_rank_within_target,
                             na.last = TRUE), , drop = FALSE]
 write.csv(cv_scores, file.path(report_dir, "training_cv_scores.csv"), row.names = FALSE)
 
-common_base <- list(corpus = "google", timespan = 10000L,
+common_base <- list(corpus = corpus, timespan = 10000L,
                cutoff = cutoff, impute = "fold_median",
                train_variant = train_variant, test_variant = test_variant,
                frequency_family = "freq", productivity_family = "prod")

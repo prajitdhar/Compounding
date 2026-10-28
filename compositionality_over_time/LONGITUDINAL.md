@@ -6,6 +6,11 @@ preparations and a verified modern CSV snapshot, not raw n-gram shards.
 Complete [preprocessing](../google_preprocessing/README.md),
 [features](FEATURES.md) and the [regression input snapshot](REGRESSIONS.md) first.
 
+The cumulative programs in this guide currently accept Google `local5` inputs.
+COHA `sentence` and `local5` support covers the ordinary feature grid and
+regression handoff described in [FEATURES.md](FEATURES.md) and
+[REGRESSIONS.md](REGRESSIONS.md); cumulative COHA preparations are rejected.
+
 ## Stages and paths
 
 From repository root, set `PREPARED_ROOT` to a completed UnTagged preparation

@@ -19,4 +19,8 @@ actual <- coha_v3_report_grid(rows)
 stopifnot(identical(actual, expected), nrow(actual) == 288L,
           identical(sort(unique(actual$pattern)), c("an", "nn")),
           identical(sort(unique(actual$context_mode)), c("local5", "sentence")))
+rows$corpus <- rep(c("google", "coha"), length.out = nrow(rows))
+Sys.setenv(GRID_CORPUS="coha")
+actual <- coha_v3_report_grid(rows)
+stopifnot(nrow(actual) > 0L, all(actual$corpus == "coha"))
 cat("Revised report grid excludes removed configurations and retains both tagged patterns\n")

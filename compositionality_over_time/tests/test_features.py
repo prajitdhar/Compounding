@@ -205,8 +205,8 @@ class FeatureTestData(unittest.TestCase):
             # Tagged retains the established COHA ADJ/NOUN -> NOUN population.
             tables = self.shared.load_inputs(self.input, tagged=True)
         else:
-            # The user will update COHA's loader separately. Construct the new
-            # UnTagged population independently here, then reuse its pure math:
+            # Construct the UnTagged population independently of its loader,
+            # then reuse the pure calculations as a numerical reference:
             # every lexical bigram enters before pooling modifier/head POS.
             tables = {name: self.pd.read_parquet(self.input / f"{name}.parquet")
                       for name in self.shared.FEATURE_TABLES}

@@ -78,8 +78,10 @@ def load_inputs(directory, tagged=False):
     tables = {name: canonical_time(pd.read_parquet(feature_input_path(directory, name)))
               for name in ['unigrams', 'unigram_counts', 'bigram_counts']}
     tables['compounds'] = canonical_time(
-        read_eligible_contexts(feature_input_path(directory, 'bigrams')))
-    tables['compound_counts'] = eligible_compounds(tables['bigram_counts'])
+        read_eligible_contexts(feature_input_path(directory, 'bigrams')) if tagged else
+        pd.read_parquet(feature_input_path(directory, 'bigrams')))
+    tables['compound_counts'] = (eligible_compounds(tables['bigram_counts']) if tagged
+                                 else tables['bigram_counts'].copy())
     for name, frame in tables.items():
         if not tagged:
             for column in ['modifier', 'head', 'word']:
@@ -240,8 +242,8 @@ def frequency_features(compounds, unigrams, population, evaluation=None, conditi
                           on=['modifier', 'time'], how='left')
     result = result.merge(heads.rename(columns={'count': 'head_freq'}),
                           on=['head', 'time'], how='left')
-    # Compound vectors/counts always describe eligible pair occurrences. Their
-    # frequency normalizer remains the eligible population even in Agnostic.
+    # Compound vectors/counts describe the selected pair population: all lexical
+    # bigrams for UnTagged, ADJ/NOUN-to-NOUN pairs for Tagged, in every setting.
     masses = {'comp': compounds.groupby('time')['count'].sum(),
               'mod': modifiers.groupby('time')['count'].sum(),
               'head': heads.groupby('time')['count'].sum()}

@@ -53,6 +53,8 @@ from src.source_info import (FEATURE_INPUT_SCHEMA_VERSION, artifact,
 from src.partitioned_parquet import (add_partition_arguments, connection_scope,
                                  partition_options, partitioned_sum)
 from src import partitioned_parquet as _partitioned_implementation
+from src.context_vocabulary import equal_decade_ranking_query
+from src import context_vocabulary as _vocabulary_implementation
 
 
 CORPUS_VERSION = "20200217"
@@ -1524,29 +1526,9 @@ def make_vocabulary(args):
                    SUM(count)::BIGINT AS count
             FROM lexical
             GROUP BY lemma, pos, decade
-        ),
-        decade_totals AS (
-            SELECT decade, SUM(count)::DOUBLE AS decade_total
-            FROM lemma_decade
-            GROUP BY decade
-        ),
-        decade_count AS (
-            SELECT COUNT(*)::DOUBLE AS n_decades FROM decade_totals
-        ),
-        scores AS (
-            SELECT d.lemma, d.pos,
-                   SUM(d.count / t.decade_total) / dc.n_decades AS score,
-                   COUNT(*)::BIGINT AS decades_observed,
-                   SUM(d.count)::BIGINT AS lemma_match_count
-            FROM lemma_decade d
-            JOIN decade_totals t USING (decade)
-            CROSS JOIN decade_count dc
-            GROUP BY d.lemma, d.pos, dc.n_decades
-        ),
-        ranked AS (
-            SELECT lemma, pos, score, decades_observed, lemma_match_count,
-                   ROW_NUMBER() OVER (ORDER BY score DESC, lemma, pos) AS rank
-            FROM scores
+        ), ranked AS (
+            {equal_decade_ranking_query('lemma_decade', ['lemma', 'pos'],
+                total_count='lemma_match_count', ordered_sum=False)}
         ),
         selected AS (
             SELECT * FROM ranked WHERE rank <= ?
@@ -1635,7 +1617,8 @@ def make_vocabulary(args):
             {"requested_size": args.top_k, "actual_size": int(selected_types),
              "selection": "equal-decade mean relative frequency",
              "context_pos": allowed, "fixed_across_settings_and_time_bins": True},
-            time_record(), pipeline_software(packages=["duckdb"]),
+            time_record(), pipeline_software(extra_paths=[_vocabulary_implementation.__file__],
+                                             packages=["duckdb"]),
             outputs=[artifact(destination, destination.name),
                      artifact(coverage_path, coverage_path.name)],
             statistics={"selected_lemma_pos_types": int(selected_types),

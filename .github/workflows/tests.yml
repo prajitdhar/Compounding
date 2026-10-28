@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        extra: [preprocessing, compositionality, novel]
+        extra: [preprocessing, 'coha,compositionality', compositionality, novel]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -17,6 +17,10 @@ jobs:
       - run: python -m unittest discover -s tests -v
       - if: matrix.extra == 'preprocessing'
         run: python -m unittest discover -s google_preprocessing/tests -v
+      - if: matrix.extra == 'coha,compositionality'
+        run: |
+          python -m unittest discover -s coha_preprocessing/tests -v
+          python -m unittest discover -s compositionality_over_time/tests -p 'test_coha_features.py' -v
       - if: matrix.extra == 'compositionality'
         run: python -m unittest discover -s compositionality_over_time/tests -v
       - if: matrix.extra == 'novel'

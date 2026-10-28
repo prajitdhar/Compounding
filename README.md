@@ -1,10 +1,13 @@
 # Learning to Model Compounding
 
-Three projects share a small, installable Python library:
+Four projects share a small, installable Python library:
 
 - [Google preprocessing](google_preprocessing/README.md): extract, reduce,
   lemmatize and annotate Google Books Ngrams V3 data, then export reusable
   context and occurrence tables.
+- [COHA preprocessing](coha_preprocessing/README.md): prepare licensed COHA
+  text, annotate complete fragments and export sentence and local-window
+  context tables with independent occurrence counts.
 - [Compositionality over time](compositionality_over_time/README.md): calculate
   compositionality features from those tables, run regression experiments,
   summarize results and estimate longitudinal trajectories.
@@ -13,17 +16,22 @@ Three projects share a small, installable Python library:
 
 Shared modules live directly in [`src/`](src), with imports such as
 `from src.source_info import sha256_file`.
+The reusable [SQLite count store](src/count_store.py) and
+[context-vocabulary ranking](src/context_vocabulary.py) live there too.
+Corpus-specific input preparation, vocabulary adapters and export commands stay
+in their preprocessing projects.
 
 ## Workflow
 
 ```text
-Google Books Ngrams V3
-        |
-google_preprocessing/
-        |
-canonical Parquet tables
-        |---------------------------|
-compositionality_over_time/    novel_compound_predictor/
+Google Books Ngrams V3          COHA linear text
+        |                             |
+google_preprocessing/          coha_preprocessing/
+        |                             |
+        +------ canonical Parquet tables ------+
+                            |
+              compositionality_over_time/
+              novel_compound_predictor/
 ```
 
 Run preprocessing first, unless you already have a compatible completed export.
@@ -39,9 +47,11 @@ source .venv/bin/activate
 python -m pip install -e '.[compositionality]'
 ```
 
-Use `.[preprocessing]` for the Google preprocessing project alone,
-`.[novel]` for representation building and neural prediction of novel compounds, or `.[all]` for all three projects plus optional spaCy support. The `compositionality`
+Use `.[preprocessing]` for Google preprocessing, `.[coha]` for COHA preprocessing,
+`.[novel]` for representation building and neural prediction of novel compounds,
+or `.[all]` for all projects. The `compositionality`
 extra includes the Python dependencies needed for preprocessing and analysis.
+For COHA preprocessing and analysis together, install `.[coha,compositionality]`.
 Select an appropriate PyTorch CPU/GPU build for your machine before installing the novel extra if needed. The extraction/feature workflow does not require a GPU.
 See each project's README for R and optional NER requirements.
 
@@ -53,10 +63,12 @@ Obtain external datasets with the necessary permissions and supply their paths
 explicitly.
 
 - [Google preprocessing example](google_preprocessing/examples/README.md)
+- [COHA preprocessing example](coha_preprocessing/examples/README.md)
 - [Novel-compound example](novel_compound_predictor/examples/README.md)
 
 The preprocessing handoff is described by `corpus_manifest.json` and contains
-four independent tables under `extracted/feature_inputs/local5/`:
+four independent tables under `extracted/feature_inputs/<mode>/`. Google uses
+`local5`; COHA provides both `local5` and `sentence`:
 
 | File | Columns |
 |---|---|
@@ -68,7 +80,8 @@ four independent tables under `extracted/feature_inputs/local5/`:
 Occurrence counts and context-event counts are different quantities and must
 not be substituted for one another. The export includes schema definitions and
 source information, and can additionally include bigram annotations under
-`extracted/tables/`. See the [preprocessing README](google_preprocessing/README.md) for further information.
+`extracted/tables/`. See the [Google](google_preprocessing/README.md) and
+[COHA](coha_preprocessing/README.md) guides for corpus-specific preparation.
 
 ## Tests
 
@@ -77,6 +90,7 @@ After installing the relevant extras, run from the repository root:
 ```bash
 python -m unittest discover -s tests -v
 python -m unittest discover -s google_preprocessing/tests -v
+python -m unittest discover -s coha_preprocessing/tests -v
 python -m unittest discover -s compositionality_over_time/tests -v
 python -m unittest discover -s novel_compound_predictor/tests -v
 ```

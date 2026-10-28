@@ -4,6 +4,16 @@ coha_v3_rating_cols <- c(
   "compound", "source", "is_original"
 )
 
+coha_v3_validate_study <- function(corpus, context_mode) {
+  if (length(corpus) != 1L || is.na(corpus) || !corpus %in% c("google", "coha")) {
+    stop("Invalid corpus: select google or coha")
+  }
+  if (length(context_mode) != 1L || is.na(context_mode) ||
+      !context_mode %in% c("local5", "sentence")) stop("Invalid context mode")
+  if (corpus == "google" && context_mode != "local5") stop("Google supports only local5 context mode")
+  invisible(NULL)
+}
+
 coha_v3_feature_groups <- list(
   sim_cpf_beta = c("sim_cpf_beta"),
   cordeiro = c("arith_mean_sim", "beta", "geom_mean_sim", paste0("sim_cpf_", c(0, 25, 50, 75, 100)), "sim_cpf_beta"),

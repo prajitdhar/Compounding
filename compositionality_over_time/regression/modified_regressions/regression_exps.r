@@ -11,6 +11,7 @@ glmnet_padding_column <- ".glmnet_padding"
 option_list <- list(
   make_option("--input-root", dest = "input_root", default = "runs/compositionality/regressions/inputs_snapshot"),
   make_option("--output-dir", dest = "output_dir", default = "runs/compositionality/regressions/results"),
+  make_option("--corpus", default = "google"),
   make_option("--context-mode", dest = "context_mode", default = "local5"),
   make_option("--context-size", dest = "context_size", type = "integer", default = 10000L),
   make_option("--setting", default = "Agnostic"),
@@ -197,7 +198,7 @@ fit_one <- function(train, test, feature_set, target, args, timespan, cutoff, pa
   train_y <- train[[target_col]]
   test_y <- test[[target_col]]
   if (anyNA(train_y) || anyNA(test_y)) stop("Missing response for ", target)
-  metadata <- list(corpus = "google", tag = args$tagging, ppmi = args$ppmi, setting = args$setting,
+  metadata <- list(corpus = args$corpus, tag = args$tagging, ppmi = args$ppmi, setting = args$setting,
                    context_mode = args$context_mode, context_size = args$context_size,
                    train_variant = args$train_variant, test_variant = args$test_variant,
                    frequency_family = args$frequency_family,
@@ -275,7 +276,8 @@ atomic_csv <- function(df, path) {
 }
 
 run <- function(args) {
-  if (args$context_mode != "local5") stop("Google supports only local5 context mode")
+  if (is.null(args$corpus)) args$corpus <- "google"
+  coha_v3_validate_study(args$corpus, args$context_mode)
   if (!args$setting %in% c("Agnostic", "Aware", "Pooled")) stop("Invalid setting")
   if (!args$ppmi %in% c("PPMI", "RAW")) stop("Invalid ppmi")
   if (!args$tagging %in% c("UnTagged", "Tagged")) stop("Invalid tagging")
@@ -334,8 +336,8 @@ run <- function(args) {
       available <- if (timespan == 10000L) {
         setdiff(feature_sets, c("all_static", "temporal", coha_v3_feature_groups$temporal))
       } else feature_sets
-      suffix <- sprintf("google_v3_%s_ctx%s_%s_%s_%s_%s_%s_%s_%s_%s",
-                        args$context_mode, args$context_size, args$tagging, args$ppmi,
+      suffix <- sprintf("%s_v3_%s_ctx%s_%s_%s_%s_%s_%s_%s_%s_%s",
+                        args$corpus, args$context_mode, args$context_size, args$tagging, args$ppmi,
                         args$setting, timespan, cutoff, pattern,
                         args$frequency_family, args$productivity_family)
       if (args$train_variant != "original" || args$test_variant != "original") {
@@ -354,7 +356,8 @@ run <- function(args) {
                              "temporal", args$setting, args$ppmi, args$tagging, timespan, cutoff))
       code_paths <- file.path(script_dir, c("regression_exps.r", "coha_v3_regression_data.R"))
       config <- list(input_md5 = unname(tools::md5sum(input_paths)),
-                     code_md5 = unname(tools::md5sum(code_paths)), targets = targets,
+                     code_md5 = unname(tools::md5sum(code_paths)),
+                     corpus = args$corpus, context_mode = args$context_mode, targets = targets,
                      feature_sets = available, folds = args$folds, repeats = args$repeats,
                      train_variant = args$train_variant, test_variant = args$test_variant,
                      frequency_family = args$frequency_family,

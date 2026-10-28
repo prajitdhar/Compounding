@@ -158,6 +158,55 @@ class RegressionInputTestData(unittest.TestCase):
 
 
 class RegressionSnapshotTests(RegressionInputTestData):
+    def test_snapshot_accepts_the_direct_feature_output_directory(self):
+        direct = self.root / "analysis-feature-output"
+        self.mode.rename(direct)
+        self.features_root = direct
+        state = self.snapshot()
+        self.assertTrue(all(Path(record["source"]).parent == direct
+                            for record in state["identity"]["files"].values()))
+        self.adapter.verify_snapshot(self.snapshot_root)
+
+    def test_coha_context_snapshots_preserve_identity_and_reject_cross_study_reuse(self):
+        for mode in ("local5", "sentence"):
+            with self.subTest(context_mode=mode):
+                if self.mode.name != mode:
+                    destination = self.features_root / mode
+                    self.mode.rename(destination)
+                    self.mode = destination
+                self.snapshot_root = self.root / f"snapshot-{mode}"
+                for key, previous in list(self.manifests.items()):
+                    path = self.mode / previous.name
+                    value = json.loads(path.read_text())
+                    value.update(corpus="coha", context_mode=mode)
+                    block = value["source_info"]
+                    block["corpus"] = {"name": "COHA", "release": None}
+                    block["parameters"]["corpus"] = "coha"
+                    block["parameters"]["context_mode"] = mode
+                    for record in block["outputs"]:
+                        record["path"] = str(self.mode / Path(record["path"]).name)
+                    path.write_text(json.dumps(value))
+                    self.manifests[key] = path
+                state = self.snapshot(self.args("--corpus", "coha", "--context-mode", mode))
+                self.assertEqual(state["identity"]["corpus"], "coha")
+                self.assertEqual(state["identity"]["context_mode"], mode)
+                self.assertEqual(len(list((self.snapshot_root / mode).glob("*.csv"))), 6)
+                self.adapter.verify_snapshot(self.snapshot_root, corpus="coha", context_mode=mode)
+                with self.assertRaisesRegex(ValueError, "differs"):
+                    self.adapter.verify_snapshot(self.snapshot_root, corpus="google")
+                with self.assertRaisesRegex(ValueError, "differs"):
+                    self.adapter.verify_snapshot(self.snapshot_root,
+                        context_mode="sentence" if mode == "local5" else "local5")
+
+    def test_snapshot_rejects_wrong_or_contradictory_corpus_manifests(self):
+        with self.assertRaisesRegex(ValueError, "Incompatible"):
+            self.snapshot(self.args("--corpus", "coha"))
+        self.mutate_manifest(("features", "Tagged", 10000),
+                             lambda value: value.update(corpus="coha"))
+        with self.assertRaisesRegex(ValueError, "contradictory"):
+            self.snapshot()
+        self.assertFalse((self.snapshot_root / "READY").exists())
+
     def test_filename_matches_latest_coha_r_specification(self):
         self.assertEqual(self.adapter.feature_filename(
             "features", "Aware", "RAW", "Tagged", 3000, 50, 10),

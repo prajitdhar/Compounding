@@ -75,6 +75,22 @@ class RegressionLauncherTests(unittest.TestCase):
     def events(self):
         return [json.loads(line) for line in self.events_path.read_text().splitlines()]
 
+    def test_coha_sentence_plan_and_snapshot_verification_use_the_same_mode(self):
+        options = dict(CORPUS="coha", MODES="sentence", TAGGINGS="UnTagged",
+                       VOCABS="1000", WEIGHTINGS="RAW", SETTINGS="Agnostic")
+        plan = self.run_grid("plan", **options)
+        self.assertEqual(plan.returncode, 0, plan.stderr)
+        command = shlex.split(plan.stdout.strip())
+        self.assertEqual(command[command.index("--corpus") + 1], "coha")
+        self.assertEqual(command[command.index("--context-mode") + 1], "sentence")
+        checked = self.run_grid("check", **options)
+        self.assertEqual(checked.returncode, 0, checked.stderr)
+        verify, fit = self.events()
+        self.assertEqual(verify["args"][verify["args"].index("--corpus") + 1], "coha")
+        self.assertEqual(verify["args"][verify["args"].index("--context-mode") + 1], "sentence")
+        self.assertEqual(fit["args"][fit["args"].index("--context-mode") + 1], "sentence")
+        self.assertEqual(fit["args"][fit["args"].index("--corpus") + 1], "coha")
+
     def test_default_plan_is_complete_and_read_only(self):
         result = self.run_grid("plan")
         self.assertEqual(result.returncode, 0, result.stderr)

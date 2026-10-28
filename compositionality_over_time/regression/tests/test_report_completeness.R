@@ -11,7 +11,7 @@ main <- function() {
   on.exit(unlink(task_root, recursive = TRUE), add = TRUE)
   input_root <- file.path(task_root, "inputs")
   output_root <- file.path(task_root, "results")
-  Sys.setenv(GRID_MODES = "local5", GRID_VOCABS = "5000", GRID_WEIGHTINGS = "RAW",
+  Sys.setenv(GRID_CORPUS = "google", GRID_MODES = "local5", GRID_VOCABS = "5000", GRID_WEIGHTINGS = "RAW",
     GRID_SETTINGS = "Agnostic", GRID_TAGGINGS = "UnTagged Tagged", GRID_TIMESPANS = "10000,50",
     GRID_CUTOFFS = "0 10", GRID_TARGETS = "compound", GRID_TRAIN_VARIANT = "modified", GRID_TEST_VARIANT = "modified")
   Sys.unsetenv(c("GRID_FOLDS", "GRID_REPEATS", "GRID_ALPHA_COUNT", "GRID_LAMBDA_COUNT", "GRID_PERMUTATIONS"))
@@ -31,6 +31,7 @@ main <- function() {
         frequency_family = "freq", productivity_family = "prod", impute = "fold_median")
       for (path in paths) write.csv(scores, path, row.names = FALSE)
       saveRDS(list(input_md5 = unname(tools::md5sum(inputs)), code_md5 = code_md5,
+        corpus = "google", context_mode = "local5",
         targets = "compound", feature_sets = c("all", "sim_cpf_beta"), train_variant = "modified", test_variant = "modified",
         folds = 5L, repeats = 10L, alpha_count = 10L, lambda_count = 200L, permutations = 5L,
         frequency_family = "freq", productivity_family = "prod"),

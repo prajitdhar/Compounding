@@ -12,6 +12,7 @@ tested. From repository root:
 ```bash
 python -m unittest discover -s tests -v
 python -m unittest discover -s google_preprocessing/tests -v
+python -m unittest discover -s coha_preprocessing/tests -v
 python -m unittest discover -s compositionality_over_time/tests -v
 python -m unittest discover -s novel_compound_predictor/tests -v
 ```
@@ -23,6 +24,9 @@ representation/prediction workflows. Optional checks report an explicit skip
 when their local dependencies are unavailable.
 
 The examples in each project's guide provide short command-line smoke tests.
+The COHA suite uses synthetic text and controlled spaCy documents/models; it
+does not download a language model. The optional COHA example accepts an
+installed English spaCy model to exercise actual annotation.
 
 ## R
 
@@ -46,6 +50,10 @@ These tests check training-only preprocessing, rating-roster selection,
 reported statistics, model freezing, trajectory predictions and exact
 checkpoint identities. Synthetic resampling cases can produce non-fatal
 warnings; failed assertions and nonzero exit statuses require investigation.
+
+`test_regression_corpus_modes.R` checks both COHA context modes and completion
+receipts using fabricated data in temporary directories; it is not needed for
+ordinary pipeline runs.
 
 ## Source-tree checks
 

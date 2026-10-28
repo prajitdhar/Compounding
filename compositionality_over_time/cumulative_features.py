@@ -94,6 +94,12 @@ def read_specification(args):
     complete = base._read_marker(complete_path)
     if not complete or complete.get("fingerprint") != base._digest(identity):
         raise RuntimeError("Existing Google preparation is incomplete or has an incompatible identity")
+    corpus = identity.get("corpus", complete.get("source_info", {}).get("corpus", {}))
+    if (str(corpus.get("name", "")).strip().casefold() in
+            ("coha", "corpus of historical american english")
+            or identity.get("context_mode", "local5") != "local5"):
+        raise ValueError("Cumulative workflows support Google local5 preparations only; "
+                         "use features.py for COHA static and temporal features")
     if identity.get("version") != base.VERSION or identity.get("tagged_targets") is not False:
         raise ValueError("Cumulative UnTagged features require the current all-POS raw preparation")
     if identity.get("compound_population") != "all_lexical_bigrams":

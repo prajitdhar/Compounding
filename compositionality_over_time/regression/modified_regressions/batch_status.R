@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# Read-only checkpoint inspection for the fine-grained Google batch planner.
+# Read-only checkpoint inspection for the fine-grained regression batch planner.
 # Keep this separate from the fitter: its recorded code MD5s must not change
 # when the scheduling policy changes. Only the requested TSV output is written.
 
@@ -43,7 +43,8 @@ google_v3_status_task <- function(row) {
     }
   }
   row$context_mode <- if (is.null(row$context_mode)) "local5" else row$context_mode
-  if (!identical(row$context_mode, "local5")) stop("Google supports local5 only")
+  row$corpus <- if (is.null(row$corpus)) "google" else row$corpus
+  coha_v3_validate_study(row$corpus, row$context_mode)
   choices <- list(tagging = c("UnTagged", "Tagged"), weight = c("RAW", "PPMI"),
                   setting = c("Agnostic", "Aware", "Pooled"),
                   frequency_family = c("freq", "tf", "log_freq"),
@@ -68,8 +69,8 @@ google_v3_status_task <- function(row) {
 }
 
 google_v3_status_suffix <- function(task, pattern) {
-  suffix <- sprintf("google_v3_%s_ctx%s_%s_%s_%s_%s_%s_%s_%s_%s",
-                    task$context_mode, task$vocab, task$tagging, task$weight,
+  suffix <- sprintf("%s_v3_%s_ctx%s_%s_%s_%s_%s_%s_%s_%s_%s",
+                    task$corpus, task$context_mode, task$vocab, task$tagging, task$weight,
                     task$setting, task$timespan, task$cutoff, pattern,
                     task$frequency_family, task$productivity_family)
   if (task$train_variant != "original" || task$test_variant != "original") {
@@ -94,7 +95,8 @@ google_v3_status_config <- function(task, input_md5, code_md5) {
     setdiff(task$feature_sets, c("all_static", "temporal", coha_v3_feature_groups$temporal))
   } else task$feature_sets
   # Field order and integer/vector types match the fitter's saveRDS() exactly.
-  list(input_md5 = unname(input_md5), code_md5 = unname(code_md5), targets = task$targets,
+  list(input_md5 = unname(input_md5), code_md5 = unname(code_md5),
+       corpus = task$corpus, context_mode = task$context_mode, targets = task$targets,
        feature_sets = available, folds = task$folds, repeats = task$repeats,
        train_variant = task$train_variant, test_variant = task$test_variant,
        frequency_family = task$frequency_family,

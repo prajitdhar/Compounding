@@ -1,7 +1,8 @@
 # Regression experiments
 
 This stage analyses compositionality features; it does not preprocess a corpus.
-Complete [preprocessing](../google_preprocessing/README.md) and
+Complete [Google](../google_preprocessing/README.md) or
+[COHA preprocessing](../coha_preprocessing/README.md), then
 [feature generation](FEATURES.md) first. Commands below run from repository root.
 
 ## Environment and immutable inputs
@@ -26,6 +27,29 @@ bash compositionality_over_time/run_regressions.sh plan
 Override `INPUT_ROOT`, `OUT`, `VOCABS`, `SETTINGS`,
 `WEIGHTINGS`, `TAGGINGS`, `TIMESPANS` and `CUTOFFS` for the intended grid.
 Prepare the snapshot before fitting and keep outputs separate from inputs.
+
+For COHA sentence features, select the corpus and mode explicitly when freezing
+the snapshot and dispatching the regression grid:
+
+```bash
+python compositionality_over_time/regression_inputs.py snapshot \
+  --corpus coha --context-mode sentence \
+  --features-root "$FEATURE_OUTPUT" --snapshot-root "$INPUT_ROOT"
+
+export CORPUS=coha MODES=sentence
+export INPUT_ROOT OUT
+bash compositionality_over_time/run_regressions.sh plan
+bash compositionality_over_time/run_regressions.sh check
+bash compositionality_over_time/run_regressions.sh fit
+```
+
+Set `INPUT_ROOT` and `OUT` to separate COHA snapshot and result directories before
+running these commands. Use `local5` instead of `sentence` for COHA local-window
+features. Each snapshot contains one corpus/context mode; use separate roots
+when comparing corpora or modes. Google defaults remain `CORPUS=google` and
+`MODES=local5`. The model fitting and evaluation definitions below apply to both
+corpora. Cumulative longitudinal support has the scope described in
+[LONGITUDINAL.md](LONGITUDINAL.md).
 
 ## Models and interpretation
 
@@ -74,6 +98,10 @@ Rscript compositionality_over_time/regression/modified_regressions/regression_ex
   --ppmi PPMI --tagging UnTagged --timespans 10000,10 --cutoffs 0 \
   --targets compound --feature-sets all
 ```
+
+This direct R example uses Google defaults. For COHA, add `--corpus coha` and
+select `--context-mode sentence` or `--context-mode local5` to match the snapshot.
+Result filenames and completion receipts use the selected corpus prefix.
 
 For fine-grained reuse, `regression_batches.py` can create an immutable plan and
 run an explicitly selected task index locally. Its `plan`, `verify` and `run`

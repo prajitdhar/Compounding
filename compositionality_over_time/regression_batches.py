@@ -25,7 +25,7 @@ import subprocess
 import sys
 import tempfile
 
-from regression_inputs import feature_filename, verify_snapshot
+from regression_inputs import feature_filename, verify_snapshot, validate_study
 
 DIRECTORY = Path(__file__).resolve().parent
 R_DIRECTORY = DIRECTORY / "regression" / "modified_regressions"
@@ -42,7 +42,7 @@ DEFAULT_GRID = {"TAGGINGS": ["UnTagged", "Tagged"],
 TASK_FIELDS = ["task_id", "tagging", "vocab", "weight", "setting", "timespan", "cutoff",
                "input_root", "out", "feature_sets", "targets", "frequency_family",
                "productivity_family", "folds", "repeats", "alpha_count", "lambda_count",
-               "permutations", "train_variant", "test_variant", "context_mode"]
+               "permutations", "train_variant", "test_variant", "context_mode", "corpus"]
 
 
 def _hash(path):
@@ -76,8 +76,10 @@ def configuration(environ=None):
         raise ValueError("The resumable batcher never forces replacement of completed fits")
     if _integer(env.get("CORES", "1"), "CORES") != 1 or _integer(env.get("JOBS", "1"), "JOBS") != 1:
         raise ValueError("Batched tasks require CORES=1 and JOBS=1; parallelism is across tasks")
-    if env.get("MODES", "local5") != "local5" or env.get("REFERENCE_MODE", "local5") != "local5":
-        raise ValueError("Google supports local5 only")
+    corpus, context_mode = env.get("CORPUS", "google"), env.get("MODES", "local5")
+    validate_study(corpus, context_mode)
+    if env.get("REFERENCE_MODE", context_mode) != context_mode:
+        raise ValueError("REFERENCE_MODE must match the snapshot context mode")
     grid = {}
     for name, default in DEFAULT_GRID.items():
         values = _words(env.get(name, " ".join(map(str, default))))
@@ -114,19 +116,21 @@ def configuration(environ=None):
                  "setting": env.get("REFERENCE_SETTING", "Agnostic")}
     if reference["weight"] not in DEFAULT_GRID["WEIGHTINGS"] or reference["setting"] not in DEFAULT_GRID["SETTINGS"]:
         raise ValueError("Invalid reference weighting/setting")
-    out = Path(env.get("OUT", "runs/compositionality/regressions/results" + ("_pilot" if pilot else ""))).resolve()
+    study_root = "runs/compositionality" + (f"/coha_{context_mode}" if corpus == "coha" else "")
+    out = Path(env.get("OUT", study_root + "/regressions/results" + ("_pilot" if pilot else ""))).resolve()
     executable = env.get("RSCRIPT_BIN", "Rscript")
     rscript = Path(shutil.which(executable) or executable).resolve()
     return {"grid": grid, "flags": flags, "targets": targets, "tuning": tuning,
+            "corpus": corpus, "context_mode": context_mode,
             "variants": variants, "reference": reference, "pilot": bool(pilot),
-            "input_root": str(Path(env.get("INPUT_ROOT", "runs/compositionality/regressions/inputs_snapshot")).resolve()),
+            "input_root": str(Path(env.get("INPUT_ROOT", study_root + "/regressions/inputs_snapshot")).resolve()),
             "out": str(out), "rscript": str(rscript)}
 
 
 def _task_id(task):
     # Lock identity matches output filenames, not requested tuning/recipe. Two
     # incompatible studies must not concurrently write the same named outputs.
-    keys = ["tagging", "vocab", "weight", "setting", "timespan", "cutoff",
+    keys = ["corpus", "context_mode", "tagging", "vocab", "weight", "setting", "timespan", "cutoff",
             "frequency_family", "productivity_family", "train_variant", "test_variant"]
     return _digest({key: task[key] for key in keys})[:24]
 
@@ -155,7 +159,8 @@ def tasks_for(config):
                         "timespan": width, "cutoff": cutoff, "frequency_family": frequency,
                         "productivity_family": productivity, "feature_sets": ",".join(feature_sets),
                         "targets": ",".join(config["targets"]), "input_root": config["input_root"],
-                        "out": config["out"], "context_mode": "local5",
+                        "out": config["out"], "context_mode": config["context_mode"],
+                        "corpus": config["corpus"],
                         **config["tuning"], **config["variants"]}
                 task["task_id"] = _task_id(task)
                 tasks.append(task)
@@ -242,7 +247,8 @@ def create_plan(config, plan_root=None, dry_run=False):
         raise ValueError(f"Rscript is not executable: {rscript}")
     tasks = tasks_for(config)
     with contextlib.redirect_stdout(sys.stderr):
-        snapshot = verify_snapshot(config["input_root"], _input_names(tasks))
+        snapshot = verify_snapshot(config["input_root"], _input_names(tasks),
+            corpus=config["corpus"], context_mode=config["context_mode"])
     statuses = checkpoint_status(tasks, config["rscript"])
     _compatible(statuses)
     pending = [task for task in tasks if statuses[task["task_id"]]["status"] != "completed"]
@@ -311,7 +317,7 @@ def _load_plan(path):
 
 def lock_paths(task):
     root = Path(task["out"]) / "logs"
-    coarse = root / (f"local5_ctx{task['vocab']}_{task['weight']}_{task['setting']}_"
+    coarse = root / (f"{task['corpus']}_{task['context_mode']}_ctx{task['vocab']}_{task['weight']}_{task['setting']}_"
                      f"{task['frequency_family']}_{task['productivity_family']}_{task['tagging']}_"
                      f"train{task['train_variant']}_test{task['test_variant']}.lock")
     return coarse, root / ".batch_locks" / (task["task_id"] + ".lock")
@@ -363,7 +369,8 @@ def verify_plan(path, require_idle=False):
     config = plan["identity"]["config"]
     if tasks:
         with contextlib.redirect_stdout(sys.stderr):
-            verify_snapshot(config["input_root"], _input_names(tasks))
+            verify_snapshot(config["input_root"], _input_names(tasks),
+                corpus=config["corpus"], context_mode=config["context_mode"])
         statuses = checkpoint_status(tasks, config["rscript"])
         _compatible(statuses)
         if require_idle:
@@ -375,7 +382,8 @@ def verify_plan(path, require_idle=False):
 
 def command_for(task, config):
     flags = [("--input-root", task["input_root"]), ("--output-dir", task["out"]),
-             ("--context-mode", "local5"), ("--context-size", task["vocab"]),
+             ("--corpus", config["corpus"]),
+             ("--context-mode", task["context_mode"]), ("--context-size", task["vocab"]),
              ("--ppmi", task["weight"]), ("--setting", task["setting"]),
              ("--tagging", task["tagging"]), ("--timespans", task["timespan"]),
              ("--cutoffs", task["cutoff"]), ("--targets", task["targets"]),
@@ -429,7 +437,8 @@ def run_task(path, task_index):
     task = tasks[index]
     with task_locks([task]):
         with contextlib.redirect_stdout(sys.stderr):
-            verify_snapshot(config["input_root"], _input_names([task]))
+            verify_snapshot(config["input_root"], _input_names([task]),
+                corpus=config["corpus"], context_mode=config["context_mode"])
         statuses = checkpoint_status([task], config["rscript"])
         _compatible(statuses)
         reused = statuses[task["task_id"]]["status"] == "completed"

@@ -45,6 +45,24 @@ def flag_map(command):
 
 @unittest.skipIf(batches is None, "Google regression adapter dependencies are unavailable")
 class RegressionBatchConfigurationTests(unittest.TestCase):
+    def test_coha_context_modes_reach_fitter_and_separate_output_locks(self):
+        tasks = []
+        for mode in ("sentence", "local5"):
+            config = batches.configuration(dict(CORPUS="coha", MODES=mode))
+            task = batches.tasks_for(config)[0]
+            tasks.append(task)
+            self.assertEqual(config["corpus"], "coha")
+            self.assertEqual(task["context_mode"], mode)
+            self.assertEqual(flag_map(batches.command_for(task, config))["--corpus"], "coha")
+            self.assertEqual(flag_map(batches.command_for(task, config))["--context-mode"], mode)
+            self.assertIn(f"coha_{mode}", config["input_root"])
+            self.assertTrue(batches.lock_paths(task)[0].name.startswith("coha_" + mode + "_ctx"))
+        self.assertNotEqual(tasks[0]["task_id"], tasks[1]["task_id"])
+        for env in (dict(CORPUS="other"), dict(CORPUS="coha", MODES="sentence local5"),
+                    dict(CORPUS="coha", MODES="sentence", REFERENCE_MODE="local5")):
+            with self.subTest(env=env), self.assertRaises(ValueError):
+                batches.configuration(env)
+
     def test_default_grid_cells_patterns_and_ordered_targets(self):
         config = batches.configuration({})
         tasks = batches.tasks_for(config)

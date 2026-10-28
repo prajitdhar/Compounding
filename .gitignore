@@ -7,6 +7,13 @@
 **/logs/
 **/checkpoints/
 **/scratch/
+**/prepared/
+**/extracted/
+*.source_info.json
+**/prepared_manifest.json
+**/extraction_manifest.json
+**/corpus_manifest.json
+.vocabulary_tmp/
 *.csv
 *.tsv
 *.parquet

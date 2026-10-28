@@ -1,0 +1,13 @@
+modifier,head,time,context,count
+oil_NOUN,field_NOUN,1980,land_NOUN,3
+oil_NOUN,field_NOUN,1980,energy_NOUN,1
+oil_NOUN,field_NOUN,1990,land_NOUN,2
+gas_NOUN,plant_NOUN,1980,energy_NOUN,4
+gas_NOUN,plant_NOUN,1990,green_ADJ,3
+water_NOUN,tank_NOUN,1980,water_NOUN,5
+water_NOUN,tank_NOUN,1990,land_NOUN,2
+solar_NOUN,panel_NOUN,1980,energy_NOUN,4
+solar_NOUN,panel_NOUN,1990,green_ADJ,2
+oil_NOUN,plant_NOUN,2000,FUTURE_ONLY_NOUN,1000
+gas_NOUN,tank_NOUN,2000,FUTURE_ONLY_NOUN,1000
+water_NOUN,panel_NOUN,2000,FUTURE_ONLY_NOUN,1000

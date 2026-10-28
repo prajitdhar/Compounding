@@ -8,11 +8,17 @@ project.
 
 ## Required preprocessing
 
-First complete the separate [Google preprocessing project](../google_preprocessing/README.md).
-The output supplies four Parquet tables, including
+First complete [Google preprocessing](../google_preprocessing/README.md) or
+[COHA preprocessing](../coha_preprocessing/README.md).
+Either output supplies four Parquet tables, including
 `bigram_counts.parquet`, and a fixed context vocabulary. Both this project and
 novel-compound prediction can consume those outputs without rerunning
 preprocessing for every analysis configuration.
+
+Select `extracted/feature_inputs/local5/` for Google or COHA local-window
+contexts, or `extracted/feature_inputs/sentence/` for COHA sentence contexts.
+The manifest identifies the corpus and context mode. Keep separate caches and
+output directories for each corpus, context mode and target-tagging choice.
 
 From repository root, install the analysis dependencies:
 
@@ -20,7 +26,8 @@ From repository root, install the analysis dependencies:
 python -m pip install -e '.[compositionality]'
 ```
 
-The extra covers Python preprocessing/analysis dependencies, not corpora,
+Add the `coha` extra when preparing COHA text: `.[coha,compositionality]`.
+The extras cover Python dependencies, not corpora,
 language models or R packages. Actual human ratings must be obtained separately.
 Test results are toy examples, not actual human judgments.
 
@@ -32,6 +39,9 @@ Test results are toy examples, not actual human judgments.
    fit training-CV-tuned models and summarise held-out results.
 3. [Longitudinal analysis](LONGITUDINAL.md): freeze a modern model and evaluate
    cumulative historical aggregations, then fit descriptive growth models.
+
+The ordinary feature and regression workflow supports COHA and Google inputs.
+Cumulative longitudinal programs currently support Google `local5` only.
 
 Maintained command-line programs live directly in this directory. R
 implementations are under `regression/`. The small
